@@ -1,0 +1,45 @@
+# Gradle
+.gradle/
+build/
+**/build/
+
+# Kotlin
+.kotlin/
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Xcode
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcuserdatad/
+*.xcuserstate
+
+# Local configuration
+local.properties
+
+# Logs
+*.log
+
+# OS files
+Thumbs.db
+
+# Kotlin Native
+konan/
+
+# Generated files
+captures/
+
+# Fastlane (if you add it later)
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Firebase (if generated locally)
+google-services.json
+GoogleService-Info.plist
