@@ -1,28 +1,19 @@
 package com.iolandarosa.retailhub
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.iolandarosa.retailhub.core.theme.RetailHubTheme
 import com.iolandarosa.retailhub.features.auth.presentation.login.LoginScreen
 
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
-         Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            LoginScreen()
+    RetailHubTheme {
+        Scaffold(Modifier.fillMaxSize()) { innerPadding ->
+            LoginScreen(paddingValues = innerPadding)
         }
     }
 }
