@@ -1,0 +1,9 @@
+<resources>
+    <string name="introduce_credentials_description">Please introduce your credentials to sign in</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_in_to_continue">Sign in to continue</string>
+    <string name="username">Username</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="requiredField">Required field</string>
+</resources>
