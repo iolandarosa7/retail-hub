@@ -1,8 +1,18 @@
 package com.iolandarosa.retailhub.features.auth.presentation.login
 
-sealed class LoginUiState {
-    data object Initial: LoginUiState()
-    data object Loading: LoginUiState()
-    data object Error: LoginUiState()
-    data object Success: LoginUiState()
+import com.iolandarosa.retailhub.core.models.FormFieldData
+
+sealed class LoginRequestState {
+    data object Initial: LoginRequestState()
+    data object Loading: LoginRequestState()
+    data object Success: LoginRequestState()
+
+    data class Error(val errorMessage: String) : LoginRequestState()
 }
+
+data class LoginUiState(
+    val username: FormFieldData<String> = FormFieldData(value = ""),
+    val password: FormFieldData<String> = FormFieldData(value = ""),
+    val loginRequest: LoginRequestState = LoginRequestState.Initial,
+)
+

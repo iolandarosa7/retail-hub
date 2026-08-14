@@ -14,4 +14,6 @@ object Dimens {
     val CornerRadiusSmall = 8.dp
     val CornerRadiusMedium = 16.dp
     val CornerRadiusLarge = 24.dp
+
+    val SizeMedium = 16.dp
 }
