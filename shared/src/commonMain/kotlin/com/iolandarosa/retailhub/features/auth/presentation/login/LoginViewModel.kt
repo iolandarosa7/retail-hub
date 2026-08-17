@@ -2,9 +2,13 @@ package com.iolandarosa.retailhub.features.auth.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iolandarosa.retailhub.core.extensions.toUiError
 import com.iolandarosa.retailhub.core.models.FormFieldData
 import com.iolandarosa.retailhub.core.models.NetworkResult
 import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCase
+import com.iolandarosa.retailhub.core.validation.ValidationError
+import com.iolandarosa.retailhub.core.validation.ValidationResult
+import com.iolandarosa.retailhub.core.validation.Validators
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -26,19 +30,19 @@ class LoginViewModel(
     }
 
     private fun validateForm(username: String, password: String): Boolean {
-        var isValid = true
+        val usernameResult = Validators.validateRequired(username)
+        val passwordResult = Validators.validateRequired(password)
 
-        if (username.isBlank()) {
-            isValid = false
-            _state.value = _state.value.copy(username = FormFieldData(username, errorStringId = Res.string.requiredField))
-        }
+        _state.value = _state.value.copy(
+            username = _state.value.username.copy(
+                errorStringId = if (usernameResult is ValidationResult.Invalid) Res.string.requiredField else null
+            ),
+            password = _state.value.password.copy(
+                errorStringId = if (passwordResult is ValidationResult.Invalid) Res.string.requiredField else null
+            )
+        )
 
-        if (password.isBlank()) {
-            isValid = false
-            _state.value = _state.value.copy(password = FormFieldData(password, errorStringId = Res.string.requiredField))
-        }
-
-        return isValid
+        return usernameResult is ValidationResult.Valid && passwordResult is ValidationResult.Valid
     }
 
     fun login() {
@@ -54,7 +58,7 @@ class LoginViewModel(
         viewModelScope.launch {
             when(val response = loginUseCase(username = username, password = password)) {
                 is NetworkResult.Failure -> {
-                    _state.value = _state.value.copy(loginRequest = LoginRequestState.Error(errorMessage = response.errorMessage))
+                    _state.value = _state.value.copy(loginRequest = LoginRequestState.Error(error = response.toUiError()))
                 }
                 is NetworkResult.Success -> _state.value = _state.value.copy(loginRequest = LoginRequestState.Success)
             }

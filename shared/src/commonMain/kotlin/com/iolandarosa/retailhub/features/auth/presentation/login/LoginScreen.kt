@@ -127,9 +127,9 @@ fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinVi
                     )
 
                     AnimatedVisibility(visible = state.loginRequest is LoginRequestState.Error) {
-                        (state.loginRequest as? LoginRequestState.Error)?.errorMessage?.let {
+                        (state.loginRequest as? LoginRequestState.Error)?.error?.let {
                             Text(
-                                it,
+                                it.description ?: stringResource(it.descriptionId),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.secondary
                             )
