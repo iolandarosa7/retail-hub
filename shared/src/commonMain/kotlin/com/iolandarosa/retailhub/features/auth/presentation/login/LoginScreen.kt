@@ -112,7 +112,7 @@ fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinVi
                             Text(
                                 it.description ?: stringResource(it.descriptionId),
                                 style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.secondary
+                                color = MaterialTheme.colorScheme.error
                             )
                         }
                     }

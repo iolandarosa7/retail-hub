@@ -25,7 +25,7 @@ object LoginForm {
     ) = listOf(
         TextFormField(
             name = USERNAME,
-            validators = listOf(Email(Res.string.error_email_format)),
+            validators = listOf(Required(Res.string.error_required_field)),
             labelResId = Res.string.username,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next)
         ),

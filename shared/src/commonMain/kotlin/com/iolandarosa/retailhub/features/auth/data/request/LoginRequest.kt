@@ -1,4 +1,4 @@
-package com.iolandarosa.retailhub.features.auth.data.requests
+package com.iolandarosa.retailhub.features.auth.data.request
 
 import kotlinx.serialization.Serializable
 
