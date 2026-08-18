@@ -5,8 +5,8 @@
     <string name="sign_in_to_continue">Sign in to continue</string>
     <string name="username">Username</string>
     <string name="welcome_back">Welcome Back</string>
-    <string name="requiredField">Required field</string>
-
+    <string name="error_required_field">Required field</string>
+    <string name="error_email_format">Invalid email format</string>
     <string name="error_forbidden">You don’t have permission to perform this action.</string>
     <string name="error_no_internet">No internet connection. Please check your connection and try again.</string>
     <string name="error_serialization">We couldn’t process the response. Please try again.</string>

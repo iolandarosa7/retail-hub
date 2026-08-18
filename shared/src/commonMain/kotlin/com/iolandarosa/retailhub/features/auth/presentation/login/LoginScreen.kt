@@ -30,10 +30,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.iolandarosa.retailhub.core.forms.components.FormFieldRenderer
 import com.iolandarosa.retailhub.core.theme.Dimens
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -100,31 +99,13 @@ fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinVi
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.secondary
                     )
-                    OutlinedTextField(
-                        value = state.username.value,
-                        onValueChange = viewModel::onUsernameChanged,
-                        label = { Text(stringResource(Res.string.username))},
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-                        isError = state.username.errorStringId != null,
-                        supportingText = {
-                            state.username.errorStringId?.let { Text(stringResource(it)) }
-                        }
-                    )
-                    OutlinedTextField(
-                        value = state.password.value,
-                        onValueChange = viewModel::onPasswordChanged,
-                        label = { Text(stringResource(Res.string.password))},
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(onDone = {
-                            keyboardController?.hide()
-                            viewModel.login()
-                        }),
-                        visualTransformation = PasswordVisualTransformation(),
-                        isError = state.password.errorStringId != null,
-                        supportingText = {
-                            state.password.errorStringId?.let { Text(stringResource(it)) }
-                        }
-                    )
+                    
+                    state.formState.fields.forEach { field ->
+                        FormFieldRenderer(
+                            field = field,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
 
                     AnimatedVisibility(visible = state.loginRequest is LoginRequestState.Error) {
                         (state.loginRequest as? LoginRequestState.Error)?.error?.let {
