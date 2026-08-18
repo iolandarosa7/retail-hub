@@ -8,7 +8,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.iolandarosa.retailhub.core.forms.FormField
 import com.iolandarosa.retailhub.core.forms.fields.TextFormField
-import com.iolandarosa.retailhub.core.forms.validators.strings.Email
 import com.iolandarosa.retailhub.core.forms.validators.strings.Required
 import retailhub.shared.generated.resources.Res
 import retailhub.shared.generated.resources.error_email_format
