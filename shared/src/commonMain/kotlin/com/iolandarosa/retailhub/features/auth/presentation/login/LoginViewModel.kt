@@ -2,9 +2,9 @@ package com.iolandarosa.retailhub.features.auth.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.iolandarosa.retailhub.core.extensions.toUiError
+import com.iolandarosa.retailhub.core.common.model.NetworkResult
 import com.iolandarosa.retailhub.core.forms.FormState
-import com.iolandarosa.retailhub.core.models.NetworkResult
+import com.iolandarosa.retailhub.core.ui.extensions.toUiError
 import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

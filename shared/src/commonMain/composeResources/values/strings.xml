@@ -7,11 +7,4 @@
     <string name="welcome_back">Welcome Back</string>
     <string name="error_required_field">Required field</string>
     <string name="error_email_format">Invalid email format</string>
-    <string name="error_forbidden">You don’t have permission to perform this action.</string>
-    <string name="error_no_internet">No internet connection. Please check your connection and try again.</string>
-    <string name="error_serialization">We couldn’t process the response. Please try again.</string>
-    <string name="error_server">Something went wrong on our server. Please try again later.</string>
-    <string name="error_timeout">The request took too long. Please try again.</string>
-    <string name="error_unauthorized">Your session has expired. Please sign in again.</string>
-    <string name="error_unknown">Something went wrong. Please try again.</string>
 </resources>

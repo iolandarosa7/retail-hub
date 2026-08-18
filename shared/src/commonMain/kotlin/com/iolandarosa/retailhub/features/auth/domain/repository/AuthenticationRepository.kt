@@ -1,6 +1,6 @@
 package com.iolandarosa.retailhub.features.auth.domain.repository
 
-import com.iolandarosa.retailhub.core.models.NetworkResult
+import com.iolandarosa.retailhub.core.common.model.NetworkResult
 import com.iolandarosa.retailhub.features.auth.domain.model.User
 
 interface AuthenticationRepository {
