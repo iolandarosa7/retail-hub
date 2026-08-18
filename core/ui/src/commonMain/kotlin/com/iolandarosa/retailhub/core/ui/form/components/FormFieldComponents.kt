@@ -1,4 +1,4 @@
-package com.iolandarosa.retailhub.core.forms.components
+package com.iolandarosa.retailhub.core.ui.form.components
 
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.OutlinedTextField
@@ -6,8 +6,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import com.iolandarosa.retailhub.core.forms.FormField
-import com.iolandarosa.retailhub.core.forms.fields.TextFormField
+import com.iolandarosa.retailhub.core.ui.form.FormField
+import com.iolandarosa.retailhub.core.ui.form.fields.TextFormField
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

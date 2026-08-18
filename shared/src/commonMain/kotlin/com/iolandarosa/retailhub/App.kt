@@ -5,7 +5,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.iolandarosa.retailhub.core.theme.RetailHubTheme
+import com.iolandarosa.retailhub.core.ui.theme.RetailHubTheme
 import com.iolandarosa.retailhub.features.auth.presentation.login.LoginScreen
 
 @Composable

@@ -1,4 +1,4 @@
-package com.iolandarosa.retailhub.core.theme
+package com.iolandarosa.retailhub.core.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
@@ -7,12 +7,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.Font
-
-import retailhub.shared.generated.resources.Res
-import retailhub.shared.generated.resources.outfit_bold
-import retailhub.shared.generated.resources.outfit_medium
-import retailhub.shared.generated.resources.outfit_regular
-import retailhub.shared.generated.resources.outfit_semibold
+import retailhub.core.ui.generated.resources.Res
+import retailhub.core.ui.generated.resources.outfit_bold
+import retailhub.core.ui.generated.resources.outfit_medium
+import retailhub.core.ui.generated.resources.outfit_regular
+import retailhub.core.ui.generated.resources.outfit_semibold
 
 @Composable
 fun outfitFontFamily(): FontFamily {

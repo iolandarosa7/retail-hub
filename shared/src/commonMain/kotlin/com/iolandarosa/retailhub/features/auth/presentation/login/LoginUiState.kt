@@ -1,7 +1,7 @@
 package com.iolandarosa.retailhub.features.auth.presentation.login
 
-import com.iolandarosa.retailhub.core.forms.FormState
-import com.iolandarosa.retailhub.core.ui.model.UiError
+import com.iolandarosa.retailhub.core.ui.form.FormState
+import com.iolandarosa.retailhub.core.ui.error.UiError
 
 sealed class LoginRequestState {
     data object Initial: LoginRequestState()

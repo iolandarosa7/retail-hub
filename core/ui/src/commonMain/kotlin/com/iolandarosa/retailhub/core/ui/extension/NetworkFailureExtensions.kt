@@ -1,7 +1,7 @@
-package com.iolandarosa.retailhub.core.ui.extensions
+package com.iolandarosa.retailhub.core.ui.extension
 
 import com.iolandarosa.retailhub.core.common.model.NetworkResult
-import com.iolandarosa.retailhub.core.ui.model.UiError
+import com.iolandarosa.retailhub.core.ui.error.UiError
 import retailhub.core.ui.generated.resources.Res
 import retailhub.core.ui.generated.resources.error_forbidden
 import retailhub.core.ui.generated.resources.error_no_internet

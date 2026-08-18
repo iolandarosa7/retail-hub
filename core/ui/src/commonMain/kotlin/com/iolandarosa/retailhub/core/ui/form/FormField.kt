@@ -1,9 +1,9 @@
-package com.iolandarosa.retailhub.core.forms
+package com.iolandarosa.retailhub.core.ui.form
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.iolandarosa.retailhub.core.forms.validators.Validator
+import com.iolandarosa.retailhub.core.ui.form.validators.Validator
 import org.jetbrains.compose.resources.StringResource
 
 abstract class FormField<T>(

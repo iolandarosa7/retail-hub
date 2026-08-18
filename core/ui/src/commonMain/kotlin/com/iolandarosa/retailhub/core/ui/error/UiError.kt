@@ -1,4 +1,4 @@
-package com.iolandarosa.retailhub.core.ui.model
+package com.iolandarosa.retailhub.core.ui.error
 
 import org.jetbrains.compose.resources.StringResource
 import retailhub.core.ui.generated.resources.Res

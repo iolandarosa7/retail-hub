@@ -1,4 +1,4 @@
-package com.iolandarosa.retailhub.core.forms.validators
+package com.iolandarosa.retailhub.core.ui.form.validators
 
 import org.jetbrains.compose.resources.StringResource
 

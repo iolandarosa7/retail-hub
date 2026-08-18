@@ -6,4 +6,5 @@
     <string name="error_timeout">The request took too long. Please try again.</string>
     <string name="error_unauthorized">Your session has expired. Please sign in again.</string>
     <string name="error_unknown">Something went wrong. Please try again.</string>
+    <string name="error_required_field">Required field</string>
 </resources>

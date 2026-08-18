@@ -1,4 +1,4 @@
-package com.iolandarosa.retailhub.core.forms
+package com.iolandarosa.retailhub.core.ui.form
 
 class FormState(val fields: List<FormField<*>>) {
     fun isFormValid(): Boolean {

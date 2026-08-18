@@ -15,14 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,18 +27,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.iolandarosa.retailhub.core.forms.components.FormFieldRenderer
-import com.iolandarosa.retailhub.core.theme.Dimens
+import com.iolandarosa.retailhub.core.ui.form.components.FormFieldRenderer
+import com.iolandarosa.retailhub.core.ui.theme.Dimens
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import retailhub.shared.generated.resources.Res
 import retailhub.shared.generated.resources.introduce_credentials_description
-import retailhub.shared.generated.resources.password
 import retailhub.shared.generated.resources.sign_in
 import retailhub.shared.generated.resources.sign_in_to_continue
-import retailhub.shared.generated.resources.username
 import retailhub.shared.generated.resources.welcome_back
 
 @Composable

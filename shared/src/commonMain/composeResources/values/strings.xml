@@ -5,6 +5,4 @@
     <string name="sign_in_to_continue">Sign in to continue</string>
     <string name="username">Username</string>
     <string name="welcome_back">Welcome Back</string>
-    <string name="error_required_field">Required field</string>
-    <string name="error_email_format">Invalid email format</string>
 </resources>

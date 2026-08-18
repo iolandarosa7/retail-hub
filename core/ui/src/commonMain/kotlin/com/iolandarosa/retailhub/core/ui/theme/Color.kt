@@ -1,4 +1,4 @@
-package com.iolandarosa.retailhub.core.theme
+package com.iolandarosa.retailhub.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
