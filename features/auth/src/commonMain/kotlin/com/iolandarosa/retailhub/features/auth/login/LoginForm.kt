@@ -17,13 +17,15 @@ object LoginForm {
     const val PASSWORD = "password"
 
     fun get(
+        onValueChanged: (String?) -> Unit,
         onActionDone: (KeyboardActionScope) -> Unit,
     ) = listOf(
         TextFormField(
             name = USERNAME,
             validators = listOf(Required()),
             labelResId = Res.string.username,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+            onValueChange = onValueChanged
         ),
         TextFormField(
             name = PASSWORD,
@@ -32,6 +34,7 @@ object LoginForm {
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = onActionDone),
             visualTransformation = PasswordVisualTransformation(),
+            onValueChange = onValueChanged
         )
     )
 }

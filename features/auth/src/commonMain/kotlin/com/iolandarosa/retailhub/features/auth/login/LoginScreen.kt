@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -82,7 +83,7 @@ fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinVi
                 color = MaterialTheme.colorScheme.secondary
             )
 
-            ElevatedCard {
+            ElevatedCard(Modifier.padding(Dimens.PaddingMedium)) {
                 Column(
                     Modifier.padding(Dimens.PaddingMedium),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -93,12 +94,17 @@ fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinVi
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.secondary
                     )
-                    
+
+                    val isEnabled = state.loginRequest !is LoginRequestState.Loading
+
                     state.formState.fields.forEach { field ->
-                        FormFieldRenderer(
-                            field = field,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        key(field.name) {
+                            FormFieldRenderer(
+                                field = field,
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = isEnabled
+                            )
+                        }
                     }
 
                     AnimatedVisibility(visible = state.loginRequest is LoginRequestState.Error) {
@@ -114,7 +120,7 @@ fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinVi
                     Button(
                         onClick = {
                             keyboardController?.hide()
-                            viewModel.login()
+                            viewModel.onIntent(LoginIntent.OnLoginClicked)
                         },
                         enabled = state.loginRequest != LoginRequestState.Loading
                     ) {

@@ -11,16 +11,24 @@ import com.iolandarosa.retailhub.core.ui.form.fields.TextFormField
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun FormFieldRenderer(field: FormField<*>, modifier: Modifier = Modifier) {
+fun FormFieldRenderer(
+    field: FormField<*>,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
     when (field) {
         is TextFormField -> {
-            TextFormFieldComponent(field, modifier)
+            TextFormFieldComponent(field, modifier, enabled)
         }
     }
 }
 
 @Composable
-fun TextFormFieldComponent(field: TextFormField, modifier: Modifier = Modifier) {
+fun TextFormFieldComponent(
+    field: TextFormField,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
     OutlinedTextField(
@@ -30,6 +38,7 @@ fun TextFormFieldComponent(field: TextFormField, modifier: Modifier = Modifier) 
             field.value = it
             field.onValueChange(it)
         },
+        enabled = enabled,
         label = { Text(stringResource(field.labelResId)) },
         keyboardOptions = field.keyboardOptions,
         keyboardActions = KeyboardActions(
@@ -50,6 +59,6 @@ fun TextFormFieldComponent(field: TextFormField, modifier: Modifier = Modifier) 
             }
         },
         visualTransformation = field.visualTransformation,
-        modifier = modifier
+        modifier = modifier,
     )
 }

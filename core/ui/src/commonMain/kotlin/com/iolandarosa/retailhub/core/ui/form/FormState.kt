@@ -1,5 +1,8 @@
 package com.iolandarosa.retailhub.core.ui.form
 
+import androidx.compose.runtime.Stable
+
+@Stable
 class FormState(val fields: List<FormField<*>>) {
     fun isFormValid(): Boolean {
         var valid = true

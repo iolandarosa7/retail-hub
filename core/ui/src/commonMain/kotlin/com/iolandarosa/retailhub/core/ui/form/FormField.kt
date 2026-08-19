@@ -1,11 +1,13 @@
 package com.iolandarosa.retailhub.core.ui.form
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.iolandarosa.retailhub.core.ui.form.validators.Validator
 import org.jetbrains.compose.resources.StringResource
 
+@Stable
 abstract class FormField<T>(
     open val name: String,
     open val validators: List<Validator<T>>,

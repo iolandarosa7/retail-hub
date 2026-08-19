@@ -14,4 +14,5 @@ sealed class LoginRequestState {
 data class LoginUiState(
     val formState: FormState,
     val loginRequest: LoginRequestState = LoginRequestState.Initial,
+    val isInteractionEnabled: Boolean = loginRequest !is LoginRequestState.Loading
 )
