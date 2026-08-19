@@ -1,6 +1,6 @@
 package com.iolandarosa.retailhub.core.network.extensions
 
-import com.iolandarosa.retailhub.core.network.model.NetworkResult
+import com.iolandarosa.retailhub.core.model.NetworkResult
 import io.ktor.client.HttpClient
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.network.sockets.SocketTimeoutException

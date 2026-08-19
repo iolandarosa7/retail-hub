@@ -27,7 +27,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":core:network"))
+            implementation(project(":core:model"))
 
             // Compose
             implementation(libs.compose.runtime)

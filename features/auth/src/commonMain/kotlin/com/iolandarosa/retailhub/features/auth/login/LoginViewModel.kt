@@ -2,7 +2,7 @@ package com.iolandarosa.retailhub.features.auth.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.iolandarosa.retailhub.core.network.model.NetworkResult
+import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.ui.form.FormState
 import com.iolandarosa.retailhub.core.ui.extension.toUiError
 import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCase

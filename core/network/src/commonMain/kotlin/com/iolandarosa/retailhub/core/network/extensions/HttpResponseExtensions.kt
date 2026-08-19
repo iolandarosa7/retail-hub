@@ -1,7 +1,7 @@
 package com.iolandarosa.retailhub.core.network.extensions
 
-import com.iolandarosa.retailhub.core.network.model.ApiErrorResponse
-import com.iolandarosa.retailhub.core.network.model.NetworkResult
+import com.iolandarosa.retailhub.core.model.ApiErrorResponse
+import com.iolandarosa.retailhub.core.model.NetworkResult
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText

@@ -30,6 +30,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":core:ui"))
             implementation(project(":core:network"))
+            implementation(project(":core:model"))
             // ktor
             implementation(libs.ktor.client.core)
             // koin

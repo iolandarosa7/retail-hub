@@ -1,4 +1,4 @@
-package com.iolandarosa.retailhub.core.network.model
+package com.iolandarosa.retailhub.core.model
 
 import kotlinx.serialization.Serializable
 
