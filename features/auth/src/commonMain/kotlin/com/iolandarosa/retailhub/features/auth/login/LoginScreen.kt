@@ -22,8 +22,10 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -42,6 +44,10 @@ import retailhub.features.auth.generated.resources.welcome_back
 @Composable
 fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    val isEnabled by remember { derivedStateOf { state.isInteractionEnabled } }
+    val error by remember { derivedStateOf { state.error } }
+
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Box(
@@ -95,8 +101,6 @@ fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinVi
                         color = MaterialTheme.colorScheme.secondary
                     )
 
-                    val isEnabled = state.loginRequest !is LoginRequestState.Loading
-
                     state.formState.fields.forEach { field ->
                         key(field.name) {
                             FormFieldRenderer(
@@ -107,8 +111,8 @@ fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinVi
                         }
                     }
 
-                    AnimatedVisibility(visible = state.loginRequest is LoginRequestState.Error) {
-                        (state.loginRequest as? LoginRequestState.Error)?.error?.let {
+                    AnimatedVisibility(visible = error != null) {
+                        error?.let {
                             Text(
                                 it.description ?: stringResource(it.descriptionId),
                                 style = MaterialTheme.typography.labelMedium,
@@ -122,9 +126,9 @@ fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinVi
                             keyboardController?.hide()
                             viewModel.onIntent(LoginIntent.OnLoginClicked)
                         },
-                        enabled = state.loginRequest != LoginRequestState.Loading
+                        enabled = isEnabled
                     ) {
-                        if (state.loginRequest == LoginRequestState.Loading) {
+                        if (!isEnabled) {
                             CircularProgressIndicator(Modifier.size(Dimens.SizeMedium))
                             Spacer(Modifier.width(Dimens.SpacingMedium))
                         }
