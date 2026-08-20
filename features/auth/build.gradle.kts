@@ -32,6 +32,7 @@ kotlin {
             implementation(project(":core:ui"))
             implementation(project(":core:network"))
             implementation(project(":core:model"))
+            implementation(project(":core:common"))
             // ktor
             implementation(libs.ktor.client.core)
             // koin

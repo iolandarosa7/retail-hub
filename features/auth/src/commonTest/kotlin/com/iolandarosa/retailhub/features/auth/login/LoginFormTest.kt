@@ -1,0 +1,18 @@
+package com.iolandarosa.retailhub.features.auth.login
+
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class LoginFormTest {
+    @Test
+    fun `get returns username and password fields`() {
+        val fields = LoginForm.get(
+            onValueChanged = {},
+            onActionDone = {}
+        )
+
+        assertEquals(2, fields.size)
+        assertEquals(LoginForm.USERNAME, fields[0].name)
+        assertEquals(LoginForm.PASSWORD, fields[1].name)
+    }
+}

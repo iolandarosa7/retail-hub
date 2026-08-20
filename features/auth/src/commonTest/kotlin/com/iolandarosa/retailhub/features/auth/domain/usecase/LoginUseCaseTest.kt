@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 
 class LoginUseCaseTest {
     private val repository = mock<AuthenticationRepository>()
-    private val useCase = LoginUseCase(repository)
+    private val useCase = LoginUseCaseImpl(repository)
 
     @Test
     fun `repository login returns user when service succeeds`() = runTest {

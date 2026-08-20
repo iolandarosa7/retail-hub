@@ -5,6 +5,7 @@ import com.iolandarosa.retailhub.features.auth.data.remote.AuthRemoteDataSourceI
 import com.iolandarosa.retailhub.features.auth.data.repository.AuthenticationRepositoryImpl
 import com.iolandarosa.retailhub.features.auth.domain.repository.AuthenticationRepository
 import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCase
+import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCaseImpl
 import com.iolandarosa.retailhub.features.auth.login.LoginViewModel
 import org.koin.dsl.module
 import org.koin.core.module.dsl.viewModel
@@ -16,6 +17,6 @@ val authModule = module {
             get()
         )
     }
-    factory { LoginUseCase(get()) }
-    viewModel { LoginViewModel(get()) }
+    factory<LoginUseCase> { LoginUseCaseImpl(get()) }
+    viewModel { LoginViewModel(loginUseCase = get(), dispatcherProvider = get()) }
 }

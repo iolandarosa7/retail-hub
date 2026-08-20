@@ -36,6 +36,7 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.koin.core)
 
+            implementation(project(":core:common"))
             implementation(project(":core:network"))
             implementation(project(":core:ui"))
             implementation(project(":features:auth"))
