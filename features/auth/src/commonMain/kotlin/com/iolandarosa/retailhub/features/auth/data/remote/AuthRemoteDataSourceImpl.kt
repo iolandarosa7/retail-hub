@@ -8,6 +8,8 @@ import com.iolandarosa.retailhub.features.auth.data.request.LoginRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 
 internal class AuthRemoteDataSourceImpl(
     private val client: HttpClient
@@ -15,6 +17,7 @@ internal class AuthRemoteDataSourceImpl(
     override suspend fun login(request: LoginRequest): NetworkResult<UserDto> =
         client.safeRequest {
             post(Endpoints.LOGIN_URL) {
+                contentType(ContentType.Application.Json)
                 setBody(request)
             }
         }
