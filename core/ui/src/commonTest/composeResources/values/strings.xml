@@ -1,0 +1,5 @@
+<resources>
+    <string name="test_label">Test Label</string>
+    <string name="error_test">Error</string>
+    <string name="error_test_variant">Error 2</string>
+</resources>
