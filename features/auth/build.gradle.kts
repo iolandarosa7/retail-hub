@@ -53,6 +53,7 @@ kotlin {
             implementation(libs.coroutines.test)
             implementation(libs.ktor.client.mock)
             implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.compose.ui.test)
         }
     }
 }
