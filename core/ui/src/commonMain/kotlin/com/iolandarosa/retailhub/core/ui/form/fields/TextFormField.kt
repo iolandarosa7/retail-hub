@@ -7,7 +7,6 @@ import com.iolandarosa.retailhub.core.ui.form.FormField
 import com.iolandarosa.retailhub.core.ui.form.validators.Validator
 import org.jetbrains.compose.resources.StringResource
 
-
 open class TextFormField(
     name: String,
     validators: List<Validator<String>> = emptyList(),

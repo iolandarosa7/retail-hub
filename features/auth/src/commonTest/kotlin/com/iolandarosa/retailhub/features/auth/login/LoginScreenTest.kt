@@ -1,0 +1,160 @@
+package com.iolandarosa.retailhub.features.auth.login
+
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.v2.runComposeUiTest
+import com.iolandarosa.retailhub.core.model.ApiErrorResponse
+import com.iolandarosa.retailhub.core.model.NetworkResult
+import com.iolandarosa.retailhub.features.auth.TestDispatcherProvider
+import com.iolandarosa.retailhub.features.auth.domain.model.User
+import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCase
+import dev.mokkery.answering.returns
+import dev.mokkery.everySuspend
+import dev.mokkery.matcher.any
+import dev.mokkery.mock
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+
+@OptIn(ExperimentalTestApi::class)
+class LoginScreenTest {
+
+    private val loginUseCase = mock<LoginUseCase>()
+
+    private lateinit var scheduler: TestCoroutineScheduler
+    private lateinit var dispatcher: CoroutineDispatcher
+    private lateinit var viewModel: LoginViewModel
+
+    @BeforeTest
+    fun setup() {
+        scheduler = TestCoroutineScheduler()
+        dispatcher = StandardTestDispatcher(scheduler)
+
+        viewModel = LoginViewModel(
+            loginUseCase = loginUseCase,
+            dispatcherProvider = TestDispatcherProvider(dispatcher)
+        )
+    }
+
+    @Test
+    fun `login screen displays correctly`() = runComposeUiTest(runTestContext = dispatcher) {
+        setContent {
+            LoginScreen(
+                paddingValues = PaddingValues(),
+                viewModel = viewModel
+            )
+        }
+
+        onNodeWithText("Username")
+            .assertIsDisplayed()
+            .assertIsEnabled()
+
+        onNodeWithText("Password")
+            .assertIsDisplayed()
+            .assertIsEnabled()
+
+        onNodeWithText("Sign in")
+            .assertIsDisplayed()
+            .assertIsEnabled()
+    }
+
+    @Test
+    fun `clicking login with invalid form does nothing`() =
+        runComposeUiTest(runTestContext = dispatcher) {
+            setContent {
+                LoginScreen(
+                    paddingValues = PaddingValues(),
+                    viewModel = viewModel
+                )
+            }
+
+            onNodeWithText("Sign in").performClick()
+
+            scheduler.advanceUntilIdle()
+
+            assertEquals(
+                LoginRequestState.Initial,
+                viewModel.state.value.loginRequest
+            )
+
+            onAllNodesWithText("Required field")[0].assertIsDisplayed()
+        }
+
+    @Test
+    fun `clicking login shows loading state`() = runComposeUiTest(runTestContext = dispatcher) {
+        everySuspend { loginUseCase(any(), any()) } returns
+                NetworkResult.Success(User(id = 1, name = "John"))
+
+        setContent {
+            LoginScreen(
+                paddingValues = PaddingValues(),
+                viewModel = viewModel
+            )
+        }
+
+        onNodeWithText("Username").performTextInput("username")
+        onNodeWithText("Password").performTextInput("password")
+        onNodeWithText("Sign in").performClick()
+
+        assertEquals(
+            LoginRequestState.Loading,
+            viewModel.state.value.loginRequest
+        )
+
+        onNodeWithText("Sign in").assertIsNotEnabled()
+        onNodeWithText("Username").assertIsNotEnabled()
+        onNodeWithText("Password").assertIsNotEnabled()
+
+        scheduler.advanceUntilIdle()
+
+        assertEquals(
+            LoginRequestState.Success,
+            viewModel.state.value.loginRequest
+        )
+
+        onNodeWithText("Sign in").assertIsEnabled()
+        onNodeWithText("Username").assertIsEnabled()
+        onNodeWithText("Password").assertIsEnabled()
+    }
+
+    @Test
+    fun `failed login displays error`() = runComposeUiTest(runTestContext = dispatcher) {
+        val errorMessage = "error message"
+        everySuspend { loginUseCase(username = any(), password = any()) } returns
+                NetworkResult.Failure.ApiError(ApiErrorResponse(errorMessage))
+
+        setContent {
+            LoginScreen(
+                paddingValues = PaddingValues(),
+                viewModel = viewModel
+            )
+        }
+
+        onNodeWithText("Username").performTextInput("username")
+        onNodeWithText("Password").performTextInput("password")
+        onNodeWithText("Sign in").performClick()
+
+        assertEquals(
+            LoginRequestState.Loading,
+            viewModel.state.value.loginRequest
+        )
+
+        scheduler.advanceUntilIdle()
+
+        assertIs<LoginRequestState.Error>(viewModel.state.value.loginRequest)
+
+        onNodeWithText(errorMessage)
+            .assertIsDisplayed()
+    }
+}
