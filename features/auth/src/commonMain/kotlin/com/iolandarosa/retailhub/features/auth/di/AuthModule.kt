@@ -17,5 +17,5 @@ val authModule = module {
         )
     }
     factory { LoginUseCase(get()) }
-    viewModel { com.iolandarosa.retailhub.features.auth.login.LoginViewModel(get()) }
+    viewModel { LoginViewModel(get()) }
 }
