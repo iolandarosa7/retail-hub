@@ -5,6 +5,60 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.mokkery)
+    jacoco
+}
+
+jacoco {
+    toolVersion = libs.versions.jacoco.get()
+    reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
+}
+
+val jacocoExclusions = listOf(
+    "**/R.class",
+    "**/R$*.class",
+    "**/BuildConfig.*",
+    "**/Manifest*.*",
+
+    "**/generated/resources/**",
+    "**/features/auth/di/**"
+)
+
+tasks.register<JacocoReport>("jacocoCoverage") {
+
+    group = "verification"
+    description = "Generates JaCoCo coverage report for Android device tests."
+
+    dependsOn("connectedAndroidDeviceTest")
+
+    sourceDirectories.setFrom(
+        files(
+            "src/commonMain/kotlin",
+            "src/androidMain/kotlin"
+        )
+    )
+
+    classDirectories.setFrom(
+        fileTree(
+            layout.buildDirectory.dir("classes/kotlin/android/main")
+        ) {
+            include("**/*.class")
+            exclude(jacocoExclusions)
+        }
+    )
+
+    executionData.setFrom(
+        fileTree(layout.buildDirectory) {
+            include(
+                "outputs/code_coverage/androidDeviceTest/**/*.ec"
+            )
+        }
+    )
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
 }
 
 kotlin {
@@ -23,6 +77,7 @@ kotlin {
             sourceSetTreeName = "test"
         }.configure {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            enableCoverage = true
         }
     }
 
