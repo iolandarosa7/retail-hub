@@ -21,7 +21,7 @@ class FormFieldRendererTest {
     )
 
     @Test
-    fun `TextFormField renders TextFormFieldComponent`() = runComposeUiTest {
+    fun textFormField_rendersTextFormFieldComponent() = runComposeUiTest {
         setContent {
             FormFieldRenderer(
                 field = field,
@@ -33,7 +33,7 @@ class FormFieldRendererTest {
     }
 
     @Test
-    fun `TextFormField can be disabled`() = runComposeUiTest {
+    fun textFormFieldCanBeDisabled() = runComposeUiTest {
         setContent {
             FormFieldRenderer(
                 field = field,

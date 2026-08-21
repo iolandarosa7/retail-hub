@@ -9,7 +9,7 @@ import kotlin.test.assertNull
 
 class UiErrorTest {
     @Test
-    fun `creates error with default values`() {
+    fun createsErrorWithDefaultValues() {
         val error = UiError()
 
         assertNull(error.description)
@@ -17,7 +17,7 @@ class UiErrorTest {
     }
 
     @Test
-    fun `creates error with provided description`() {
+    fun createsErrorWithProvidedDescription() {
         val error = UiError(description = "Something went wrong")
 
         assertEquals("Something went wrong", error.description)
@@ -25,7 +25,7 @@ class UiErrorTest {
     }
 
     @Test
-    fun `creates error with provided description resource`() {
+    fun createsErrorWithProvidedDescriptionResource() {
         val error = UiError(
             description = "Something went wrong",
             descriptionId = Res.string.error_server

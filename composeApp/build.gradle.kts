@@ -26,6 +26,8 @@ kotlin {
        compilerOptions {
            jvmTarget = JvmTarget.JVM_21
        }
+
+        withHostTestBuilder {  }
     }
     
     sourceSets {

@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 class UserTest {
     @Test
-    fun `User instance has expected values`() {
+    fun userInstance_hasExpectedValues() {
         val user = User(
             id = 1,
             name = "name"

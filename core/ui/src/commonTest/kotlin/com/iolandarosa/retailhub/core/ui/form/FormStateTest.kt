@@ -8,7 +8,7 @@ import kotlin.test.assertTrue
 
 class FormStateTest {
     @Test
-    fun `form is valid when all fields have empty validators`() {
+    fun formIsValidWhenAllFieldsHaveEmptyValidators() {
         val form = FormState(
             fields = listOf(
                 FakeFormField(name = "name"),
@@ -20,7 +20,7 @@ class FormStateTest {
     }
 
     @Test
-    fun `form is valid when all fields are valid`() {
+    fun formIsValidWhenAllFieldsAreValid() {
         val validValidator = FakeValidator(isValid = true)
 
         val form = FormState(
@@ -40,7 +40,7 @@ class FormStateTest {
     }
 
     @Test
-    fun `form is invalid when a field is invalid`() {
+    fun formIsInvalidWhenAFieldIsInvalid() {
         val invalidValidator = FakeValidator(isValid = false)
 
         val form = FormState(
@@ -59,7 +59,7 @@ class FormStateTest {
     }
 
     @Test
-    fun `returns field value when field exists`() {
+    fun returnsFieldValueWhenFieldExists() {
         val fieldName = "email"
         val expectedFieldValue = "john@example.com"
 
@@ -82,7 +82,7 @@ class FormStateTest {
     }
 
     @Test
-    fun `returns null when field does not exist`() {
+    fun returnsNullWhenFieldDoesNotExist() {
         val form = FormState(
             fields = listOf(
                 FakeFormField(

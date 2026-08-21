@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 
 class UserMapperTest {
     @Test
-    fun `UserDtoMapper execution has expected result`() {
+    fun userDtoMapperExecutionHasExpectedResult() {
         val userDto = UserDto(
             id = 1,
             username = "username",

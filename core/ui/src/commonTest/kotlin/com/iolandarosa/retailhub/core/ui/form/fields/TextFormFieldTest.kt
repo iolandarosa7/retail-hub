@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 class TextFormFieldTest {
 
     @Test
-    fun `initializes with provided name and value`() {
+    fun initializesWithProvidedNameAndValue() {
         val field = TextFormField(
             name = "email",
             labelResId = Res.string.error_unknown,
@@ -20,7 +20,7 @@ class TextFormFieldTest {
     }
 
     @Test
-    fun `onValueChange receives changed value`() {
+    fun onValueChangeReceivesChangedValue() {
         var changedValue: String? = null
 
         val field = TextFormField(

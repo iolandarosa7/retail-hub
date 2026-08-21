@@ -8,7 +8,7 @@ class RequiredTest {
     private val validator = Required()
 
     @Test
-    fun `accepts non blank value`() {
+    fun acceptsNonBlankValue() {
         val validValues = listOf(
             "John",
             " John",
@@ -25,12 +25,12 @@ class RequiredTest {
     }
 
     @Test
-    fun `rejects null value`() {
+    fun rejectsNullValue() {
         assertFalse(validator.validate(null))
     }
 
     @Test
-    fun `rejects blank value`() {
+    fun rejectsBlankValue() {
         val invalidValues = listOf(
             null,
             "",

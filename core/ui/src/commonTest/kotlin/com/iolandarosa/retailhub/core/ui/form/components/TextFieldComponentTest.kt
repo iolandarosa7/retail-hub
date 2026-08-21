@@ -30,7 +30,7 @@ class TextFieldComponentTest {
     )
 
     @Test
-    fun `TextFieldComponent renders label`() = runComposeUiTest {
+    fun textFieldComponent_rendersLabel() = runComposeUiTest {
         setContent {
             FormFieldRenderer(setupField())
         }
@@ -39,7 +39,7 @@ class TextFieldComponentTest {
     }
 
     @Test
-    fun `TextFieldComponent renders initial value`() = runComposeUiTest {
+    fun textFieldComponent_rendersInitialValue() = runComposeUiTest {
         val initialValue = "John"
 
         setContent {
@@ -50,7 +50,7 @@ class TextFieldComponentTest {
     }
 
     @Test
-    fun `TextFieldComponent changing text updates field and calls onValueChanged`() = runComposeUiTest {
+    fun textFieldComponent_changingText_updatesFieldAndCallsOnValueChanged() = runComposeUiTest {
         var callbackValue: String? = null
 
         val field = setupField(
@@ -71,7 +71,7 @@ class TextFieldComponentTest {
     }
 
     @Test
-    fun `TextFieldComponent changing text clears error`() = runComposeUiTest {
+    fun textFieldComponent_changingText_clearsError() = runComposeUiTest {
         val field = setupField(
             validator = FakeValidator(isValid = false, messageId = Res.string.error_test)
         )

@@ -13,7 +13,7 @@ class LoginUiStateTest {
     private val formState = FormState(fields = emptyList())
 
     @Test
-    fun `initial state enables interaction and has no error`() {
+    fun initialStateEnablesInteractionAndHasNoError() {
         val state = LoginUiState(formState = formState)
 
         assertTrue(state.isInteractionEnabled)
@@ -22,7 +22,7 @@ class LoginUiStateTest {
     }
 
     @Test
-    fun `loading state disables interaction and has no error`() {
+    fun loadingStateDisablesInteractionAndHasNoError() {
         val state = LoginUiState(
             formState = formState,
             loginRequest = LoginRequestState.Loading
@@ -33,7 +33,7 @@ class LoginUiStateTest {
     }
 
     @Test
-    fun `success state enables interaction and has no error`() {
+    fun successStateEnablesInteractionAndHasNoError() {
         val state = LoginUiState(
             formState = formState,
             loginRequest = LoginRequestState.Success
@@ -44,7 +44,7 @@ class LoginUiStateTest {
     }
 
     @Test
-    fun `error state enables interaction and exposes error`() {
+    fun errorStateEnablesInteractionAndExposesError() {
         val error = UiError(description = "error")
 
         val state = LoginUiState(

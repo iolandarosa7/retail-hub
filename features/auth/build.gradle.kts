@@ -16,6 +16,14 @@ kotlin {
         androidResources {
             enable = true
         }
+
+        withHostTestBuilder {  }
+
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
     }
 
     listOf(
@@ -54,6 +62,16 @@ kotlin {
             implementation(libs.ktor.client.mock)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.compose.ui.test)
+            implementation(libs.ktor.client.serialization)
+        }
+
+        getByName("androidDeviceTest") {
+            dependencies {
+                implementation(libs.androidx.core)
+                implementation(libs.androidx.runner)
+                implementation(libs.androidx.testExt.junit)
+                implementation(libs.compose.ui.test.manifest)
+            }
         }
     }
 }
