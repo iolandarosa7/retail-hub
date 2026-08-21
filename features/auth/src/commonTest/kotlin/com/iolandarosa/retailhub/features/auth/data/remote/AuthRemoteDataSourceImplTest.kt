@@ -22,7 +22,7 @@ import kotlin.test.assertIs
 class AuthRemoteDataSourceImplTest {
 
     @Test
-    fun `login sends correct request and returns user`() = runTest {
+    fun loginSendsCorrectRequestAndReturnsUser() = runTest {
         val responseJson = """
             {
                 "id": 1,
@@ -90,7 +90,7 @@ class AuthRemoteDataSourceImplTest {
     }
 
     @Test
-    fun `login returns error when server returns unauthorized`() = runTest {
+    fun loginReturnsErrorWhenServerReturnsUnauthorized() = runTest {
         val engine = MockEngine {
             respond(
                 content = """
@@ -122,7 +122,7 @@ class AuthRemoteDataSourceImplTest {
     }
 
     @Test
-    fun `login returns error when response cannot be decoded`() = runTest {
+    fun loginReturnsErrorWhenResponseCannotBeDecoded() = runTest {
         val engine = MockEngine {
             respond(
                 content = "this is not valid json",

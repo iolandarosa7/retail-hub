@@ -9,7 +9,7 @@ import kotlin.test.assertNull
 
 class FormFieldTest {
     @Test
-    fun `initializes with given value`() {
+    fun initializesWithGivenValue() {
         val field = FakeFormField(initialValue = "John")
 
         assertEquals("John", field.value)
@@ -17,7 +17,7 @@ class FormFieldTest {
     }
 
     @Test
-    fun `validate clears error when value is valid`() {
+    fun validateClearsErrorWhenValueIsValid() {
         val validator = FakeValidator(isValid = true)
 
         val field = FakeFormField(validators = listOf(validator))
@@ -30,7 +30,7 @@ class FormFieldTest {
     }
 
     @Test
-    fun `validate sets error when value is invalid`() {
+    fun validateSetsErrorWhenValueIsInvalid() {
         val validator = FakeValidator(isValid = false)
 
         val field = FakeFormField(validators = listOf(validator))
@@ -41,7 +41,7 @@ class FormFieldTest {
     }
 
     @Test
-    fun `validate stops at first invalid validator`() {
+    fun validateStopsAtFirstInvalidValidator() {
         val firstValidator = FakeValidator(isValid = false)
 
         val secondValidator = FakeValidator(
@@ -62,7 +62,7 @@ class FormFieldTest {
     }
 
     @Test
-    fun `clearErrors removes current error`() {
+    fun clearErrorsRemovesCurrentError() {
         val field = FakeFormField()
 
         field.error = Res.string.error_test

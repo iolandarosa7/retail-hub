@@ -48,7 +48,7 @@ class LoginScreenTest {
     }
 
     @Test
-    fun `login screen displays correctly`() = runComposeUiTest(runTestContext = dispatcher) {
+    fun loginScreenDisplaysCorrectly() = runComposeUiTest(runTestContext = dispatcher) {
         setContent {
             LoginScreen(
                 paddingValues = PaddingValues(),
@@ -70,7 +70,7 @@ class LoginScreenTest {
     }
 
     @Test
-    fun `clicking login with invalid form does nothing`() =
+    fun clickingLoginWithInvalidFormDoesNothing() =
         runComposeUiTest(runTestContext = dispatcher) {
             setContent {
                 LoginScreen(
@@ -92,7 +92,7 @@ class LoginScreenTest {
         }
 
     @Test
-    fun `clicking login shows loading state`() = runComposeUiTest(runTestContext = dispatcher) {
+    fun clickingLoginShowsLoadingState() = runComposeUiTest(runTestContext = dispatcher) {
         everySuspend { loginUseCase(any(), any()) } returns
                 NetworkResult.Success(User(id = 1, name = "John"))
 
@@ -129,7 +129,7 @@ class LoginScreenTest {
     }
 
     @Test
-    fun `failed login displays error`() = runComposeUiTest(runTestContext = dispatcher) {
+    fun failedLoginDisplaysError() = runComposeUiTest(runTestContext = dispatcher) {
         val errorMessage = "error message"
         everySuspend { loginUseCase(username = any(), password = any()) } returns
                 NetworkResult.Failure.ApiError(ApiErrorResponse(errorMessage))

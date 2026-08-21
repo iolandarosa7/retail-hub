@@ -8,6 +8,8 @@ kotlin {
         namespace = "com.iolandarosa.retailhub.core.common"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
+
+        withHostTestBuilder {  }
     }
 
     listOf(

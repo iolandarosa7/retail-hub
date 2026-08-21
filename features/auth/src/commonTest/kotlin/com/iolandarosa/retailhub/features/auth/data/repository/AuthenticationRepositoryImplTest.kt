@@ -18,7 +18,7 @@ class AuthenticationRepositoryImplTest {
     private val repository = AuthenticationRepositoryImpl(service)
 
     @Test
-    fun `login returns mapped user when service succeeds`() = runTest {
+    fun loginReturnsMappedUserWhenServiceSucceeds() = runTest {
         val userDto = UserDto(
             id = 1,
             username = "username",
@@ -41,7 +41,7 @@ class AuthenticationRepositoryImplTest {
     }
 
     @Test
-    fun `login returns error when service fails`() = runTest {
+    fun loginReturnsErrorWhenServiceFails() = runTest {
         everySuspend { service.login(any())} returns NetworkResult.Failure.Timeout
 
         val result = repository.login(username = "john", password = "password")

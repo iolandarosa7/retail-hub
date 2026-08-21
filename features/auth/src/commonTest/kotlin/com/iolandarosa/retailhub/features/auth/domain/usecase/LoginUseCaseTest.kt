@@ -17,7 +17,7 @@ class LoginUseCaseTest {
     private val useCase = LoginUseCaseImpl(repository)
 
     @Test
-    fun `repository login returns user when service succeeds`() = runTest {
+    fun repositoryLoginReturnsUserWhenServiceSucceeds() = runTest {
         val username = "username"
         val password = "password"
 

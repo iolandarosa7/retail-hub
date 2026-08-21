@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 class LoginRequestTest {
     @Test
-    fun `LoginRequest instance has expected values`() {
+    fun loginRequestInstance_hasExpectedValues() {
         val loginRequest = LoginRequest(
             username = "username",
             password = "password",

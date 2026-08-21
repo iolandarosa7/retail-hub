@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 class LoginFormTest {
     @Test
-    fun `get returns username and password fields`() {
+    fun getReturnsUsernameAndPasswordFields() {
         val fields = LoginForm.get(
             onValueChanged = {},
             onActionDone = {}

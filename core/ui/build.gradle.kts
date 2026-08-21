@@ -14,6 +14,14 @@ kotlin {
         androidResources {
             enable = true
         }
+
+        withHostTestBuilder {  }
+
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
     }
 
     listOf(
@@ -40,6 +48,15 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.compose.ui.test)
+        }
+
+        getByName("androidDeviceTest") {
+            dependencies {
+                implementation(libs.androidx.core)
+                implementation(libs.androidx.runner)
+                implementation(libs.androidx.testExt.junit)
+                implementation(libs.compose.ui.test.manifest)
+            }
         }
     }
 }

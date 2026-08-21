@@ -43,7 +43,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `initial state is correct`() {
+    fun initialStateIsCorrect() {
         assertEquals(LoginRequestState.Initial, viewModel.state.value.loginRequest)
 
         assertTrue(viewModel.state.value.isInteractionEnabled)
@@ -59,7 +59,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `on login click does nothing when form is invalid`() = runTest(scheduler) {
+    fun onLoginClickDoesNothingWhenFormIsInvalid() = runTest(scheduler) {
         viewModel.onIntent(LoginIntent.OnLoginClicked)
 
         advanceUntilIdle()
@@ -75,7 +75,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `on login success changes state to success`() = runTest(scheduler) {
+    fun onLoginSuccessChangesStateToSuccess() = runTest(scheduler) {
         val username = "username"
         val password = "password"
 
@@ -104,7 +104,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `on login error changes state to error`() = runTest (scheduler){
+    fun onLoginErrorChangesStateToError() = runTest (scheduler){
         val username = "username"
         val password = "password"
 
@@ -133,7 +133,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `form change resets error`() = runTest(scheduler) {
+    fun formChangeEesetsError() = runTest(scheduler) {
         everySuspend {
             loginUseCase(any(), any())
         } returns NetworkResult.Failure.Unauthorized
