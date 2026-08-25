@@ -2,6 +2,7 @@ package com.iolandarosa.retailhub.core.network.client
 
 import com.iolandarosa.retailhub.core.network.endpoint.Endpoints
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -15,8 +16,9 @@ import kotlinx.serialization.json.Json
 
 expect fun platformHttpClient(): HttpClient
 
-fun createHttpClient(): HttpClient =
-    platformHttpClient().config {
+fun createHttpClient(engine: HttpClientEngine? = null): HttpClient {
+    val client = engine?.let { HttpClient(it) } ?: platformHttpClient()
+    return client.config {
         install(ContentNegotiation) {
             json(
                 Json {
@@ -37,8 +39,9 @@ fun createHttpClient(): HttpClient =
             accept(ContentType.Application.Json)
         }
 
-        install(HttpTimeout){
+        install(HttpTimeout) {
             requestTimeoutMillis = 30_000
             connectTimeoutMillis = 30_000
         }
     }
+}

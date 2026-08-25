@@ -2,6 +2,11 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.retailHubJacoco)
+}
+
+retailhubJacoco {
+    testTask.set("testAndroidHostTest")
 }
 
 kotlin {
@@ -42,6 +47,8 @@ kotlin {
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.ktor.client.mock)
+            implementation(libs.coroutines.test)
         }
 
         androidMain.dependencies {
