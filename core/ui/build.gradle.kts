@@ -3,6 +3,14 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.retailHubJacoco)
+}
+
+retailhubJacoco {
+    testTask.set("connectedAndroidDeviceTest")
+
+    exclusions.add("**/generated/resources/**")
+    exclusions.add("**/theme/**")
 }
 
 kotlin {
@@ -21,6 +29,7 @@ kotlin {
             sourceSetTreeName = "test"
         }.configure {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            enableCoverage = true
         }
     }
 

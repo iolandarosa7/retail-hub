@@ -75,6 +75,7 @@ flowchart TD
 | **Kotlin Serialization** | Type-safe JSON parsing for API requests and responses. |
 | **Kotlin Coroutines** | Managing background tasks and asynchronous flows. |
 | **Mokkery** | A Kotlin Multiplatform mocking library for testing. |
+| **JaCoCo** | Library for measuring and reporting code coverage. |
 | **Material 3** | Google's latest design system for consistent and modern UI. |
 
 ---
@@ -128,10 +129,56 @@ The project follows a comprehensive testing approach located in `commonTest`:
 - **ViewModel Tests**: Verify state transitions and side effects by sending `Intents`.
 - **Compose UI Tests**: Use `runComposeUiTest` to verify that screens display correctly and react to user input.
 - **Dispatcher Injection**: A `DispatcherProvider` is used to swap `Main` and `IO` dispatchers for `StandardTestDispatcher` during tests.
+- **Code Coverage**: JaCoCo is used to track test coverage, including both local unit tests and Android instrumented tests.
+
+#### Why JaCoCo?
+While **Kover** is the modern alternative for KMP, **JaCoCo** was chosen for this project because it provides robust support for **instrumented tests** on Android.
+- **Trade-offs**: JaCoCo requires more configuration for KMP but ensures that coverage from physical devices or emulators is captured.
+- **Future Plans**: If Kover evolves to fully support instrumented tests with the same level of reliability, the project is intended to migrate to Kover to leverage its better integration with Kotlin-specific features.
 
 ---
 
-## 9. Build and Run
+## 9. Code Coverage
+The project uses a custom JaCoCo plugin located in the `:jacoco` convention build logic.
+
+### Running Coverage Reports
+- **Total Project Coverage**: Generates a unified HTML/XML report for all modules.
+  ```bash
+  ./gradlew jacocoCoverageAggregate
+  ```
+  The report can be found at: `build/reports/jacoco/aggregate/html/index.html`
+
+- **Module Specific Coverage**:
+  ```bash
+  ./gradlew :features:auth:jacocoCoverage
+  ```
+  The report will be at: `[module]/build/reports/jacoco/html/index.html`
+
+### Including a New Module
+To enable coverage for a new module, add the following to its `build.gradle.kts`:
+
+1. Apply the plugin:
+   ```kotlin
+   plugins {
+       id("retailhub-jacoco")
+   }
+   ```
+2. Configure the test task to track:
+   ```kotlin
+   retailhubJacoco {
+       // For host unit tests
+       testTask.set("testDebugUnitTest") 
+       // OR for instrumented tests
+       testTask.set("connectedAndroidDeviceTest") 
+       
+       // Optional: Add specific exclusions
+       exclusions.add("**/path/to/exclude/**")
+   }
+   ```
+
+---
+
+## 10. Build and Run
 
 ### Android
 - **Build**: `./gradlew :androidApp:assembleDebug`
@@ -145,7 +192,7 @@ The project follows a comprehensive testing approach located in `commonTest`:
 
 ---
 
-## 10. Development Guidelines
+## 11. Development Guidelines
 - **Adding Features**: Create a new package under `features/` following the `data/domain/presentation` structure.
 - **Shared Models**: Data classes used across multiple modules must live in `:core:model`.
 - **MVI Contract**: Every new screen should define a `Contract` interface containing `State`, `Intent`, and `Effect`.
@@ -154,15 +201,15 @@ The project follows a comprehensive testing approach located in `commonTest`:
 
 ---
 
-## 11. Project Status
+## 12. Project Status
 - **Authentication**: Fully implemented MVI-based login flow with server-side error mapping and form validation.
 - **Infrastructure**: Robust multi-module Gradle setup with centralized networking and UI design system.
 - **Modularization**: Physical module split completed for `core` and `auth`.
 
 ---
 
-## 12. Future Improvements
+## 13. Future Improvements
 - [ ] Implement actual navigation using a Multiplatform Navigation library.
 - [ ] Add persistence layer using SQLDelight for user sessions.
 - [ ] Expand the Design System with more common components (Buttons, Loaders).
-- [ ] Configure **Kover** for automated code coverage reporting.
+- [ ] Migrate to **Kover** if/when it provides full support for Android instrumented tests.

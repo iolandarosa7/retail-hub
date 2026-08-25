@@ -5,6 +5,14 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.mokkery)
+    alias(libs.plugins.retailHubJacoco)
+}
+
+retailhubJacoco {
+    testTask.set("connectedAndroidDeviceTest")
+
+    exclusions.add("**/generated/resources/**")
+    exclusions.add("**/features/auth/di/**")
 }
 
 kotlin {
@@ -23,6 +31,7 @@ kotlin {
             sourceSetTreeName = "test"
         }.configure {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            enableCoverage = true
         }
     }
 

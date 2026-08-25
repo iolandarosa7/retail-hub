@@ -1,8 +1,6 @@
-rootProject.name = "RetailHub"
+rootProject.name = "jacoco"
 
 pluginManagement {
-    includeBuild("jacoco")
-
     repositories {
         google {
             mavenContent {
@@ -28,11 +26,3 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-
-include(":androidApp")
-include(":composeApp")
-include(":features:auth")
-include(":core:ui")
-include(":core:network")
-include(":core:model")
-include(":core:common")
