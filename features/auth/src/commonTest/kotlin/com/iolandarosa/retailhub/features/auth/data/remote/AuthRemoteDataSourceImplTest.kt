@@ -1,10 +1,10 @@
 package com.iolandarosa.retailhub.features.auth.data.remote
 
 import com.iolandarosa.retailhub.core.model.NetworkResult
+import com.iolandarosa.retailhub.core.network.client.createHttpClient
 import com.iolandarosa.retailhub.core.network.endpoint.Endpoints
 import com.iolandarosa.retailhub.features.auth.data.model.UserDto
 import com.iolandarosa.retailhub.features.auth.data.request.LoginRequest
-import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -148,13 +148,4 @@ class AuthRemoteDataSourceImplTest {
 
         assertIs<NetworkResult.Failure.Unknown>(result)
     }
-
-    private fun createHttpClient(
-        engine: MockEngine
-    ): HttpClient =
-        HttpClient(engine) {
-            install(ContentNegotiation) {
-                json()
-            }
-        }
 }

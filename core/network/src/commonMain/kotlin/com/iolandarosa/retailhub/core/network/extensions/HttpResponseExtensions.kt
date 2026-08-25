@@ -18,6 +18,8 @@ suspend inline fun <reified T> HttpResponse.handleResponse(): NetworkResult<T> {
                 NetworkResult.Success(result)
             } catch (e: SerializationException) {
                 NetworkResult.Failure.Serialization("${status.value}: ${e.message}")
+            } catch (e: Exception) {
+                NetworkResult.Failure.Unknown("${status.value}: ${e.message}")
             }
         }
         status == HttpStatusCode.Unauthorized -> {
