@@ -5,55 +5,11 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    jacoco
+    id("retailhub-jacoco")
 }
 
-jacoco {
-    toolVersion = libs.versions.jacoco.get()
-    reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
-}
-
-val jacocoExclusions = listOf(
-    "**/R.class",
-    "**/R$*.class",
-    "**/BuildConfig.*",
-    "**/Manifest*.*",
-    "**/*\$serializer.class",
-)
-
-tasks.register<JacocoReport>("jacocoCoverage") {
-    group = "verification"
-    description = "Generates JaCoCo coverage report for this module."
-
-    dependsOn("testAndroidHostTest")
-
-    sourceDirectories.setFrom(
-        files(
-            "src/commonMain/kotlin",
-            "src/androidMain/kotlin"
-        )
-    )
-
-    classDirectories.setFrom(
-        fileTree(
-            layout.buildDirectory.dir("classes/kotlin/android/main")
-        ) {
-            include("**/*.class")
-            exclude(jacocoExclusions)
-        }
-    )
-
-    executionData.setFrom(
-        fileTree(layout.buildDirectory) {
-            include("jacoco/testAndroidHostTest.exec")
-        }
-    )
-
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-        csv.required.set(false)
-    }
+retailhubJacoco {
+    testTask.set("testAndroidHostTest")
 }
 
 kotlin {

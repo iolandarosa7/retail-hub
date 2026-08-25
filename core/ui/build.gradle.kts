@@ -3,60 +3,14 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    jacoco
+    id("retailhub-jacoco")
 }
 
-jacoco {
-    toolVersion = libs.versions.jacoco.get()
-    reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
-}
+retailhubJacoco {
+    testTask.set("connectedAndroidDeviceTest")
 
-val jacocoExclusions = listOf(
-    "**/R.class",
-    "**/R$*.class",
-    "**/BuildConfig.*",
-    "**/Manifest*.*",
-
-    "**/theme/**",
-    "**/generated/resources/**"
-)
-
-tasks.register<JacocoReport>("jacocoCoverage") {
-
-    group = "verification"
-    description = "Generates JaCoCo coverage report for Android device tests."
-
-    dependsOn("connectedAndroidDeviceTest")
-
-    sourceDirectories.setFrom(
-        files(
-            "src/commonMain/kotlin",
-            "src/androidMain/kotlin"
-        )
-    )
-
-    classDirectories.setFrom(
-        fileTree(
-            layout.buildDirectory.dir("classes/kotlin/android/main")
-        ) {
-            include("**/*.class")
-            exclude(jacocoExclusions)
-        }
-    )
-
-    executionData.setFrom(
-        fileTree(layout.buildDirectory) {
-            include(
-                "outputs/code_coverage/androidDeviceTest/**/*.ec"
-            )
-        }
-    )
-
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-        csv.required.set(false)
-    }
+    exclusions.add("**/generated/resources/**")
+    exclusions.add("**/theme/**")
 }
 
 kotlin {

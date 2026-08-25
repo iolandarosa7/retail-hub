@@ -5,60 +5,14 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.mokkery)
-    jacoco
+    id("retailhub-jacoco")
 }
 
-jacoco {
-    toolVersion = libs.versions.jacoco.get()
-    reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
-}
+retailhubJacoco {
+    testTask.set("connectedAndroidDeviceTest")
 
-val jacocoExclusions = listOf(
-    "**/R.class",
-    "**/R$*.class",
-    "**/BuildConfig.*",
-    "**/Manifest*.*",
-
-    "**/generated/resources/**",
-    "**/features/auth/di/**"
-)
-
-tasks.register<JacocoReport>("jacocoCoverage") {
-
-    group = "verification"
-    description = "Generates JaCoCo coverage report for Android device tests."
-
-    dependsOn("connectedAndroidDeviceTest")
-
-    sourceDirectories.setFrom(
-        files(
-            "src/commonMain/kotlin",
-            "src/androidMain/kotlin"
-        )
-    )
-
-    classDirectories.setFrom(
-        fileTree(
-            layout.buildDirectory.dir("classes/kotlin/android/main")
-        ) {
-            include("**/*.class")
-            exclude(jacocoExclusions)
-        }
-    )
-
-    executionData.setFrom(
-        fileTree(layout.buildDirectory) {
-            include(
-                "outputs/code_coverage/androidDeviceTest/**/*.ec"
-            )
-        }
-    )
-
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-        csv.required.set(false)
-    }
+    exclusions.add("**/generated/resources/**")
+    exclusions.add("**/features/auth/di/**")
 }
 
 kotlin {
