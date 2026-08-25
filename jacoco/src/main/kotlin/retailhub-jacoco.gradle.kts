@@ -15,54 +15,41 @@ jacocoExtension.exclusions.convention(
 extensions.configure<JacocoPluginExtension> {
     toolVersion = JacocoConfig.VERSION
 
-    reportsDirectory =
+    reportsDirectory.set(
         layout.buildDirectory.dir("reports/jacoco")
+    )
 }
 
-val jacocoCoverage =
-    tasks.register<JacocoReport>("jacocoCoverage") {
+tasks.register<JacocoReport>("jacocoCoverage") {
 
-        group = "verification"
+    group = "verification"
+    description = "Generates JaCoCo coverage report for this KMP Android module."
 
-        description =
-            "Generates JaCoCo coverage report for this KMP Android module."
+    sourceDirectories.setFrom(
+        files("src/commonMain/kotlin", "src/androidMain/kotlin")
+    )
 
-        sourceDirectories.setFrom(
-            files(
-                "src/commonMain/kotlin",
-                "src/androidMain/kotlin"
-            )
-        )
-
-        classDirectories.setFrom(
-            fileTree(
-                layout.buildDirectory.dir(
-                    "classes/kotlin/android/main"
-                )
-            ) {
+    classDirectories.setFrom(
+        jacocoExtension.exclusions.map { exclusions ->
+            fileTree(layout.buildDirectory.dir("classes/kotlin/android/main")) {
                 include("**/*.class")
-                exclude(jacocoExtension.exclusions.get())
+                exclude(exclusions)
             }
-        )
-
-        executionData.setFrom(
-            fileTree(layout.buildDirectory) {
-                include("jacoco/**/*.exec")
-                include("outputs/code_coverage/**/*.ec")
-            }
-        )
-
-        reports {
-            xml.required.set(true)
-            html.required.set(true)
-            csv.required.set(false)
         }
+    )
+
+    executionData.setFrom(
+        fileTree(layout.buildDirectory) {
+            include("jacoco/**/*.exec")
+            include("outputs/code_coverage/**/*.ec")
+        }
+    )
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
     }
 
-afterEvaluate {
-    jacocoExtension.testTask.orNull?.let { testTaskName ->
-        jacocoCoverage.configure {
-            dependsOn(testTaskName)
-        }
-    }
+    dependsOn(jacocoExtension.testTask)
 }

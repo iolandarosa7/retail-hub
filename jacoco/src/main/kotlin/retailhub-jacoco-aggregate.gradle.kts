@@ -35,50 +35,14 @@ val aggregate =
         }
     }
 
-gradle.projectsEvaluated {
-
-    rootProject.subprojects.forEach { project ->
-
-        val jacocoExtension =
-            project.extensions.findByName("retailhubJacoco")
-                    as? RetailhubJacocoExtension
-                ?: return@forEach
-
-        val exclusions =
-            jacocoExtension.exclusions.get()
-
+subprojects {
+    plugins.withId("retailhub-jacoco") {
+        val jacocoCoverage = tasks.named<JacocoReport>("jacocoCoverage")
         aggregate.configure {
-
-            dependsOn(
-                project.tasks.named("jacocoCoverage")
-            )
-
-            sourceDirectories.from(
-                files(
-                    project.file("src/commonMain/kotlin"),
-                    project.file("src/androidMain/kotlin")
-                )
-            )
-
-            classDirectories.from(
-                project.fileTree(
-                    project.layout.buildDirectory.dir(
-                        "classes/kotlin/android/main"
-                    )
-                ) {
-                    include("**/*.class")
-                    exclude(exclusions)
-                }
-            )
-
-            executionData.from(
-                project.fileTree(
-                    project.layout.buildDirectory
-                ) {
-                    include("jacoco/**/*.exec")
-                    include("outputs/code_coverage/**/*.ec")
-                }
-            )
+            dependsOn(jacocoCoverage)
+            sourceDirectories.from(jacocoCoverage.map { it.sourceDirectories })
+            classDirectories.from(jacocoCoverage.map { it.classDirectories })
+            executionData.from(jacocoCoverage.map { it.executionData })
         }
     }
 }
