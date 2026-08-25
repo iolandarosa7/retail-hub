@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.mokkery)
-    id("retailhub-jacoco")
+    alias(libs.plugins.retailHubJacoco)
 }
 
 retailhubJacoco {

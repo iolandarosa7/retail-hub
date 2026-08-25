@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    id("retailhub-jacoco")
+    alias(libs.plugins.retailHubJacoco)
 }
 
 retailhubJacoco {

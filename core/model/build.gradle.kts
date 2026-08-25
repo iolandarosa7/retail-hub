@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.kotlinSerialization)
-    id("retailhub-jacoco")
+    alias(libs.plugins.retailHubJacoco)
 }
 
 retailhubJacoco {
