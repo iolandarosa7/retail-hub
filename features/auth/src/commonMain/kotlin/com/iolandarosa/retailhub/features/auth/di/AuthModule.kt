@@ -14,7 +14,8 @@ val authModule = module {
     single<AuthRemoteDataSource> { AuthRemoteDataSourceImpl(get()) }
     single<AuthenticationRepository> {
         AuthenticationRepositoryImpl(
-            get()
+            service = get(),
+            tokenManager = get(),
         )
     }
     factory<LoginUseCase> { LoginUseCaseImpl(get()) }
