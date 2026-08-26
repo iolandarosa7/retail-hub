@@ -45,6 +45,7 @@ kotlin {
 
             implementation(project(":core:common"))
             implementation(project(":core:network"))
+            implementation(project(":core:datastore"))
             implementation(project(":core:ui"))
             implementation(project(":features:auth"))
         }
