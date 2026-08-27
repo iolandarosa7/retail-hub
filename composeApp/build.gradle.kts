@@ -18,7 +18,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "AppKit"
+            baseName = "ComposeAppKit"
             isStatic = true
         }
     }
@@ -45,6 +45,7 @@ kotlin {
 
             implementation(project(":core:common"))
             implementation(project(":core:network"))
+            implementation(project(":core:datastore"))
             implementation(project(":core:ui"))
             implementation(project(":features:auth"))
         }

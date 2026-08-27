@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -60,7 +61,7 @@ fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinVi
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.secondaryContainer,
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.75f),
                             MaterialTheme.colorScheme.background
                         )
                     )
@@ -80,13 +81,13 @@ fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinVi
             Text(
                 stringResource(Res.string.welcome_back),
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Text(
                 stringResource(Res.string.sign_in_to_continue),
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.secondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             ElevatedCard(Modifier.padding(Dimens.PaddingMedium)) {
@@ -98,7 +99,7 @@ fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinVi
                     Text(
                         stringResource(Res.string.introduce_credentials_description),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     state.formState.fields.forEach { field ->
