@@ -1,7 +1,7 @@
 # RetailHub
 
 ## 1. Project Overview
-RetailHub is a modern **Kotlin Multiplatform (KMP)** project designed for Android and iOS. Its main purpose is to demonstrate a highly scalable, modular architecture for retail applications, providing a shared business logic layer and a unified UI built with **Compose Multiplatform**. The project currently focuses on robust authentication and form management as its core foundation.
+RetailHub is a modern **Kotlin Multiplatform (KMP)** project designed for Android and iOS. Its main purpose is to demonstrate a highly scalable, modular architecture for retail applications, providing a shared business logic layer and a unified UI built with **Compose Multiplatform**. The project currently focuses on robust authentication, secure token management, and form validation as its core foundation.
 
 ---
 
@@ -15,8 +15,8 @@ The project follows a **Modular, Feature-Based Architecture** with a strong emph
 
 ### Dependency Flow
 The dependencies flow from implementation details towards the core business logic:
-- `composeApp` (App Entry) → `features` → `core:ui` & `core:network` → `core:model`.
-- **Domain Independence**: Business logic in the `domain` package of each feature does not depend on external libraries like Ktor or Compose.
+- `composeApp` (App Entry) → `features` → `core:ui`, `core:network` & `core:datastore` → `core:model`.
+- **Domain Independence**: Business logic in the `domain` package of each feature does not depend on external libraries like Ktor, DataStore, or Compose.
 
 ### Mermaid Diagram
 ```mermaid
@@ -32,6 +32,7 @@ flowchart TD
     subgraph Core
         ui[":core:ui"]
         network[":core:network"]
+        datastore[":core:datastore"]
         model[":core:model"]
         common[":core:common"]
     end
@@ -39,14 +40,18 @@ flowchart TD
     composeApp --> auth
     composeApp --> ui
     composeApp --> network
+    composeApp --> datastore
 
     auth --> ui
     auth --> network
+    auth --> datastore
     auth --> model
     auth --> common
 
     ui --> model
     network --> model
+    network --> datastore
+    datastore --> model
 ```
 
 ---
@@ -55,11 +60,12 @@ flowchart TD
 
 | Module | Responsibility | Depends on |
 | :--- | :--- | :--- |
-| `:composeApp` | Main entry point for Android and iOS. Orchestrates Koin initialization and global navigation. | `:features:auth`, `:core:network`, `:core:ui` |
-| `:features:auth` | Authentication feature logic, including Login screens, validation, and user management. | `:core:ui`, `:core:network`, `:core:model`, `:core:common` |
+| `:composeApp` | Main entry point for Android and iOS. Orchestrates Koin initialization and global navigation. | `:features:auth`, `:core:network`, `:core:datastore`, `:core:ui` |
+| `:features:auth` | Authentication feature logic, including Login screens, validation, and user management. | `:core:ui`, `:core:network`, `:core:datastore`, `:core:model`, `:core:common` |
 | `:core:ui` | Design system, common Compose components, and the shared Form Engine. | `:core:model` |
-| `:core:network` | Shared Ktor client configuration, logging, and networking extensions like `safeRequest`. | `:core:model` |
-| `:core:model` | Pure Kotlin library containing shared data types like `NetworkResult` and `ApiErrorResponse`. | None |
+| `:core:datastore` | Persistent storage for user preferences and authentication tokens using Jetpack DataStore KMP. | `:core:model` |
+| `:core:network` | Shared Ktor client configuration, including authenticated and public client variants. | `:core:model`, `:core:datastore` |
+| `:core:model` | Pure Kotlin library containing shared data types like `NetworkResult` and `AuthTokens`. | None |
 | `:core:common` | Low-level utilities such as Coroutine Dispatcher providers. | None |
 
 ---
@@ -70,6 +76,7 @@ flowchart TD
 | :--- | :--- |
 | **Kotlin Multiplatform** | Sharing business logic and networking between Android and iOS. |
 | **Compose Multiplatform** | Building a unified UI for both platforms using a single Kotlin codebase. |
+| **DataStore KMP** | Type-safe, asynchronous persistent storage for both Android and iOS. |
 | **Koin** | A pragmatic lightweight dependency injection framework. |
 | **Ktor** | Asynchronous HTTP client for multiplatform networking. |
 | **Kotlin Serialization** | Type-safe JSON parsing for API requests and responses. |
@@ -83,18 +90,19 @@ flowchart TD
 ## 5. Dependency Injection
 RetailHub uses **Koin** for dependency injection.
 
-- **Initialization**: Koin is started in `initKoin()` within the `:composeApp` module.
-    - **Android**: Triggered in `MainApplication`.
-    - **iOS**: Triggered in the `iOSApp.swift` init block via a Kotlin wrapper.
-- **Module Definition**: Each module defines its own dependencies (e.g., `authModule`, `networkModule`).
-- **ViewModel Provisioning**: ViewModels are provided using the `viewModel` DSL, allowing them to be lifecycle-aware in `commonMain`.
+- **Initialization**: Koin is started via `initKoin(appDeclaration)` in the `:composeApp` module.
+    - **Android**: Triggered in `RetailHubApplication.kt`, passing the `androidContext`.
+    - **iOS**: Triggered in `iOSApp.swift` via the `KoinKt.initKoin` wrapper.
+- **Platform Modules**: Uses the `expect val platformDataStoreModule` pattern to provide platform-specific implementations (e.g., `DataStore` which requires `Context` on Android).
+- **Qualifiers**: HttpClients are distinguished using names (`named(NetworkClientType.PUBLIC)` and `named(NetworkClientType.AUTHENTICATED)`).
 
 ```kotlin
-// Example feature module definition
-val authModule = module {
-    single<AuthenticationRepository> { AuthenticationRepositoryImpl(get()) }
-    factory<LoginUseCase> { LoginUseCaseImpl(get()) }
-    viewModel { LoginViewModel(get(), get()) }
+// Example of platform-aware initialization
+fun initKoin(appDeclaration: KoinAppDeclaration = {}) {
+    startKoin {
+        appDeclaration()
+        modules(appModules)
+    }
 }
 ```
 
@@ -103,9 +111,11 @@ val authModule = module {
 ## 6. Networking
 Networking is centralized in the `:core:network` module using **Ktor**.
 
-- **HttpClient**: Configured with `ContentNegotiation` (JSON) and `Logging`. It uses platform-specific engines (`OkHttp` for Android, `Darwin` for iOS).
+- **Two-Client Strategy**: 
+    - **Public Client**: Used for unauthenticated requests like Login or Token Refresh.
+    - **Authenticated Client**: Automatically attaches Bearer tokens and handles 401 errors via a refresh mechanism.
+- **Auth Plugin**: Integrates with `:core:datastore` to load tokens from disk and refresh them when expired without user intervention.
 - **Safe Requests**: A `safeRequest` extension function wraps network calls to catch exceptions and map them to a sealed `NetworkResult`.
-- **Handling Errors**: The `handleResponse()` function maps HTTP status codes (401, 403, 500) and API-specific error bodies into type-safe failure states.
 - **Data Sources**: Features use a `RemoteDataSource` interface to separate network implementation from repository logic.
 
 ---
@@ -124,17 +134,11 @@ The UI is built entirely in **Compose Multiplatform** within the `:core:ui` and 
 The project follows a comprehensive testing approach located in `commonTest`:
 
 - **Mokkery**: Used to mock interfaces like `AuthenticationRepository` or `LoginUseCase`.
-- **Ktor MockEngine**: Used in `AuthRemoteDataSourceImplTest` to simulate server responses and verify request parameters without actual network calls.
-- **Unit Tests**: Coverage for Mappers, Validators, and UseCases.
+- **Ktor MockEngine**: Used in `AuthRemoteDataSourceImplTest` to simulate server responses.
+- **DataStore Testing**: `TokenManagerImplTest` uses a real DataStore instance with temporary files to ensure reliable persistence testing across platforms.
 - **ViewModel Tests**: Verify state transitions and side effects by sending `Intents`.
-- **Compose UI Tests**: Use `runComposeUiTest` to verify that screens display correctly and react to user input.
 - **Dispatcher Injection**: A `DispatcherProvider` is used to swap `Main` and `IO` dispatchers for `StandardTestDispatcher` during tests.
-- **Code Coverage**: JaCoCo is used to track test coverage, including both local unit tests and Android instrumented tests.
-
-#### Why JaCoCo?
-While **Kover** is the modern alternative for KMP, **JaCoCo** was chosen for this project because it provides robust support for **instrumented tests** on Android.
-- **Trade-offs**: JaCoCo requires more configuration for KMP but ensures that coverage from physical devices or emulators is captured.
-- **Future Plans**: If Kover evolves to fully support instrumented tests with the same level of reliability, the project is intended to migrate to Kover to leverage its better integration with Kotlin-specific features.
+- **Code Coverage**: JaCoCo is used to track test coverage.
 
 ---
 
@@ -195,21 +199,22 @@ To enable coverage for a new module, add the following to its `build.gradle.kts`
 ## 11. Development Guidelines
 - **Adding Features**: Create a new package under `features/` following the `data/domain/presentation` structure.
 - **Shared Models**: Data classes used across multiple modules must live in `:core:model`.
+- **Persistence**: Any long-term data storage logic belongs in `:core:datastore`.
+- **Networking**: Define all API endpoints in `:core:network:endpoint`.
 - **MVI Contract**: Every new screen should define a `Contract` interface containing `State`, `Intent`, and `Effect`.
-- **Dependency Flow**: Feature modules should never depend on other feature modules. They should only interact via shared core modules or deep-linking logic in the app module.
 - **Dispatchers**: Always inject `DispatcherProvider` instead of hardcoding `Dispatchers.IO`.
 
 ---
 
 ## 12. Project Status
 - **Authentication**: Fully implemented MVI-based login flow with server-side error mapping and form validation.
+- **Token Management**: Secure-ready storage with automatic Ktor token refresh integration.
 - **Infrastructure**: Robust multi-module Gradle setup with centralized networking and UI design system.
-- **Modularization**: Physical module split completed for `core` and `auth`.
 
 ---
 
 ## 13. Future Improvements
 - [ ] Implement actual navigation using a Multiplatform Navigation library.
-- [ ] Add persistence layer using SQLDelight for user sessions.
+- [ ] Add persistence layer using SQLDelight for complex local data.
+- [ ] Implement secure storage (Keychain/EncryptedSharedPrefs) within `:core:datastore`.
 - [ ] Expand the Design System with more common components (Buttons, Loaders).
-- [ ] Migrate to **Kover** if/when it provides full support for Android instrumented tests.
