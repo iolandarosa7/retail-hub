@@ -9,8 +9,8 @@ import org.koin.dsl.KoinAppDeclaration
 
 val appModules = listOf(
     coreCommonModule,
-    networkModule,
     datastoreModule,
+    networkModule,
     authModule,
 )
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) {
