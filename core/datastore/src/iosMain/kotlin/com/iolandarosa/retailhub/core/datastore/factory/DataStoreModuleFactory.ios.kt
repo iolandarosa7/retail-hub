@@ -8,6 +8,7 @@ import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 
+@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 actual class DataStoreModuleFactory {
     actual fun create(): DataStore<Preferences> = createDataStore {
         val directory = NSFileManager.defaultManager.URLForDirectory(
