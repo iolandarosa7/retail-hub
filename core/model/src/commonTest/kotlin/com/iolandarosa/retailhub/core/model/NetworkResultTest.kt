@@ -6,7 +6,7 @@ import kotlin.test.assertSame
 
 class NetworkResultTest {
     @Test
-    fun `maps success data`() {
+    fun success_map_hasTransformedValue() {
         val result: NetworkResult<Int> = NetworkResult.Success(10)
 
         val mapped = result.map { it.toString() }
@@ -18,8 +18,8 @@ class NetworkResultTest {
     }
 
     @Test
-    fun `does not transform failure`() {
-        val failures = listOf<NetworkResult.Failure>(
+    fun failure_map_doesNotChanges() {
+        val failures = listOf(
             NetworkResult.Failure.Server(500, "Server error"),
             NetworkResult.Failure.Unauthorized,
             NetworkResult.Failure.Forbidden,

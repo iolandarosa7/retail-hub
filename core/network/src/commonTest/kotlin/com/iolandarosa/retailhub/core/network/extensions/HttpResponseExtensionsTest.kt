@@ -2,7 +2,7 @@ package com.iolandarosa.retailhub.core.network.extensions
 
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.network.TestDto
-import com.iolandarosa.retailhub.core.network.client.createHttpClient
+import com.iolandarosa.retailhub.core.network.client.createPublicClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.get
@@ -19,7 +19,7 @@ class HttpResponseExtensionsTest {
 
     @Test
     fun statusSuccessValidSerialization_handleResponse_expectsSuccessResult() = runTest {
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             respond(
                 content = """{"id": 1, "name": "Test"}""",
                 status = HttpStatusCode.OK,
@@ -39,7 +39,7 @@ class HttpResponseExtensionsTest {
 
     @Test
     fun statusSuccessInvalidSerialization_handleResponse_expectsSerializationError() = runTest {
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             respond(
                 content = """{"invalid": "json"}""",
                 status = HttpStatusCode.OK,
@@ -59,7 +59,7 @@ class HttpResponseExtensionsTest {
 
     @Test
     fun statusSuccessUnitResponse_handleResponse_expectsSuccessUnit() = runTest {
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.NoContent,
@@ -75,7 +75,7 @@ class HttpResponseExtensionsTest {
 
     @Test
     fun statusUnauthorized_handleResponse_expectsUnauthorizedFailure() = runTest {
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.Unauthorized,
@@ -90,7 +90,7 @@ class HttpResponseExtensionsTest {
 
     @Test
     fun statusForbidden_handleResponse_expectsForbiddenFailure() = runTest {
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.Forbidden,
@@ -106,7 +106,7 @@ class HttpResponseExtensionsTest {
     @Test
     fun statusServerError_handleResponse_expectsServerFailure() = runTest {
         val errorMessage = "Internal Server Error"
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             respond(
                 content = errorMessage,
                 status = HttpStatusCode.InternalServerError,
@@ -124,7 +124,7 @@ class HttpResponseExtensionsTest {
     @Test
     fun statusBadRequestWithApiError_handleResponse_expectsApiErrorFailure() = runTest {
         val errorMessage = "Bad Request"
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             respond(
                 content = """{"message": "$errorMessage"}""",
                 status = HttpStatusCode.BadRequest,

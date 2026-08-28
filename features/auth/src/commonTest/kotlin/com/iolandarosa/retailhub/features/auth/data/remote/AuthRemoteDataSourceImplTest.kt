@@ -1,19 +1,17 @@
 package com.iolandarosa.retailhub.features.auth.data.remote
 
 import com.iolandarosa.retailhub.core.model.NetworkResult
-import com.iolandarosa.retailhub.core.network.client.createHttpClient
+import com.iolandarosa.retailhub.core.network.client.createPublicClient
 import com.iolandarosa.retailhub.core.network.endpoint.Endpoints
 import com.iolandarosa.retailhub.features.auth.data.model.UserDto
 import com.iolandarosa.retailhub.features.auth.data.request.LoginRequest
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -59,7 +57,7 @@ class AuthRemoteDataSourceImplTest {
             )
         }
 
-        val client = createHttpClient(engine)
+        val client = createPublicClient(engine)
 
         val dataSource = AuthRemoteDataSourceImpl(client)
 
@@ -106,7 +104,7 @@ class AuthRemoteDataSourceImplTest {
             )
         }
 
-        val client = createHttpClient(engine)
+        val client = createPublicClient(engine)
 
         val dataSource = AuthRemoteDataSourceImpl(client)
 
@@ -134,7 +132,7 @@ class AuthRemoteDataSourceImplTest {
             )
         }
 
-        val client = createHttpClient(engine)
+        val client = createPublicClient(engine)
 
         val dataSource = AuthRemoteDataSourceImpl(client)
 

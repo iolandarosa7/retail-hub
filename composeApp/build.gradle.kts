@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.retailHubJacoco)
+    alias(libs.plugins.mokkery)
 }
 
 retailhubJacoco {
@@ -48,6 +49,7 @@ kotlin {
             implementation(project(":core:datastore"))
             implementation(project(":core:ui"))
             implementation(project(":features:auth"))
+            implementation(project(":core:model"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

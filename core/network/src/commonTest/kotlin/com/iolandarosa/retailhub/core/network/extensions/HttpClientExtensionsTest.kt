@@ -2,7 +2,7 @@ package com.iolandarosa.retailhub.core.network.extensions
 
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.network.TestDto
-import com.iolandarosa.retailhub.core.network.client.createHttpClient
+import com.iolandarosa.retailhub.core.network.client.createPublicClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.network.sockets.ConnectTimeoutException
@@ -24,7 +24,7 @@ class HttpClientExtensionsTest {
 
     @Test
     fun successfulRequest_safeRequest_returnsSuccess() = runTest {
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             respond(
                 content = """{"id": 1, "name": "Test"}""",
                 status = HttpStatusCode.OK,
@@ -43,7 +43,7 @@ class HttpClientExtensionsTest {
 
     @Test
     fun unresolvedAddressException_safeRequest_returnsNoInternet() = runTest {
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             throw UnresolvedAddressException()
         })
 
@@ -54,7 +54,7 @@ class HttpClientExtensionsTest {
 
     @Test
     fun connectTimeoutException_safeRequest_returnsTimeout() = runTest {
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             throw ConnectTimeoutException("host", null)
         })
 
@@ -65,7 +65,7 @@ class HttpClientExtensionsTest {
 
     @Test
     fun httpRequestTimeoutException_safeRequest_returnsTimeout() = runTest {
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             throw HttpRequestTimeoutException("url", 1000L)
         })
 
@@ -76,7 +76,7 @@ class HttpClientExtensionsTest {
 
     @Test
     fun socketTimeoutException_safeRequest_returnsTimeout() = runTest {
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             throw SocketTimeoutException("timeout")
         })
 
@@ -87,7 +87,7 @@ class HttpClientExtensionsTest {
 
     @Test
     fun serializationException_safeRequest_returnsSerializationFailure() = runTest {
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             throw SerializationException("serialization error")
         })
 
@@ -100,7 +100,7 @@ class HttpClientExtensionsTest {
     @Test
     fun genericException_safeRequest_returnsUnknownFailure() = runTest {
         val errorMessage = "Something went wrong"
-        val client = createHttpClient(MockEngine {
+        val client = createPublicClient(MockEngine {
             throw Exception(errorMessage)
         })
 

@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 class ApiErrorResponseTest {
     @Test
-    fun `creates response with given message`() {
+    fun responseInstance_hasExpectedValues() {
         val expectedMessage = "message"
 
         val response = ApiErrorResponse(expectedMessage)

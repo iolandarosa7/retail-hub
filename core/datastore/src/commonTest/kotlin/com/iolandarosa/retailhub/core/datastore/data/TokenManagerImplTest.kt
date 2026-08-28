@@ -1,6 +1,7 @@
 package com.iolandarosa.retailhub.core.datastore.data
 
 import com.iolandarosa.retailhub.core.datastore.FakeDataStore
+import com.iolandarosa.retailhub.core.model.AuthTokens
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
@@ -25,16 +26,29 @@ class TokenManagerImplTest {
     }
 
     @Test
-    fun withTokensInfo_getAccessToken_returnsExpectedValue() = runTest {
-        val accessToken = "accessToken"
+    fun withTokensInfo_getAuthToken_returnsExpectedValue() = runTest {
+        val authTokens = AuthTokens("accessToken", "refreshToken")
 
-        tokenManager.saveAuthTokens(accessToken, "refreshToken")
+        tokenManager.saveAuthTokens(authTokens.accessToken, authTokens.refreshToken)
 
-        assertEquals(accessToken, tokenManager.getAccessToken().first())
+        assertEquals(authTokens, tokenManager.getAuthTokens().first())
     }
 
     @Test
     fun withEmptyDataStore_getAccessToken_returnsNull() = runTest {
-        assertNull(tokenManager.getAccessToken().first())
+        assertNull(tokenManager.getAuthTokens().first())
+    }
+
+    @Test
+    fun withTokensInfo_clearTokens_clearsDatastore() = runTest {
+        val authTokens = AuthTokens("accessToken", "refreshToken")
+
+        tokenManager.saveAuthTokens(authTokens.accessToken, authTokens.refreshToken)
+
+        assertEquals(authTokens, tokenManager.getAuthTokens().first())
+
+        tokenManager.clearTokens()
+
+        assertNull(tokenManager.getAuthTokens().first())
     }
 }
