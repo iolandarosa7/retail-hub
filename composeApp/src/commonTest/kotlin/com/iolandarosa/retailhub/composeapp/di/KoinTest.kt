@@ -2,11 +2,14 @@ package com.iolandarosa.retailhub.composeapp.di
 
 import com.iolandarosa.retailhub.composeapp.fakeTestModule
 import com.iolandarosa.retailhub.core.common.dispatcher.DispatcherProvider
+import com.iolandarosa.retailhub.core.datastore.domain.TokenManager
 import com.iolandarosa.retailhub.features.auth.data.remote.AuthRemoteDataSource
 import com.iolandarosa.retailhub.features.auth.domain.repository.AuthenticationRepository
 import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCase
 import com.iolandarosa.retailhub.features.auth.login.LoginViewModel
+import dev.mokkery.mock
 import org.koin.dsl.koinApplication
+import org.koin.dsl.module
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
