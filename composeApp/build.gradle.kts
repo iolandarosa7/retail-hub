@@ -48,6 +48,7 @@ kotlin {
             implementation(project(":core:datastore"))
             implementation(project(":core:ui"))
             implementation(project(":features:auth"))
+            implementation(project(":core:model"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
