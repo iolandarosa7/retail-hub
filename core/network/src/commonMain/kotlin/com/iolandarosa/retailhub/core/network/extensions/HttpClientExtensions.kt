@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.network.extensions
 
 import com.iolandarosa.retailhub.core.model.NetworkResult
@@ -10,9 +16,9 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
 
 suspend inline fun <reified T> HttpClient.safeRequest(
-    crossinline block: suspend HttpClient.() -> HttpResponse
-): NetworkResult<T> {
-    return try {
+    crossinline block: suspend HttpClient.() -> HttpResponse,
+): NetworkResult<T> =
+    try {
         val response = block()
         response.handleResponse<T>()
     } catch (_: UnresolvedAddressException) {
@@ -28,4 +34,3 @@ suspend inline fun <reified T> HttpClient.safeRequest(
     } catch (e: Exception) {
         NetworkResult.Failure.Unknown(message = e.message)
     }
-}

@@ -1,7 +1,7 @@
 rootProject.name = "RetailHub"
 
 pluginManagement {
-    includeBuild("jacoco")
+    includeBuild("build-logic")
 
     repositories {
         google {

@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.datastore.di
 
 import com.iolandarosa.retailhub.core.datastore.data.TokenManagerImpl
@@ -7,8 +13,9 @@ import org.koin.dsl.module
 
 expect val platformDataStoreModule: Module
 
-val datastoreModule = module {
-    includes(platformDataStoreModule)
+val datastoreModule =
+    module {
+        includes(platformDataStoreModule)
 
-    single<TokenManager> { TokenManagerImpl(get()) }
-}
+        single<TokenManager> { TokenManagerImpl(get()) }
+    }

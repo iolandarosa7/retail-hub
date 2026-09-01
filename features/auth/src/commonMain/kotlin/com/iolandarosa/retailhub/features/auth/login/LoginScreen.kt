@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.features.auth.login
 
 import androidx.compose.animation.AnimatedVisibility
@@ -34,7 +40,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iolandarosa.retailhub.core.ui.form.components.FormFieldRenderer
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
-import kotlinx.coroutines.flow.compose
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import retailhub.features.auth.generated.resources.Res
@@ -47,7 +52,7 @@ import retailhub.features.auth.generated.resources.welcome_back
 fun LoginScreen(
     paddingValues: PaddingValues,
     navigateToProfile: () -> Unit,
-    viewModel: LoginViewModel = koinViewModel()
+    viewModel: LoginViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -58,7 +63,7 @@ fun LoginScreen(
 
     LaunchedEffect(viewModel.effects) {
         viewModel.effects.collect { effect ->
-            when(effect) {
+            when (effect) {
                 LoginEffect.NavigateToProfile -> navigateToProfile()
             }
         }
@@ -68,17 +73,19 @@ fun LoginScreen(
         Modifier.fillMaxSize(),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.5f)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.75f),
-                            MaterialTheme.colorScheme.background
-                        )
-                    )
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.5f)
+                    .background(
+                        Brush.verticalGradient(
+                            colors =
+                                listOf(
+                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.75f),
+                                    MaterialTheme.colorScheme.background,
+                                ),
+                        ),
+                    ),
         )
 
         Column(
@@ -94,25 +101,25 @@ fun LoginScreen(
             Text(
                 stringResource(Res.string.welcome_back),
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
             )
 
             Text(
                 stringResource(Res.string.sign_in_to_continue),
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             ElevatedCard(Modifier.padding(Dimens.PaddingMedium)) {
                 Column(
                     Modifier.padding(Dimens.PaddingMedium),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium)
+                    verticalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium),
                 ) {
                     Text(
                         stringResource(Res.string.introduce_credentials_description),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
 
                     state.formState.fields.forEach { field ->
@@ -120,7 +127,7 @@ fun LoginScreen(
                             FormFieldRenderer(
                                 field = field,
                                 modifier = Modifier.fillMaxWidth(),
-                                enabled = isEnabled
+                                enabled = isEnabled,
                             )
                         }
                     }
@@ -130,7 +137,7 @@ fun LoginScreen(
                             Text(
                                 it.description ?: stringResource(it.descriptionId),
                                 style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.error
+                                color = MaterialTheme.colorScheme.error,
                             )
                         }
                     }
@@ -140,7 +147,7 @@ fun LoginScreen(
                             keyboardController?.hide()
                             viewModel.onIntent(LoginIntent.OnLoginClicked)
                         },
-                        enabled = isEnabled
+                        enabled = isEnabled,
                     ) {
                         if (!isEnabled) {
                             CircularProgressIndicator(Modifier.size(Dimens.SizeMedium))

@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.network.client
 
 import com.iolandarosa.retailhub.core.datastore.domain.TokenManager
@@ -28,11 +34,12 @@ import kotlinx.serialization.json.Json
 
 expect fun platformHttpClient(): HttpClient
 
-private val networkJson = Json {
-    ignoreUnknownKeys = true
-    explicitNulls = false
-    isLenient = true
-}
+private val networkJson =
+    Json {
+        ignoreUnknownKeys = true
+        explicitNulls = false
+        isLenient = true
+    }
 
 private fun HttpClientConfig<*>.commonConfig() {
     install(ContentNegotiation) {
@@ -63,7 +70,7 @@ fun createPublicClient(engine: HttpClientEngine? = null): HttpClient {
 fun createAuthenticatedClient(
     tokenManager: TokenManager,
     publicClient: HttpClient,
-    engine: HttpClientEngine? = null
+    engine: HttpClientEngine? = null,
 ): HttpClient {
     val client = engine?.let { HttpClient(it) } ?: platformHttpClient()
     return client.config {
@@ -80,23 +87,24 @@ fun createAuthenticatedClient(
                 refreshTokens {
                     val refreshToken = oldTokens?.refreshToken ?: return@refreshTokens null
 
-                    val response: NetworkResult<AuthTokens> = publicClient.safeRequest {
-                        post(Endpoints.REFRESH_URL) {
-                            contentType(ContentType.Application.Json)
-                            setBody(RefreshTokenRequest(refreshToken, 5))
+                    val response: NetworkResult<AuthTokens> =
+                        publicClient.safeRequest {
+                            post(Endpoints.REFRESH_URL) {
+                                contentType(ContentType.Application.Json)
+                                setBody(RefreshTokenRequest(refreshToken, 5))
+                            }
                         }
-                    }
 
                     when (response) {
                         is NetworkResult.Success -> {
                             tokenManager.saveAuthTokens(
                                 accessToken = response.data.accessToken,
-                                refreshToken = response.data.refreshToken
+                                refreshToken = response.data.refreshToken,
                             )
 
                             BearerTokens(
                                 accessToken = response.data.accessToken,
-                                refreshToken = response.data.refreshToken
+                                refreshToken = response.data.refreshToken,
                             )
                         }
 
@@ -105,7 +113,9 @@ fun createAuthenticatedClient(
                             null
                         }
 
-                        else -> null
+                        else -> {
+                            null
+                        }
                     }
                 }
             }

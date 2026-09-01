@@ -83,6 +83,7 @@ flowchart TD
 | **Kotlin Coroutines** | Managing background tasks and asynchronous flows. |
 | **Mokkery** | A Kotlin Multiplatform mocking library for testing. |
 | **JaCoCo** | Library for measuring and reporting code coverage. |
+| **Spotless** | Code formatting tool to enforce consistent style using KtLint. |
 | **Material 3** | Google's latest design system for consistent and modern UI. |
 
 ---
@@ -193,6 +194,9 @@ To enable coverage for a new module, add the following to its `build.gradle.kts`
 
 ### Common
 - **Run All Tests**: `./gradlew test`
+- **Format Code**: `./gradlew spotlessApply`
+- **Check Formatting**: `./gradlew spotlessCheck`
+- **Generate Coverage Report**: `./gradlew jacocoCoverageAggregate`
 
 ---
 

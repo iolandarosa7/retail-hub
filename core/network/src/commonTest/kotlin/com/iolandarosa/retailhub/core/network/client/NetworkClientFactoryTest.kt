@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.network.client
 
 import com.iolandarosa.retailhub.core.datastore.domain.TokenManager
@@ -35,179 +41,197 @@ class NetworkClientFactoryTest {
     private val tokenManager = mock<TokenManager>()
 
     @Test
-    fun createPublicHttpClient_appliesAllRequiredPlugins() = runTest {
-        val engine = MockEngine { _ ->
-            respondOk()
+    fun createPublicHttpClient_appliesAllRequiredPlugins() =
+        runTest {
+            val engine =
+                MockEngine { _ ->
+                    respondOk()
+                }
+
+            val client = createPublicClient(engine)
+
+            assertNotNull(client.plugin(ContentNegotiation), "ContentNegotiation should be installed")
+            assertNotNull(client.plugin(Logging), "Logging should be installed")
+            assertNotNull(client.plugin(DefaultRequest), "DefaultRequest should be installed")
+            assertNotNull(client.plugin(HttpTimeout), "HttpTimeout should be installed")
         }
 
-        val client = createPublicClient(engine)
-
-        assertNotNull(client.plugin(ContentNegotiation), "ContentNegotiation should be installed")
-        assertNotNull(client.plugin(Logging), "Logging should be installed")
-        assertNotNull(client.plugin(DefaultRequest), "DefaultRequest should be installed")
-        assertNotNull(client.plugin(HttpTimeout), "HttpTimeout should be installed")
-    }
-
     @Test
-    fun createPublicHttpClient_configuresBaseUrlCorrectly() = runTest {
-        var capturedUrl = ""
-        val engine = MockEngine { request ->
-            capturedUrl = request.url.toString()
-            respondOk()
+    fun createPublicHttpClient_configuresBaseUrlCorrectly() =
+        runTest {
+            var capturedUrl = ""
+            val engine =
+                MockEngine { request ->
+                    capturedUrl = request.url.toString()
+                    respondOk()
+                }
+
+            val client = createPublicClient(engine)
+
+            client.get("test")
+
+            assertTrue(
+                capturedUrl.startsWith(Endpoints.BASE_URL),
+                "URL should start with Base URL: $capturedUrl",
+            )
+            assertTrue(capturedUrl.endsWith("/test"), "URL should end with /test: $capturedUrl")
         }
 
-        val client = createPublicClient(engine)
-
-        client.get("test")
-
-        assertTrue(
-            capturedUrl.startsWith(Endpoints.BASE_URL),
-            "URL should start with Base URL: $capturedUrl"
-        )
-        assertTrue(capturedUrl.endsWith("/test"), "URL should end with /test: $capturedUrl")
-    }
-
     @Test
-    fun createAuthenticatedClient_appliesAllRequiredPlugins() = runTest {
-        val engine = MockEngine { _ ->
-            respondOk()
+    fun createAuthenticatedClient_appliesAllRequiredPlugins() =
+        runTest {
+            val engine =
+                MockEngine { _ ->
+                    respondOk()
+                }
+
+            val publicClient = createPublicClient(engine)
+
+            val client = createAuthenticatedClient(tokenManager, publicClient, engine)
+
+            assertNotNull(client.plugin(ContentNegotiation), "ContentNegotiation should be installed")
+            assertNotNull(client.plugin(Logging), "Logging should be installed")
+            assertNotNull(client.plugin(DefaultRequest), "DefaultRequest should be installed")
+            assertNotNull(client.plugin(HttpTimeout), "HttpTimeout should be installed")
+            assertNotNull(client.plugin(Auth), "Auth should be installed")
         }
 
-        val publicClient = createPublicClient(engine)
-
-        val client = createAuthenticatedClient(tokenManager, publicClient, engine)
-
-        assertNotNull(client.plugin(ContentNegotiation), "ContentNegotiation should be installed")
-        assertNotNull(client.plugin(Logging), "Logging should be installed")
-        assertNotNull(client.plugin(DefaultRequest), "DefaultRequest should be installed")
-        assertNotNull(client.plugin(HttpTimeout), "HttpTimeout should be installed")
-        assertNotNull(client.plugin(Auth), "Auth should be installed")
-    }
-
     @Test
-    fun authenticatedClient_loadsTokensFromTokenManager() = runTest {
-        val accessToken = "accessToken"
-        everySuspend { tokenManager.getAuthTokens() } returns flowOf(
-            AuthTokens(accessToken, "refreshToken")
-        )
+    fun authenticatedClient_loadsTokensFromTokenManager() =
+        runTest {
+            val accessToken = "accessToken"
+            everySuspend { tokenManager.getAuthTokens() } returns
+                flowOf(
+                    AuthTokens(accessToken, "refreshToken"),
+                )
 
-        var authorizationHeader: String? = null
+            var authorizationHeader: String? = null
 
-        val engine = MockEngine { request ->
-            authorizationHeader = request.headers["Authorization"]
-            respondOk()
+            val engine =
+                MockEngine { request ->
+                    authorizationHeader = request.headers["Authorization"]
+                    respondOk()
+                }
+
+            val publicClient = createPublicClient(engine)
+
+            val client = createAuthenticatedClient(tokenManager, publicClient, engine)
+
+            client.get("test")
+
+            assertEquals("Bearer $accessToken", authorizationHeader)
         }
 
-        val publicClient = createPublicClient(engine)
-
-        val client = createAuthenticatedClient(tokenManager, publicClient, engine)
-
-        client.get("test")
-
-        assertEquals("Bearer $accessToken", authorizationHeader)
-    }
-
     @Test
-    fun authenticatedClient_refreshesTokensAfterUnauthorized() = runTest {
-        val oldAccessToken = "oldAccessToken"
-        val oldRefreshToken = "oldRefreshToken"
+    fun authenticatedClient_refreshesTokensAfterUnauthorized() =
+        runTest {
+            val oldAccessToken = "oldAccessToken"
+            val oldRefreshToken = "oldRefreshToken"
 
-        val newAccessToken = "newAccessToken"
-        val newRefreshToken = "newRefreshToken"
+            val newAccessToken = "newAccessToken"
+            val newRefreshToken = "newRefreshToken"
 
-        everySuspend { tokenManager.getAuthTokens() } returns flowOf(
-            AuthTokens(oldAccessToken, oldRefreshToken)
-        )
+            everySuspend { tokenManager.getAuthTokens() } returns
+                flowOf(
+                    AuthTokens(oldAccessToken, oldRefreshToken),
+                )
 
-        everySuspend { tokenManager.saveAuthTokens(any(), any()) } returns Unit
+            everySuspend { tokenManager.saveAuthTokens(any(), any()) } returns Unit
 
-        var requestCount = 0
-        var refreshRequestBody: String? = null
-        val authorizationHeaders = mutableListOf<String?>()
+            var requestCount = 0
+            var refreshRequestBody: String? = null
+            val authorizationHeaders = mutableListOf<String?>()
 
-        val engine = MockEngine { request ->
-            when {
-                request.url.encodedPath == Endpoints.REFRESH_URL -> {
-                    refreshRequestBody = request.body.toByteArray().decodeToString()
+            val engine =
+                MockEngine { request ->
+                    when {
+                        request.url.encodedPath == Endpoints.REFRESH_URL -> {
+                            refreshRequestBody = request.body.toByteArray().decodeToString()
 
-                    respond(
-                        content = """
-                        {
-                            "accessToken": "$newAccessToken",
-                            "refreshToken": "$newRefreshToken"
+                            respond(
+                                content =
+                                    """
+                                    {
+                                        "accessToken": "$newAccessToken",
+                                        "refreshToken": "$newRefreshToken"
+                                    }
+                                    """.trimIndent(),
+                                status = HttpStatusCode.OK,
+                                headers =
+                                    headersOf(
+                                        HttpHeaders.ContentType,
+                                        ContentType.Application.Json.toString(),
+                                    ),
+                            )
                         }
-                    """.trimIndent(),
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(
-                            HttpHeaders.ContentType,
-                            ContentType.Application.Json.toString()
-                        )
+
+                        else -> {
+                            requestCount++
+                            authorizationHeaders += request.headers[HttpHeaders.Authorization]
+
+                            if (requestCount == 1) {
+                                respond(
+                                    content = "",
+                                    status = HttpStatusCode.Unauthorized,
+                                )
+                            } else {
+                                respondOk()
+                            }
+                        }
+                    }
+                }
+
+            val publicClient = createPublicClient(engine)
+
+            val client =
+                createAuthenticatedClient(
+                    tokenManager = tokenManager,
+                    publicClient = publicClient,
+                    engine = engine,
+                )
+
+            client.get("test")
+
+            assertEquals(
+                listOf<String?>(
+                    "Bearer $oldAccessToken",
+                    "Bearer $newAccessToken",
+                ),
+                authorizationHeaders,
+            )
+
+            assertTrue(refreshRequestBody!!.contains(oldRefreshToken))
+
+            verifySuspend { tokenManager.saveAuthTokens(newAccessToken, newRefreshToken) }
+        }
+
+    @Test
+    fun authenticatedClient_clearsTokensWhenRefreshFails() =
+        runTest {
+            val oldAccessToken = "oldAccessToken"
+            val oldRefreshToken = "oldRefreshToken"
+
+            everySuspend { tokenManager.getAuthTokens() } returns
+                flowOf(
+                    AuthTokens(oldAccessToken, oldRefreshToken),
+                )
+
+            everySuspend { tokenManager.clearTokens() } returns Unit
+
+            val engine =
+                MockEngine {
+                    respond(
+                        content = "",
+                        status = HttpStatusCode.Unauthorized,
                     )
                 }
 
-                else -> {
-                    requestCount++
-                    authorizationHeaders += request.headers[HttpHeaders.Authorization]
+            val publicClient = createPublicClient(engine)
 
-                    if (requestCount == 1) {
-                        respond(
-                            content = "",
-                            status = HttpStatusCode.Unauthorized
-                        )
-                    } else {
-                        respondOk()
-                    }
-                }
-            }
+            val client = createAuthenticatedClient(tokenManager, publicClient, engine)
+
+            client.get("test")
+
+            verifySuspend(VerifyMode.exactly(1)) { tokenManager.clearTokens() }
         }
-
-        val publicClient = createPublicClient(engine)
-
-        val client = createAuthenticatedClient(
-            tokenManager = tokenManager,
-            publicClient = publicClient,
-            engine = engine
-        )
-
-        client.get("test")
-
-        assertEquals(
-            listOf<String?>(
-                "Bearer $oldAccessToken",
-                "Bearer $newAccessToken"
-            ),
-            authorizationHeaders
-        )
-
-        assertTrue(refreshRequestBody!!.contains(oldRefreshToken))
-
-        verifySuspend { tokenManager.saveAuthTokens(newAccessToken, newRefreshToken) }
-    }
-
-    @Test
-    fun authenticatedClient_clearsTokensWhenRefreshFails() = runTest {
-        val oldAccessToken = "oldAccessToken"
-        val oldRefreshToken = "oldRefreshToken"
-
-        everySuspend { tokenManager.getAuthTokens() } returns flowOf(
-            AuthTokens(oldAccessToken, oldRefreshToken)
-        )
-
-        everySuspend { tokenManager.clearTokens() } returns Unit
-
-        val engine = MockEngine {
-            respond(
-                content = "",
-                status = HttpStatusCode.Unauthorized
-            )
-        }
-
-        val publicClient = createPublicClient(engine)
-
-        val client = createAuthenticatedClient(tokenManager, publicClient, engine)
-
-        client.get("test")
-
-        verifySuspend(VerifyMode.exactly(1)) { tokenManager.clearTokens() }
-    }
 }

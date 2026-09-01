@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.ui.form.components
 
 import androidx.compose.runtime.Composable
@@ -9,7 +15,7 @@ import com.iolandarosa.retailhub.core.ui.form.fields.TextFormField
 fun FormFieldRenderer(
     field: FormField<*>,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     when (field) {
         is TextFormField -> {

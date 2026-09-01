@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.network.extensions
 
 import com.iolandarosa.retailhub.core.model.ApiErrorResponse
@@ -10,8 +16,8 @@ import io.ktor.http.isSuccess
 import kotlinx.serialization.SerializationException
 import kotlin.runCatching
 
-suspend inline fun <reified T> HttpResponse.handleResponse(): NetworkResult<T> {
-    return when {
+suspend inline fun <reified T> HttpResponse.handleResponse(): NetworkResult<T> =
+    when {
         status.isSuccess() -> {
             try {
                 val result = if (T::class == Unit::class) Unit as T else body<T>()
@@ -22,20 +28,23 @@ suspend inline fun <reified T> HttpResponse.handleResponse(): NetworkResult<T> {
                 NetworkResult.Failure.Unknown("${status.value}: ${e.message}")
             }
         }
+
         status == HttpStatusCode.Unauthorized -> {
             NetworkResult.Failure.Unauthorized
         }
+
         status == HttpStatusCode.Forbidden -> {
             NetworkResult.Failure.Forbidden
         }
+
         status.value in 500..599 -> {
             NetworkResult.Failure.Server(code = status.value, message = bodyAsText())
         }
+
         else -> {
             runCatching { body<ApiErrorResponse>() }.fold(
                 onSuccess = { NetworkResult.Failure.ApiError(it) },
-                onFailure = { NetworkResult.Failure.Serialization("HTTP ${status.value}: ${it.message}")}
+                onFailure = { NetworkResult.Failure.Serialization("HTTP ${status.value}: ${it.message}") },
             )
         }
     }
-}

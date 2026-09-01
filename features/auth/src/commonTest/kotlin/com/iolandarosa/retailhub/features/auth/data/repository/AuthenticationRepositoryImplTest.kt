@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.features.auth.data.repository
 
 import com.iolandarosa.retailhub.core.datastore.domain.TokenManager
@@ -21,39 +27,42 @@ class AuthenticationRepositoryImplTest {
     private val repository = AuthenticationRepositoryImpl(service, tokenManager)
 
     @Test
-    fun loginReturnsMappedUserWhenServiceSucceeds() = runTest {
-        val userDto = UserDto(
-            id = 1,
-            username = "username",
-            email = "email",
-            firstName = "firstName",
-            lastName = "lastName",
-            gender = "gender",
-            image = "image",
-            accessToken = "accessToken",
-            refreshToken = "refreshToken"
-        )
+    fun loginReturnsMappedUserWhenServiceSucceeds() =
+        runTest {
+            val userDto =
+                UserDto(
+                    id = 1,
+                    username = "username",
+                    email = "email",
+                    firstName = "firstName",
+                    lastName = "lastName",
+                    gender = "gender",
+                    image = "image",
+                    accessToken = "accessToken",
+                    refreshToken = "refreshToken",
+                )
 
-        everySuspend { service.login(any())} returns NetworkResult.Success(data = userDto)
-        everySuspend { tokenManager.saveAuthTokens(any(), any()) } returns Unit
+            everySuspend { service.login(any()) } returns NetworkResult.Success(data = userDto)
+            everySuspend { tokenManager.saveAuthTokens(any(), any()) } returns Unit
 
-        val result = repository.login(username = "john", password = "password")
+            val result = repository.login(username = "john", password = "password")
 
-        assertEquals(NetworkResult.Success(userDto.toDomain()), result)
+            assertEquals(NetworkResult.Success(userDto.toDomain()), result)
 
-        verifySuspend { service.login(any()) }
-        verifySuspend { tokenManager.saveAuthTokens(userDto.accessToken, userDto.refreshToken)}
-    }
+            verifySuspend { service.login(any()) }
+            verifySuspend { tokenManager.saveAuthTokens(userDto.accessToken, userDto.refreshToken) }
+        }
 
     @Test
-    fun loginReturnsErrorWhenServiceFails() = runTest {
-        everySuspend { service.login(any())} returns NetworkResult.Failure.Timeout
+    fun loginReturnsErrorWhenServiceFails() =
+        runTest {
+            everySuspend { service.login(any()) } returns NetworkResult.Failure.Timeout
 
-        val result = repository.login(username = "john", password = "password")
+            val result = repository.login(username = "john", password = "password")
 
-        assertEquals(NetworkResult.Failure.Timeout, result)
+            assertEquals(NetworkResult.Failure.Timeout, result)
 
-        verifySuspend { service.login(any()) }
-        verifySuspend(VerifyMode.not) { tokenManager.saveAuthTokens(any(), any())}
-    }
+            verifySuspend { service.login(any()) }
+            verifySuspend(VerifyMode.not) { tokenManager.saveAuthTokens(any(), any()) }
+        }
 }

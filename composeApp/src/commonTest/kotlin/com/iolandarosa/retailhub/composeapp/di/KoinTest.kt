@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.composeapp.di
 
 import com.iolandarosa.retailhub.composeapp.fakeTestModule
@@ -13,11 +19,12 @@ import kotlin.test.assertNotNull
 class KoinTest {
     @Test
     fun applicationDependencyGraphIsValid() {
-        val koinApp = koinApplication {
-            allowOverride(true) // this line allows fakeTestModules to override appModules
-            modules(appModules)
-            modules(fakeTestModule)
-        }
+        val koinApp =
+            koinApplication {
+                allowOverride(true) // this line allows fakeTestModules to override appModules
+                modules(appModules)
+                modules(fakeTestModule)
+            }
 
         assertNotNull(koinApp.koin.get<DispatcherProvider>())
         assertNotNull(koinApp.koin.get<AuthRemoteDataSource>())

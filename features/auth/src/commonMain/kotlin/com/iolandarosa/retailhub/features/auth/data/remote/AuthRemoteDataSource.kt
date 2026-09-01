@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.features.auth.data.remote
 
 import com.iolandarosa.retailhub.core.model.NetworkResult

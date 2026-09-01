@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.ui.form.validators.strings
 
 import kotlin.test.Test
@@ -9,17 +15,18 @@ class RequiredTest {
 
     @Test
     fun acceptsNonBlankValue() {
-        val validValues = listOf(
-            "John",
-            " John",
-            "John ",
-            "John Doe"
-        )
+        val validValues =
+            listOf(
+                "John",
+                " John",
+                "John ",
+                "John Doe",
+            )
 
         validValues.forEach { value ->
             assertTrue(
                 Required().validate(value),
-                "Expected '$value' to be valid"
+                "Expected '$value' to be valid",
             )
         }
     }
@@ -31,19 +38,20 @@ class RequiredTest {
 
     @Test
     fun rejectsBlankValue() {
-        val invalidValues = listOf(
-            null,
-            "",
-            " ",
-            "   ",
-            "\t",
-            "\n"
-        )
+        val invalidValues =
+            listOf(
+                null,
+                "",
+                " ",
+                "   ",
+                "\t",
+                "\n",
+            )
 
         invalidValues.forEach { value ->
             assertFalse(
                 Required().validate(value),
-                "Expected '$value' to be invalid"
+                "Expected '$value' to be invalid",
             )
         }
     }

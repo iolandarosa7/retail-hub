@@ -18,14 +18,20 @@ retailhubJacoco {
 kotlin {
     android {
         namespace = "com.iolandarosa.retailhub.features.auth"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        compileSdk =
+            libs.versions.android.compileSdk
+                .get()
+                .toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
 
         androidResources {
             enable = true
         }
 
-        withHostTestBuilder {  }
+        withHostTestBuilder { }
 
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
@@ -37,7 +43,7 @@ kotlin {
 
     listOf(
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "AuthKit"

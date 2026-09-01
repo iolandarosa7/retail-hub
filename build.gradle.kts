@@ -8,4 +8,5 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.androidLint) apply false
     id("retailhub-jacoco-aggregate")
+    id("retailhub-spotless")
 }

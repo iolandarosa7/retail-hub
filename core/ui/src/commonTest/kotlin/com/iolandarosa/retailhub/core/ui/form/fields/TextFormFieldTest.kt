@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.ui.form.fields
 
 import retailhub.core.ui.generated.resources.Res
@@ -6,14 +12,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TextFormFieldTest {
-
     @Test
     fun initializesWithProvidedNameAndValue() {
-        val field = TextFormField(
-            name = "email",
-            labelResId = Res.string.error_unknown,
-            initialValue = "test@example.com",
-        )
+        val field =
+            TextFormField(
+                name = "email",
+                labelResId = Res.string.error_unknown,
+                initialValue = "test@example.com",
+            )
 
         assertEquals("email", field.name)
         assertEquals("test@example.com", field.value)
@@ -23,11 +29,12 @@ class TextFormFieldTest {
     fun onValueChangeReceivesChangedValue() {
         var changedValue: String? = null
 
-        val field = TextFormField(
-            name = "email",
-            labelResId = Res.string.error_unknown,
-            onValueChange = { changedValue = it },
-        )
+        val field =
+            TextFormField(
+                name = "email",
+                labelResId = Res.string.error_unknown,
+                onValueChange = { changedValue = it },
+            )
 
         field.onValueChange("new@example.com")
 

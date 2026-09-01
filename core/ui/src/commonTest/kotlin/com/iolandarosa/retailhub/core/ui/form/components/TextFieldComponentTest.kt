@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.ui.form.components
 
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -8,8 +14,8 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import com.iolandarosa.retailhub.core.ui.form.FakeValidator
 import com.iolandarosa.retailhub.core.ui.form.fields.TextFormField
 import retailhub.core.ui.generated.resources.Res
-import retailhub.core.ui.generated.resources.test_label
 import retailhub.core.ui.generated.resources.error_test
+import retailhub.core.ui.generated.resources.test_label
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -26,72 +32,77 @@ class TextFieldComponentTest {
         labelResId = Res.string.test_label,
         initialValue = initialValue,
         onValueChange = onValueChanged,
-        validators = listOf(validator)
+        validators = listOf(validator),
     )
 
     @Test
-    fun textFieldComponent_rendersLabel() = runComposeUiTest {
-        setContent {
-            FormFieldRenderer(setupField())
-        }
+    fun textFieldComponent_rendersLabel() =
+        runComposeUiTest {
+            setContent {
+                FormFieldRenderer(setupField())
+            }
 
-        onNodeWithText(expectedLabel).assertIsDisplayed()
-    }
+            onNodeWithText(expectedLabel).assertIsDisplayed()
+        }
 
     @Test
-    fun textFieldComponent_rendersInitialValue() = runComposeUiTest {
-        val initialValue = "John"
+    fun textFieldComponent_rendersInitialValue() =
+        runComposeUiTest {
+            val initialValue = "John"
 
-        setContent {
-            FormFieldRenderer(setupField(initialValue = initialValue))
+            setContent {
+                FormFieldRenderer(setupField(initialValue = initialValue))
+            }
+
+            onNodeWithText(initialValue).assertIsDisplayed()
         }
-
-        onNodeWithText(initialValue).assertIsDisplayed()
-    }
 
     @Test
-    fun textFieldComponent_changingText_updatesFieldAndCallsOnValueChanged() = runComposeUiTest {
-        var callbackValue: String? = null
+    fun textFieldComponent_changingText_updatesFieldAndCallsOnValueChanged() =
+        runComposeUiTest {
+            var callbackValue: String? = null
 
-        val field = setupField(
-            onValueChanged = { value -> callbackValue = value}
-        )
-        val textInput = "Hello"
+            val field =
+                setupField(
+                    onValueChanged = { value -> callbackValue = value },
+                )
+            val textInput = "Hello"
 
-        setContent {
-            TextFormFieldComponent(field)
+            setContent {
+                TextFormFieldComponent(field)
+            }
+
+            onNodeWithText(expectedLabel)
+                .assertIsDisplayed()
+                .performTextInput(textInput)
+
+            assertEquals(textInput, field.value)
+            assertEquals(textInput, callbackValue)
         }
-
-        onNodeWithText(expectedLabel)
-            .assertIsDisplayed()
-            .performTextInput(textInput)
-
-        assertEquals(textInput, field.value)
-        assertEquals(textInput, callbackValue)
-    }
 
     @Test
-    fun textFieldComponent_changingText_clearsError() = runComposeUiTest {
-        val field = setupField(
-            validator = FakeValidator(isValid = false, messageId = Res.string.error_test)
-        )
+    fun textFieldComponent_changingText_clearsError() =
+        runComposeUiTest {
+            val field =
+                setupField(
+                    validator = FakeValidator(isValid = false, messageId = Res.string.error_test),
+                )
 
-        field.validate()
+            field.validate()
 
-        val textInput = "Hello"
-        val expectedError = "Error"
+            val textInput = "Hello"
+            val expectedError = "Error"
 
-        setContent {
-            TextFormFieldComponent(field)
+            setContent {
+                TextFormFieldComponent(field)
+            }
+
+            onNodeWithText(expectedLabel).assertIsDisplayed()
+            onNodeWithText(expectedError)
+                .assertIsDisplayed()
+                .performTextInput(textInput)
+
+            onNodeWithText(expectedError)
+                .assertDoesNotExist()
         }
-
-        onNodeWithText(expectedLabel).assertIsDisplayed()
-        onNodeWithText(expectedError)
-            .assertIsDisplayed()
-            .performTextInput(textInput)
-
-
-        onNodeWithText(expectedError)
-            .assertDoesNotExist()
-    }
 }

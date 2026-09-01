@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.ui.form.fields
 
 import androidx.compose.foundation.text.KeyboardActions
@@ -17,7 +23,7 @@ open class TextFormField(
     val visualTransformation: VisualTransformation = VisualTransformation.None,
     initialValue: String? = null,
 ) : FormField<String>(
-    name = name,
-    validators = validators,
-    initialValue = initialValue,
-)
+        name = name,
+        validators = validators,
+        initialValue = initialValue,
+    )

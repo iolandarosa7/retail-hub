@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.network.extensions
 
 import com.iolandarosa.retailhub.core.model.NetworkResult
@@ -21,92 +27,120 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class HttpClientExtensionsTest {
+    @Test
+    fun successfulRequest_safeRequest_returnsSuccess() =
+        runTest {
+            val client =
+                createPublicClient(
+                    MockEngine {
+                        respond(
+                            content = """{"id": 1, "name": "Test"}""",
+                            status = HttpStatusCode.OK,
+                            headers =
+                                headersOf(
+                                    HttpHeaders.ContentType,
+                                    ContentType.Application.Json.toString(),
+                                ),
+                        )
+                    },
+                )
+
+            val result = client.safeRequest<TestDto> { get("/") }
+
+            assertIs<NetworkResult.Success<TestDto>>(result)
+            assertEquals(TestDto(1, "Test"), result.data)
+        }
 
     @Test
-    fun successfulRequest_safeRequest_returnsSuccess() = runTest {
-        val client = createPublicClient(MockEngine {
-            respond(
-                content = """{"id": 1, "name": "Test"}""",
-                status = HttpStatusCode.OK,
-                headers = headersOf(
-                    HttpHeaders.ContentType,
-                    ContentType.Application.Json.toString(),
-                ),
-            )
-        })
+    fun unresolvedAddressException_safeRequest_returnsNoInternet() =
+        runTest {
+            val client =
+                createPublicClient(
+                    MockEngine {
+                        throw UnresolvedAddressException()
+                    },
+                )
 
-        val result = client.safeRequest<TestDto> { get("/") }
+            val result = client.safeRequest<TestDto> { get("/") }
 
-        assertIs<NetworkResult.Success<TestDto>>(result)
-        assertEquals(TestDto(1, "Test"), result.data)
-    }
+            assertIs<NetworkResult.Failure.NoInternet>(result)
+        }
 
     @Test
-    fun unresolvedAddressException_safeRequest_returnsNoInternet() = runTest {
-        val client = createPublicClient(MockEngine {
-            throw UnresolvedAddressException()
-        })
+    fun connectTimeoutException_safeRequest_returnsTimeout() =
+        runTest {
+            val client =
+                createPublicClient(
+                    MockEngine {
+                        throw ConnectTimeoutException("host", null)
+                    },
+                )
 
-        val result = client.safeRequest<TestDto> { get("/") }
+            val result = client.safeRequest<TestDto> { get("/") }
 
-        assertIs<NetworkResult.Failure.NoInternet>(result)
-    }
-
-    @Test
-    fun connectTimeoutException_safeRequest_returnsTimeout() = runTest {
-        val client = createPublicClient(MockEngine {
-            throw ConnectTimeoutException("host", null)
-        })
-
-        val result = client.safeRequest<TestDto> { get("/") }
-
-        assertIs<NetworkResult.Failure.Timeout>(result)
-    }
+            assertIs<NetworkResult.Failure.Timeout>(result)
+        }
 
     @Test
-    fun httpRequestTimeoutException_safeRequest_returnsTimeout() = runTest {
-        val client = createPublicClient(MockEngine {
-            throw HttpRequestTimeoutException("url", 1000L)
-        })
+    fun httpRequestTimeoutException_safeRequest_returnsTimeout() =
+        runTest {
+            val client =
+                createPublicClient(
+                    MockEngine {
+                        throw HttpRequestTimeoutException("url", 1000L)
+                    },
+                )
 
-        val result = client.safeRequest<TestDto> { get("/") }
+            val result = client.safeRequest<TestDto> { get("/") }
 
-        assertIs<NetworkResult.Failure.Timeout>(result)
-    }
-
-    @Test
-    fun socketTimeoutException_safeRequest_returnsTimeout() = runTest {
-        val client = createPublicClient(MockEngine {
-            throw SocketTimeoutException("timeout")
-        })
-
-        val result = client.safeRequest<TestDto> { get("/") }
-
-        assertIs<NetworkResult.Failure.Timeout>(result)
-    }
+            assertIs<NetworkResult.Failure.Timeout>(result)
+        }
 
     @Test
-    fun serializationException_safeRequest_returnsSerializationFailure() = runTest {
-        val client = createPublicClient(MockEngine {
-            throw SerializationException("serialization error")
-        })
+    fun socketTimeoutException_safeRequest_returnsTimeout() =
+        runTest {
+            val client =
+                createPublicClient(
+                    MockEngine {
+                        throw SocketTimeoutException("timeout")
+                    },
+                )
 
-        val result = client.safeRequest<TestDto> { get("/") }
+            val result = client.safeRequest<TestDto> { get("/") }
 
-        assertIs<NetworkResult.Failure.Serialization>(result)
-        assertEquals("serialization error", result.message)
-    }
+            assertIs<NetworkResult.Failure.Timeout>(result)
+        }
 
     @Test
-    fun genericException_safeRequest_returnsUnknownFailure() = runTest {
-        val errorMessage = "Something went wrong"
-        val client = createPublicClient(MockEngine {
-            throw Exception(errorMessage)
-        })
+    fun serializationException_safeRequest_returnsSerializationFailure() =
+        runTest {
+            val client =
+                createPublicClient(
+                    MockEngine {
+                        throw SerializationException("serialization error")
+                    },
+                )
 
-        val result = client.safeRequest<TestDto> { get("/") }
+            val result = client.safeRequest<TestDto> { get("/") }
 
-        assertIs<NetworkResult.Failure.Unknown>(result)
-        assertEquals(errorMessage, result.message)
-    }
+            assertIs<NetworkResult.Failure.Serialization>(result)
+            assertEquals("serialization error", result.message)
+        }
+
+    @Test
+    fun genericException_safeRequest_returnsUnknownFailure() =
+        runTest {
+            val errorMessage = "Something went wrong"
+            val client =
+                createPublicClient(
+                    MockEngine {
+                        throw Exception(errorMessage)
+                    },
+                )
+
+            val result = client.safeRequest<TestDto> { get("/") }
+
+            assertIs<NetworkResult.Failure.Unknown>(result)
+            assertEquals(errorMessage, result.message)
+        }
 }

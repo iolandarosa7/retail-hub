@@ -23,14 +23,14 @@ val aggregate =
 
             html.outputLocation.set(
                 layout.buildDirectory.dir(
-                    "reports/jacoco/aggregate/html"
-                )
+                    "reports/jacoco/aggregate/html",
+                ),
             )
 
             xml.outputLocation.set(
                 layout.buildDirectory.file(
-                    "reports/jacoco/aggregate/jacoco.xml"
-                )
+                    "reports/jacoco/aggregate/jacoco.xml",
+                ),
             )
         }
     }
