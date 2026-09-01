@@ -9,14 +9,14 @@ val jacocoExtension =
     extensions.create<RetailhubJacocoExtension>("retailhubJacoco")
 
 jacocoExtension.exclusions.convention(
-    JacocoConfig.defaultExclusions
+    JacocoConfig.defaultExclusions,
 )
 
 extensions.configure<JacocoPluginExtension> {
     toolVersion = JacocoConfig.VERSION
 
     reportsDirectory.set(
-        layout.buildDirectory.dir("reports/jacoco")
+        layout.buildDirectory.dir("reports/jacoco"),
     )
 }
 
@@ -26,7 +26,7 @@ tasks.register<JacocoReport>("jacocoCoverage") {
     description = "Generates JaCoCo coverage report for this KMP Android module."
 
     sourceDirectories.setFrom(
-        files("src/commonMain/kotlin", "src/androidMain/kotlin")
+        files("src/commonMain/kotlin", "src/androidMain/kotlin"),
     )
 
     classDirectories.setFrom(
@@ -35,14 +35,14 @@ tasks.register<JacocoReport>("jacocoCoverage") {
                 include("**/*.class")
                 exclude(exclusions)
             }
-        }
+        },
     )
 
     executionData.setFrom(
         fileTree(layout.buildDirectory) {
             include("jacoco/**/*.exec")
             include("outputs/code_coverage/**/*.ec")
-        }
+        },
     )
 
     reports {

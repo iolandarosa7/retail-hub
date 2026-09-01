@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.ui.error
 
 import retailhub.core.ui.generated.resources.Res
@@ -26,10 +32,11 @@ class UiErrorTest {
 
     @Test
     fun createsErrorWithProvidedDescriptionResource() {
-        val error = UiError(
-            description = "Something went wrong",
-            descriptionId = Res.string.error_server
-        )
+        val error =
+            UiError(
+                description = "Something went wrong",
+                descriptionId = Res.string.error_server,
+            )
 
         assertEquals("Something went wrong", error.description)
         assertEquals(Res.string.error_server, error.descriptionId)

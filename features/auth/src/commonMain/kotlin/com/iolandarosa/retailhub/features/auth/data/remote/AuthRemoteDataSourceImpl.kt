@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.features.auth.data.remote
 
 import com.iolandarosa.retailhub.core.model.NetworkResult
@@ -12,8 +18,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 internal class AuthRemoteDataSourceImpl(
-    private val client: HttpClient
-): AuthRemoteDataSource {
+    private val client: HttpClient,
+) : AuthRemoteDataSource {
     override suspend fun login(request: LoginRequest): NetworkResult<UserDto> =
         client.safeRequest {
             post(Endpoints.LOGIN_URL) {

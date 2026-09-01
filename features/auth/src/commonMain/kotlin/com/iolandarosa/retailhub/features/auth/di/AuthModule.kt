@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.features.auth.di
 
 import com.iolandarosa.retailhub.core.model.NetworkClientType
@@ -8,18 +14,19 @@ import com.iolandarosa.retailhub.features.auth.domain.repository.AuthenticationR
 import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCase
 import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCaseImpl
 import com.iolandarosa.retailhub.features.auth.login.LoginViewModel
-import org.koin.dsl.module
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
+import org.koin.dsl.module
 
-val authModule = module {
-    single<AuthRemoteDataSource> { AuthRemoteDataSourceImpl(get(named(NetworkClientType.PUBLIC))) }
-    single<AuthenticationRepository> {
-        AuthenticationRepositoryImpl(
-            service = get(),
-            tokenManager = get(),
-        )
+val authModule =
+    module {
+        single<AuthRemoteDataSource> { AuthRemoteDataSourceImpl(get(named(NetworkClientType.PUBLIC))) }
+        single<AuthenticationRepository> {
+            AuthenticationRepositoryImpl(
+                service = get(),
+                tokenManager = get(),
+            )
+        }
+        factory<LoginUseCase> { LoginUseCaseImpl(get()) }
+        viewModel { LoginViewModel(loginUseCase = get(), dispatcherProvider = get()) }
     }
-    factory<LoginUseCase> { LoginUseCaseImpl(get()) }
-    viewModel { LoginViewModel(loginUseCase = get(), dispatcherProvider = get()) }
-}

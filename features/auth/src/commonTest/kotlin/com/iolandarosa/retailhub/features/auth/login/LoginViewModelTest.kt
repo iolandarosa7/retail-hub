@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.features.auth.login
 
 import app.cash.turbine.test
@@ -37,127 +43,136 @@ class LoginViewModelTest {
 
     @BeforeTest
     fun setup() {
-        viewModel = LoginViewModel(
-            loginUseCase = loginUseCase,
-            dispatcherProvider = TestDispatcherProvider(dispatcher)
-        )
+        viewModel =
+            LoginViewModel(
+                loginUseCase = loginUseCase,
+                dispatcherProvider = TestDispatcherProvider(dispatcher),
+            )
     }
 
     @Test
-    fun initialStateIsCorrect() = runTest {
-        assertEquals(LoginRequestState.Initial, viewModel.state.value.loginRequest)
+    fun initialStateIsCorrect() =
+        runTest {
+            assertEquals(LoginRequestState.Initial, viewModel.state.value.loginRequest)
 
-        assertTrue(viewModel.state.value.isInteractionEnabled)
+            assertTrue(viewModel.state.value.isInteractionEnabled)
 
-        assertNotNull(viewModel.state.value.formState)
+            assertNotNull(viewModel.state.value.formState)
 
-        val fields = viewModel.state.value.formState.fields
+            val fields = viewModel.state.value.formState.fields
 
-        assertEquals(2, fields.size)
+            assertEquals(2, fields.size)
 
-        assertEquals(LoginForm.USERNAME, fields[0].name)
-        assertEquals(LoginForm.PASSWORD, fields[1].name)
-    }
-
-    @Test
-    fun onLoginClickDoesNothingWhenFormIsInvalid() = runTest(scheduler) {
-        viewModel.onIntent(LoginIntent.OnLoginClicked)
-
-        advanceUntilIdle()
-
-        assertEquals(
-            LoginRequestState.Initial,
-            viewModel.state.value.loginRequest
-        )
-
-        verifySuspend(VerifyMode.not) {
-            loginUseCase(any(), any())
+            assertEquals(LoginForm.USERNAME, fields[0].name)
+            assertEquals(LoginForm.PASSWORD, fields[1].name)
         }
-    }
 
     @Test
-    fun onLoginSuccessChangesStateToSuccess() = runTest(scheduler) {
-        val username = "username"
-        val password = "password"
+    fun onLoginClickDoesNothingWhenFormIsInvalid() =
+        runTest(scheduler) {
+            viewModel.onIntent(LoginIntent.OnLoginClicked)
 
-        everySuspend {
-            loginUseCase(any(), any())
-        } returns NetworkResult.Success(User(id = 1, name = "name"))
+            advanceUntilIdle()
 
-        setFieldValue(0, username)
-        setFieldValue(1, password)
+            assertEquals(
+                LoginRequestState.Initial,
+                viewModel.state.value.loginRequest,
+            )
 
-        viewModel.onIntent(LoginIntent.OnLoginClicked)
-
-        assertEquals(LoginRequestState.Loading, viewModel.state.value.loginRequest)
-
-        assertFalse(viewModel.state.value.isInteractionEnabled)
-
-        assertNull(viewModel.state.value.error)
-
-        advanceUntilIdle()
-
-        assertEquals(LoginRequestState.Success, viewModel.state.value.loginRequest)
-
-        assertTrue(viewModel.state.value.isInteractionEnabled)
-
-        verifySuspend { loginUseCase(username, password) }
-
-        viewModel.effects.test {
-            assertEquals(LoginEffect.NavigateToProfile, awaitItem())
+            verifySuspend(VerifyMode.not) {
+                loginUseCase(any(), any())
+            }
         }
-    }
 
     @Test
-    fun onLoginErrorChangesStateToError() = runTest(scheduler) {
-        val username = "username"
-        val password = "password"
+    fun onLoginSuccessChangesStateToSuccess() =
+        runTest(scheduler) {
+            val username = "username"
+            val password = "password"
 
-        val failure = NetworkResult.Failure.Unknown()
+            everySuspend {
+                loginUseCase(any(), any())
+            } returns NetworkResult.Success(User(id = 1, name = "name"))
 
-        everySuspend { loginUseCase(any(), any()) } returns failure
+            setFieldValue(0, username)
+            setFieldValue(1, password)
 
-        setFieldValue(0, username)
-        setFieldValue(1, password)
+            viewModel.onIntent(LoginIntent.OnLoginClicked)
 
-        viewModel.onIntent(LoginIntent.OnLoginClicked)
+            assertEquals(LoginRequestState.Loading, viewModel.state.value.loginRequest)
 
-        assertFalse(viewModel.state.value.isInteractionEnabled)
+            assertFalse(viewModel.state.value.isInteractionEnabled)
 
-        assertNull(viewModel.state.value.error)
+            assertNull(viewModel.state.value.error)
 
-        advanceUntilIdle()
+            advanceUntilIdle()
 
-        assertIs<LoginRequestState.Error>(viewModel.state.value.loginRequest)
+            assertEquals(LoginRequestState.Success, viewModel.state.value.loginRequest)
 
-        assertTrue(viewModel.state.value.isInteractionEnabled)
+            assertTrue(viewModel.state.value.isInteractionEnabled)
 
-        assertEquals(UiError(), viewModel.state.value.error)
+            verifySuspend { loginUseCase(username, password) }
 
-        verifySuspend { loginUseCase(username, password) }
-    }
+            viewModel.effects.test {
+                assertEquals(LoginEffect.NavigateToProfile, awaitItem())
+            }
+        }
 
     @Test
-    fun formChangeResetsError() = runTest(scheduler) {
-        everySuspend {
-            loginUseCase(any(), any())
-        } returns NetworkResult.Failure.Unauthorized
+    fun onLoginErrorChangesStateToError() =
+        runTest(scheduler) {
+            val username = "username"
+            val password = "password"
 
-        setFieldValue(0, "username")
-        setFieldValue(1, "password")
+            val failure = NetworkResult.Failure.Unknown()
 
-        viewModel.onIntent(LoginIntent.OnLoginClicked)
+            everySuspend { loginUseCase(any(), any()) } returns failure
 
-        advanceUntilIdle()
+            setFieldValue(0, username)
+            setFieldValue(1, password)
 
-        assertIs<LoginRequestState.Error>(viewModel.state.value.loginRequest)
+            viewModel.onIntent(LoginIntent.OnLoginClicked)
 
-        viewModel.onIntent(LoginIntent.OnFormFieldChanged)
+            assertFalse(viewModel.state.value.isInteractionEnabled)
 
-        assertEquals(LoginRequestState.Initial, viewModel.state.value.loginRequest)
-    }
+            assertNull(viewModel.state.value.error)
 
-    private fun setFieldValue(index: Int, value: String) {
+            advanceUntilIdle()
+
+            assertIs<LoginRequestState.Error>(viewModel.state.value.loginRequest)
+
+            assertTrue(viewModel.state.value.isInteractionEnabled)
+
+            assertEquals(UiError(), viewModel.state.value.error)
+
+            verifySuspend { loginUseCase(username, password) }
+        }
+
+    @Test
+    fun formChangeResetsError() =
+        runTest(scheduler) {
+            everySuspend {
+                loginUseCase(any(), any())
+            } returns NetworkResult.Failure.Unauthorized
+
+            setFieldValue(0, "username")
+            setFieldValue(1, "password")
+
+            viewModel.onIntent(LoginIntent.OnLoginClicked)
+
+            advanceUntilIdle()
+
+            assertIs<LoginRequestState.Error>(viewModel.state.value.loginRequest)
+
+            viewModel.onIntent(LoginIntent.OnFormFieldChanged)
+
+            assertEquals(LoginRequestState.Initial, viewModel.state.value.loginRequest)
+        }
+
+    private fun setFieldValue(
+        index: Int,
+        value: String,
+    ) {
         (viewModel.state.value.formState.fields[index] as TextFormField).value = value
     }
 }

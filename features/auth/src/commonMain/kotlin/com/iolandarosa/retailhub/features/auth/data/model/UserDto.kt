@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.features.auth.data.model
 
 import kotlinx.serialization.Serializable
@@ -12,5 +18,5 @@ data class UserDto(
     val gender: String,
     val image: String,
     val accessToken: String,
-    val refreshToken: String
+    val refreshToken: String,
 )

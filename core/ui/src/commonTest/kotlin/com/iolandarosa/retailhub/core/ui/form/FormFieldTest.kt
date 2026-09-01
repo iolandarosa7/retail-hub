@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.ui.form
 
 import retailhub.core.ui.generated.resources.Res
@@ -44,17 +50,20 @@ class FormFieldTest {
     fun validateStopsAtFirstInvalidValidator() {
         val firstValidator = FakeValidator(isValid = false)
 
-        val secondValidator = FakeValidator(
-            isValid = true,
-            messageId = Res.string.error_test_variant
-        )
-
-        val field = FakeFormField(
-            validators = listOf(
-                firstValidator,
-                secondValidator
+        val secondValidator =
+            FakeValidator(
+                isValid = true,
+                messageId = Res.string.error_test_variant,
             )
-        )
+
+        val field =
+            FakeFormField(
+                validators =
+                    listOf(
+                        firstValidator,
+                        secondValidator,
+                    ),
+            )
 
         field.validate()
 

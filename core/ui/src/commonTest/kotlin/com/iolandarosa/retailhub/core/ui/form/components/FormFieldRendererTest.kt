@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.ui.form.components
 
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -15,34 +21,37 @@ class FormFieldRendererTest {
     private val labelResId = Res.string.test_label
     private val expectedLabel = "Test Label"
 
-    private val field = TextFormField(
-        name = "testField",
-        labelResId = labelResId
-    )
+    private val field =
+        TextFormField(
+            name = "testField",
+            labelResId = labelResId,
+        )
 
     @Test
-    fun textFormField_rendersTextFormFieldComponent() = runComposeUiTest {
-        setContent {
-            FormFieldRenderer(
-                field = field,
-                enabled = false
-            )
-        }
+    fun textFormField_rendersTextFormFieldComponent() =
+        runComposeUiTest {
+            setContent {
+                FormFieldRenderer(
+                    field = field,
+                    enabled = false,
+                )
+            }
 
-        onNodeWithText(expectedLabel).assertIsDisplayed()
-    }
+            onNodeWithText(expectedLabel).assertIsDisplayed()
+        }
 
     @Test
-    fun textFormFieldCanBeDisabled() = runComposeUiTest {
-        setContent {
-            FormFieldRenderer(
-                field = field,
-                enabled = false
-            )
-        }
+    fun textFormFieldCanBeDisabled() =
+        runComposeUiTest {
+            setContent {
+                FormFieldRenderer(
+                    field = field,
+                    enabled = false,
+                )
+            }
 
-        onNodeWithText(expectedLabel)
-            .assertIsDisplayed()
-            .assertIsNotEnabled()
-    }
+            onNodeWithText(expectedLabel)
+                .assertIsDisplayed()
+                .assertIsNotEnabled()
+        }
 }

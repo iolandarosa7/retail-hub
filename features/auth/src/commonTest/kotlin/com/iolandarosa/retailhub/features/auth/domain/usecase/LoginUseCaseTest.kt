@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.features.auth.domain.usecase
 
 import com.iolandarosa.retailhub.core.model.NetworkResult
@@ -17,21 +23,23 @@ class LoginUseCaseTest {
     private val useCase = LoginUseCaseImpl(repository)
 
     @Test
-    fun repositoryLoginReturnsUserWhenServiceSucceeds() = runTest {
-        val username = "username"
-        val password = "password"
+    fun repositoryLoginReturnsUserWhenServiceSucceeds() =
+        runTest {
+            val username = "username"
+            val password = "password"
 
-        val user = User(
-            id = 1,
-            name = "name",
-        )
+            val user =
+                User(
+                    id = 1,
+                    name = "name",
+                )
 
-        everySuspend { repository.login(any(), any())} returns NetworkResult.Success(user)
+            everySuspend { repository.login(any(), any()) } returns NetworkResult.Success(user)
 
-        val result = useCase(username, password)
+            val result = useCase(username, password)
 
-        assertEquals(NetworkResult.Success(user), result)
+            assertEquals(NetworkResult.Success(user), result)
 
-        verifySuspend { repository.login(username, password) }
-    }
+            verifySuspend { repository.login(username, password) }
+        }
 }

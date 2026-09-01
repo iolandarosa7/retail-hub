@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.ui.extension
 
 import com.iolandarosa.retailhub.core.model.ApiErrorResponse
@@ -13,16 +19,16 @@ import retailhub.core.ui.generated.resources.error_unauthorized
 import retailhub.core.ui.generated.resources.error_unknown
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 class NetworkResultExtensionsTest {
     @Test
     fun apiError_mapsErrorMessage_toDescription() {
         val expectedMessage = "error message"
 
-        val failure = NetworkResult.Failure.ApiError(
-            error = ApiErrorResponse(expectedMessage)
-        )
+        val failure =
+            NetworkResult.Failure.ApiError(
+                error = ApiErrorResponse(expectedMessage),
+            )
 
         val result = failure.toUiError()
 
@@ -46,9 +52,10 @@ class NetworkResultExtensionsTest {
 
     @Test
     fun serialization_maps_toSerializationError() {
-        val failure = NetworkResult.Failure.Serialization(
-            message = "Invalid JSON"
-        )
+        val failure =
+            NetworkResult.Failure.Serialization(
+                message = "Invalid JSON",
+            )
 
         val result = failure.toUiError()
 
@@ -57,10 +64,11 @@ class NetworkResultExtensionsTest {
 
     @Test
     fun server_maps_toServerError() {
-        val failure = NetworkResult.Failure.Server(
-            code = 500,
-            message = "Internal server error"
-        )
+        val failure =
+            NetworkResult.Failure.Server(
+                code = 500,
+                message = "Internal server error",
+            )
 
         val result = failure.toUiError()
 
@@ -83,9 +91,10 @@ class NetworkResultExtensionsTest {
 
     @Test
     fun unknown_maps_toDefaultError() {
-        val failure = NetworkResult.Failure.Unknown(
-            message = "Something unexpected happened"
-        )
+        val failure =
+            NetworkResult.Failure.Unknown(
+                message = "Something unexpected happened",
+            )
 
         val result = failure.toUiError()
 

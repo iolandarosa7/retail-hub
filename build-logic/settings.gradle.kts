@@ -1,4 +1,4 @@
-rootProject.name = "jacoco"
+rootProject.name = "build-logic"
 
 pluginManagement {
     repositories {
@@ -24,5 +24,11 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+    }
+
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
     }
 }

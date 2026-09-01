@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.datastore.data
 
 import com.iolandarosa.retailhub.core.datastore.FakeDataStore
@@ -26,29 +32,32 @@ class TokenManagerImplTest {
     }
 
     @Test
-    fun withTokensInfo_getAuthToken_returnsExpectedValue() = runTest {
-        val authTokens = AuthTokens("accessToken", "refreshToken")
+    fun withTokensInfo_getAuthToken_returnsExpectedValue() =
+        runTest {
+            val authTokens = AuthTokens("accessToken", "refreshToken")
 
-        tokenManager.saveAuthTokens(authTokens.accessToken, authTokens.refreshToken)
+            tokenManager.saveAuthTokens(authTokens.accessToken, authTokens.refreshToken)
 
-        assertEquals(authTokens, tokenManager.getAuthTokens().first())
-    }
-
-    @Test
-    fun withEmptyDataStore_getAccessToken_returnsNull() = runTest {
-        assertNull(tokenManager.getAuthTokens().first())
-    }
+            assertEquals(authTokens, tokenManager.getAuthTokens().first())
+        }
 
     @Test
-    fun withTokensInfo_clearTokens_clearsDatastore() = runTest {
-        val authTokens = AuthTokens("accessToken", "refreshToken")
+    fun withEmptyDataStore_getAccessToken_returnsNull() =
+        runTest {
+            assertNull(tokenManager.getAuthTokens().first())
+        }
 
-        tokenManager.saveAuthTokens(authTokens.accessToken, authTokens.refreshToken)
+    @Test
+    fun withTokensInfo_clearTokens_clearsDatastore() =
+        runTest {
+            val authTokens = AuthTokens("accessToken", "refreshToken")
 
-        assertEquals(authTokens, tokenManager.getAuthTokens().first())
+            tokenManager.saveAuthTokens(authTokens.accessToken, authTokens.refreshToken)
 
-        tokenManager.clearTokens()
+            assertEquals(authTokens, tokenManager.getAuthTokens().first())
 
-        assertNull(tokenManager.getAuthTokens().first())
-    }
+            tokenManager.clearTokens()
+
+            assertNull(tokenManager.getAuthTokens().first())
+        }
 }

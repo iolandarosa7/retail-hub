@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.features.auth.login
 
 import androidx.lifecycle.ViewModel
@@ -18,16 +24,19 @@ class LoginViewModel(
     private val loginUseCase: LoginUseCase,
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
-    private val _state: MutableStateFlow<LoginUiState> = MutableStateFlow(
-        LoginUiState(
-            formState = FormState(
-                fields = LoginForm.get(
-                    onValueChanged = { onIntent(LoginIntent.OnFormFieldChanged) },
-                    onActionDone = { onIntent(LoginIntent.OnLoginClicked) }
-                )
-            )
+    private val _state: MutableStateFlow<LoginUiState> =
+        MutableStateFlow(
+            LoginUiState(
+                formState =
+                    FormState(
+                        fields =
+                            LoginForm.get(
+                                onValueChanged = { onIntent(LoginIntent.OnFormFieldChanged) },
+                                onActionDone = { onIntent(LoginIntent.OnLoginClicked) },
+                            ),
+                    ),
+            ),
         )
-    )
     val state = _state.asStateFlow()
 
     private val _effects = Channel<LoginEffect>(Channel.BUFFERED)

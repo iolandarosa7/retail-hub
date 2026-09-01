@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.core.ui.form.components
 
 import androidx.compose.foundation.text.KeyboardActions
@@ -13,7 +19,7 @@ import org.jetbrains.compose.resources.stringResource
 fun TextFormFieldComponent(
     field: TextFormField,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -27,17 +33,18 @@ fun TextFormFieldComponent(
         enabled = enabled,
         label = { Text(stringResource(field.labelResId)) },
         keyboardOptions = field.keyboardOptions,
-        keyboardActions = KeyboardActions(
-            onDone = {
-                keyboardController?.hide()
-                field.keyboardActions.onDone?.invoke(this)
-            },
-            onNext = { field.keyboardActions.onNext?.invoke(this) },
-            onSearch = { field.keyboardActions.onSearch?.invoke(this) },
-            onSend = { field.keyboardActions.onSend?.invoke(this) },
-            onGo = { field.keyboardActions.onGo?.invoke(this) },
-            onPrevious = { field.keyboardActions.onPrevious?.invoke(this) }
-        ),
+        keyboardActions =
+            KeyboardActions(
+                onDone = {
+                    keyboardController?.hide()
+                    field.keyboardActions.onDone?.invoke(this)
+                },
+                onNext = { field.keyboardActions.onNext?.invoke(this) },
+                onSearch = { field.keyboardActions.onSearch?.invoke(this) },
+                onSend = { field.keyboardActions.onSend?.invoke(this) },
+                onGo = { field.keyboardActions.onGo?.invoke(this) },
+                onPrevious = { field.keyboardActions.onPrevious?.invoke(this) },
+            ),
         isError = field.error != null,
         supportingText = {
             field.error?.let {
