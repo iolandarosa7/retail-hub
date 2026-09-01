@@ -26,6 +26,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class LoginScreenTest {
@@ -52,7 +53,8 @@ class LoginScreenTest {
         setContent {
             LoginScreen(
                 paddingValues = PaddingValues(),
-                viewModel = viewModel
+                viewModel = viewModel,
+                navigateToProfile = {}
             )
         }
 
@@ -75,7 +77,8 @@ class LoginScreenTest {
             setContent {
                 LoginScreen(
                     paddingValues = PaddingValues(),
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    navigateToProfile = {}
                 )
             }
 
@@ -92,14 +95,17 @@ class LoginScreenTest {
         }
 
     @Test
-    fun clickingLoginShowsLoadingState() = runComposeUiTest(runTestContext = dispatcher) {
+    fun clickingLoginShowsLoadingStateAndIfSuccessCallCallback() = runComposeUiTest(runTestContext = dispatcher) {
+        var navigateToProfile = false
+
         everySuspend { loginUseCase(any(), any()) } returns
                 NetworkResult.Success(User(id = 1, name = "John"))
 
         setContent {
             LoginScreen(
                 paddingValues = PaddingValues(),
-                viewModel = viewModel
+                viewModel = viewModel,
+                navigateToProfile = { navigateToProfile = true }
             )
         }
 
@@ -126,6 +132,8 @@ class LoginScreenTest {
         onNodeWithText("Sign in").assertIsEnabled()
         onNodeWithText("Username").assertIsEnabled()
         onNodeWithText("Password").assertIsEnabled()
+
+        assertTrue(navigateToProfile)
     }
 
     @Test
@@ -137,7 +145,8 @@ class LoginScreenTest {
         setContent {
             LoginScreen(
                 paddingValues = PaddingValues(),
-                viewModel = viewModel
+                viewModel = viewModel,
+                navigateToProfile = {}
             )
         }
 

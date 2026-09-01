@@ -64,6 +64,8 @@ kotlin {
             implementation(libs.compose.components.resources)
             // serialization
             implementation(libs.kotlinx.serialization.json)
+            // turbine
+            implementation(libs.turbine)
         }
 
         commonTest.dependencies {

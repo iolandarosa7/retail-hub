@@ -17,12 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iolandarosa.retailhub.core.ui.form.components.FormFieldRenderer
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
+import kotlinx.coroutines.flow.compose
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import retailhub.features.auth.generated.resources.Res
@@ -43,13 +44,25 @@ import retailhub.features.auth.generated.resources.sign_in_to_continue
 import retailhub.features.auth.generated.resources.welcome_back
 
 @Composable
-fun LoginScreen(paddingValues: PaddingValues, viewModel: LoginViewModel = koinViewModel()) {
+fun LoginScreen(
+    paddingValues: PaddingValues,
+    navigateToProfile: () -> Unit,
+    viewModel: LoginViewModel = koinViewModel()
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val isEnabled by remember { derivedStateOf { state.isInteractionEnabled } }
     val error by remember { derivedStateOf { state.error } }
 
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(viewModel.effects) {
+        viewModel.effects.collect { effect ->
+            when(effect) {
+                LoginEffect.NavigateToProfile -> navigateToProfile()
+            }
+        }
+    }
 
     Box(
         Modifier.fillMaxSize(),

@@ -1,5 +1,6 @@
 package com.iolandarosa.retailhub.features.auth.login
 
+import app.cash.turbine.test
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.ui.error.UiError
 import com.iolandarosa.retailhub.core.ui.form.fields.TextFormField
@@ -43,7 +44,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun initialStateIsCorrect() {
+    fun initialStateIsCorrect() = runTest {
         assertEquals(LoginRequestState.Initial, viewModel.state.value.loginRequest)
 
         assertTrue(viewModel.state.value.isInteractionEnabled)
@@ -101,10 +102,14 @@ class LoginViewModelTest {
         assertTrue(viewModel.state.value.isInteractionEnabled)
 
         verifySuspend { loginUseCase(username, password) }
+
+        viewModel.effects.test {
+            assertEquals(LoginEffect.NavigateToProfile, awaitItem())
+        }
     }
 
     @Test
-    fun onLoginErrorChangesStateToError() = runTest (scheduler){
+    fun onLoginErrorChangesStateToError() = runTest(scheduler) {
         val username = "username"
         val password = "password"
 
@@ -133,7 +138,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun formChangeEesetsError() = runTest(scheduler) {
+    fun formChangeResetsError() = runTest(scheduler) {
         everySuspend {
             loginUseCase(any(), any())
         } returns NetworkResult.Failure.Unauthorized
