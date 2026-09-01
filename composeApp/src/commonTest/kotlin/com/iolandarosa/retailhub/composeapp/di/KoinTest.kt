@@ -12,7 +12,7 @@ import kotlin.test.assertNotNull
 
 class KoinTest {
     @Test
-    fun `application dependency graph is valid`() {
+    fun applicationDependencyGraphIsValid() {
         val koinApp = koinApplication {
             allowOverride(true) // this line allows fakeTestModules to override appModules
             modules(appModules)
