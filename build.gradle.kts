@@ -10,3 +10,7 @@ plugins {
     id("retailhub-jacoco-aggregate")
     id("retailhub-spotless")
 }
+
+subprojects {
+    apply(plugin = "retailhub-detekt")
+}

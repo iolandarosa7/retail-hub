@@ -10,4 +10,5 @@ repositories {
 
 dependencies {
     implementation(libs.spotless.gradle)
+    implementation(libs.detekt.gradle)
 }
