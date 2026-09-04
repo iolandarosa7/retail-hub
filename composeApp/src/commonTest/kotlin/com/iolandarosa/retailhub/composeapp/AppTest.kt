@@ -16,9 +16,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.v2.runComposeUiTest
 import com.iolandarosa.retailhub.composeapp.di.appModules
 import com.iolandarosa.retailhub.core.model.NetworkResult
-import com.iolandarosa.retailhub.features.auth.domain.model.User
-import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCase
-import com.iolandarosa.retailhub.features.auth.login.LoginViewModel
+import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCase
+import com.iolandarosa.retailhub.features.auth.presentation.login.LoginViewModel
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
@@ -83,12 +82,7 @@ class AppTest {
     fun signInSuccess_renderScreen_navigatesProfileScreen() =
         runComposeUiTest(runTestContext = dispatcher) {
             everySuspend { loginUseCase(any(), any()) } returns
-                NetworkResult.Success(
-                    User(
-                        id = 1,
-                        name = "name",
-                    ),
-                )
+                NetworkResult.Success(Unit)
 
             setContent {
                 KoinIsolatedContext(koinApp) {
@@ -108,7 +102,7 @@ class AppTest {
             onNodeWithText("Sign in")
                 .assertIsNotDisplayed()
 
-            onNodeWithText("Auth Profile")
+            onNodeWithText("Back")
                 .assertIsDisplayed()
                 .performClick()
 

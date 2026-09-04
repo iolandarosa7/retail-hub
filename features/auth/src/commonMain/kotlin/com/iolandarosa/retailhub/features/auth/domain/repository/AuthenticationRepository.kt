@@ -13,5 +13,7 @@ interface AuthenticationRepository {
     suspend fun login(
         username: String,
         password: String,
-    ): NetworkResult<User>
+    ): NetworkResult<Unit>
+
+    suspend fun getAuthUser(): NetworkResult<User>
 }

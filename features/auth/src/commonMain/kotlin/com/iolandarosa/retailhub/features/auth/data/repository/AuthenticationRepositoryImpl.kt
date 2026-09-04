@@ -21,7 +21,7 @@ internal class AuthenticationRepositoryImpl(
     override suspend fun login(
         username: String,
         password: String,
-    ): NetworkResult<User> {
+    ): NetworkResult<Unit> {
         val result =
             service.login(
                 LoginRequest(
@@ -38,8 +38,8 @@ internal class AuthenticationRepositoryImpl(
             )
         }
 
-        return result.map {
-            it.toDomain()
-        }
+        return result.mapUnit()
     }
+
+    override suspend fun getAuthUser(): NetworkResult<User> = service.getAuthUser().map { it.toDomain() }
 }
