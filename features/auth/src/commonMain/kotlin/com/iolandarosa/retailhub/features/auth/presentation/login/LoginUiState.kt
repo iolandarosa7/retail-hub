@@ -4,7 +4,7 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.auth.login
+package com.iolandarosa.retailhub.features.auth.presentation.login
 
 import com.iolandarosa.retailhub.core.ui.error.UiError
 import com.iolandarosa.retailhub.core.ui.form.FormState

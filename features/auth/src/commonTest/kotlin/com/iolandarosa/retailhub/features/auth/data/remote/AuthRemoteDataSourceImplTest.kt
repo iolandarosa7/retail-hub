@@ -41,8 +41,10 @@ class AuthRemoteDataSourceImplTest {
     private val tokenManager: TokenManager = mock()
 
     @Test
-    fun success_login_hasExpectedResult() = runTest {
-        val responseJson = """
+    fun success_login_hasExpectedResult() =
+        runTest {
+            val responseJson =
+                """
                 {
                     "id": 1,
                     "username": "john",
@@ -56,126 +58,140 @@ class AuthRemoteDataSourceImplTest {
                 }
                 """.trimIndent()
 
-        val engine = MockEngine { request ->
+            val engine =
+                MockEngine { request ->
+
+                    assertEquals(
+                        HttpMethod.Post,
+                        request.method,
+                    )
+
+                    assertEquals(
+                        Endpoints.LOGIN_URL,
+                        request.url.encodedPath,
+                    )
+
+                    respond(
+                        content = responseJson,
+                        status = HttpStatusCode.OK,
+                        headers =
+                            headersOf(
+                                HttpHeaders.ContentType,
+                                ContentType.Application.Json.toString(),
+                            ),
+                    )
+                }
+
+            val publicClient = createPublicClient(engine)
+            val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
+
+            val dataSource = AuthRemoteDataSourceImpl(publicClient, authenticatedClient)
+
+            val result =
+                dataSource.login(
+                    LoginRequest(
+                        username = "john",
+                        password = "secret",
+                        expiresInMins = 5,
+                    ),
+                )
 
             assertEquals(
-                HttpMethod.Post,
-                request.method,
-            )
-
-            assertEquals(
-                Endpoints.LOGIN_URL,
-                request.url.encodedPath,
-            )
-
-            respond(
-                content = responseJson,
-                status = HttpStatusCode.OK,
-                headers = headersOf(
-                    HttpHeaders.ContentType,
-                    ContentType.Application.Json.toString(),
+                NetworkResult.Success(
+                    AuthenticationDto(
+                        id = 1,
+                        username = "john",
+                        email = "john@example.com",
+                        firstName = "firstName",
+                        lastName = "lastName",
+                        gender = "gender",
+                        image = "image",
+                        accessToken = "accessToken",
+                        refreshToken = "refreshToken",
+                    ),
                 ),
+                result,
             )
         }
 
-        val publicClient = createPublicClient(engine)
-        val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
-
-        val dataSource = AuthRemoteDataSourceImpl(publicClient, authenticatedClient)
-
-        val result = dataSource.login(
-            LoginRequest(
-                username = "john",
-                password = "secret",
-                expiresInMins = 5,
-            ),
-        )
-
-        assertEquals(
-            NetworkResult.Success(
-                AuthenticationDto(
-                    id = 1,
-                    username = "john",
-                    email = "john@example.com",
-                    firstName = "firstName",
-                    lastName = "lastName",
-                    gender = "gender",
-                    image = "image",
-                    accessToken = "accessToken",
-                    refreshToken = "refreshToken",
-                ),
-            ),
-            result,
-        )
-    }
-
     @Test
-    fun error_login_hasExpectedResult() = runTest {
-        val engine = MockEngine {
-            respond(
-                content = """
+    fun error_login_hasExpectedResult() =
+        runTest {
+            val engine =
+                MockEngine {
+                    respond(
+                        content =
+                            """
                             {
                                 "message": "Invalid credentials"
                             }
                             """.trimIndent(),
-                status = HttpStatusCode.Unauthorized,
-                headers = headersOf(
-                    HttpHeaders.ContentType,
-                    ContentType.Application.Json.toString(),
-                ),
-            )
+                        status = HttpStatusCode.Unauthorized,
+                        headers =
+                            headersOf(
+                                HttpHeaders.ContentType,
+                                ContentType.Application.Json.toString(),
+                            ),
+                    )
+                }
+
+            val publicClient = createPublicClient(engine)
+            val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
+
+            val dataSource = AuthRemoteDataSourceImpl(publicClient, authenticatedClient)
+
+            val result =
+                dataSource.login(
+                    LoginRequest(
+                        username = "john",
+                        password = "wrong",
+                        expiresInMins = 5,
+                    ),
+                )
+
+            assertIs<NetworkResult.Failure.Unauthorized>(result)
         }
 
-        val publicClient = createPublicClient(engine)
-        val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
-
-        val dataSource = AuthRemoteDataSourceImpl(publicClient, authenticatedClient)
-
-        val result = dataSource.login(
-            LoginRequest(
-                username = "john",
-                password = "wrong",
-                expiresInMins = 5,
-            ),
-        )
-
-        assertIs<NetworkResult.Failure.Unauthorized>(result)
-    }
-
     @Test
-    fun decodeError_login_hasExpectedResponse() = runTest {
-        val engine = MockEngine {
-            respond(
-                content = "this is not valid json",
-                status = HttpStatusCode.OK,
-                headers = headersOf(
-                    HttpHeaders.ContentType,
-                    ContentType.Application.Json.toString(),
-                ),
-            )
+    fun decodeError_login_hasExpectedResponse() =
+        runTest {
+            val engine =
+                MockEngine {
+                    respond(
+                        content = "this is not valid json",
+                        status = HttpStatusCode.OK,
+                        headers =
+                            headersOf(
+                                HttpHeaders.ContentType,
+                                ContentType.Application.Json.toString(),
+                            ),
+                    )
+                }
+
+            val publicClient = createPublicClient(engine)
+            val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
+
+            val dataSource = AuthRemoteDataSourceImpl(publicClient, authenticatedClient)
+
+            val result =
+                dataSource.login(
+                    LoginRequest(
+                        username = "john",
+                        password = "secret",
+                        expiresInMins = 5,
+                    ),
+                )
+
+            assertIs<NetworkResult.Failure.Unknown>(result)
         }
 
-        val publicClient = createPublicClient(engine)
-        val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
-
-        val dataSource = AuthRemoteDataSourceImpl(publicClient, authenticatedClient)
-
-        val result = dataSource.login(
-            LoginRequest(
-                username = "john",
-                password = "secret",
-                expiresInMins = 5,
-            ),
-        )
-
-        assertIs<NetworkResult.Failure.Unknown>(result)
-    }
-
     @Test
-    fun success_getAuthUser_hasExpectedResult() = runTest {
-        everySuspend { tokenManager.getAuthTokens() } returns flowOf(AuthTokens("access", "refresh"))
+    fun success_getAuthUser_hasExpectedResult() =
+        runTest {
+            everySuspend { tokenManager.getAuthTokens() } returns flowOf(AuthTokens("access", "refresh"))
 
-        val responseJson = """
+            val responseJson =
+                """
                 {
                     "id": 1,
                     "firstName": "John",
@@ -208,97 +224,105 @@ class AuthRemoteDataSourceImplTest {
                 }
                 """.trimIndent()
 
-        val engine = MockEngine { request ->
-            assertEquals(HttpMethod.Get, request.method)
-            assertEquals(Endpoints.AUTH_USER_URL, request.url.encodedPath)
+            val engine =
+                MockEngine { request ->
+                    assertEquals(HttpMethod.Get, request.method)
+                    assertEquals(Endpoints.AUTH_USER_URL, request.url.encodedPath)
 
-            respond(
-                content = responseJson,
-                status = HttpStatusCode.OK,
-                headers = headersOf(
-                    HttpHeaders.ContentType,
-                    ContentType.Application.Json.toString(),
-                ),
-            )
+                    respond(
+                        content = responseJson,
+                        status = HttpStatusCode.OK,
+                        headers =
+                            headersOf(
+                                HttpHeaders.ContentType,
+                                ContentType.Application.Json.toString(),
+                            ),
+                    )
+                }
+
+            val publicClient = createPublicClient(engine)
+            val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
+            val dataSource = AuthRemoteDataSourceImpl(publicClient, authenticatedClient)
+
+            val result = dataSource.getAuthUser()
+
+            val expectedUserDto =
+                UserDto(
+                    id = 1,
+                    firstName = "John",
+                    lastName = "Doe",
+                    maidenName = "",
+                    age = 30,
+                    gender = "male",
+                    email = "john@example.com",
+                    phone = "123456",
+                    username = "johndoe",
+                    password = "password",
+                    birthDate = "2000-01-01",
+                    image = "image",
+                    bloodGroup = "A+",
+                    height = 180.0,
+                    weight = 80.0,
+                    eyeColor = "brown",
+                    hair = HairDto("", ""),
+                    ip = "",
+                    address = AddressDto("", "", "", "", "", CoordinatesDto(0.0, 0.0), ""),
+                    macAddress = "",
+                    university = "",
+                    bank = BankDto("", "", "", "", ""),
+                    company = CompanyDto("", "", "", AddressDto("", "", "", "", "", CoordinatesDto(0.0, 0.0), "")),
+                    ein = "",
+                    ssn = "",
+                    userAgent = "",
+                    crypto = CryptoDto("", "", ""),
+                    role = "admin",
+                )
+
+            assertEquals(NetworkResult.Success(expectedUserDto), result)
         }
-
-        val publicClient = createPublicClient(engine)
-        val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
-        val dataSource = AuthRemoteDataSourceImpl(publicClient, authenticatedClient)
-
-        val result = dataSource.getAuthUser()
-
-        val expectedUserDto = UserDto(
-            id = 1,
-            firstName = "John",
-            lastName = "Doe",
-            maidenName = "",
-            age = 30,
-            gender = "male",
-            email = "john@example.com",
-            phone = "123456",
-            username = "johndoe",
-            password = "password",
-            birthDate = "2000-01-01",
-            image = "image",
-            bloodGroup = "A+",
-            height = 180.0,
-            weight = 80.0,
-            eyeColor = "brown",
-            hair = HairDto("", ""),
-            ip = "",
-            address = AddressDto("", "", "", "", "", CoordinatesDto(0.0, 0.0), ""),
-            macAddress = "",
-            university = "",
-            bank = BankDto("", "", "", "", ""),
-            company = CompanyDto("", "", "", AddressDto("", "", "", "", "", CoordinatesDto(0.0, 0.0), "")),
-            ein = "",
-            ssn = "",
-            userAgent = "",
-            crypto = CryptoDto("", "", ""),
-            role = "admin",
-        )
-
-        assertEquals(NetworkResult.Success(expectedUserDto), result)
-    }
 
     @Test
-    fun error_getAuthUser_hasExpectedResult() = runTest {
-        val engine = MockEngine {
-            respond(
-                content = "",
-                status = HttpStatusCode.Unauthorized,
-            )
+    fun error_getAuthUser_hasExpectedResult() =
+        runTest {
+            val engine =
+                MockEngine {
+                    respond(
+                        content = "",
+                        status = HttpStatusCode.Unauthorized,
+                    )
+                }
+
+            val publicClient = createPublicClient(engine)
+            val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
+            val dataSource = AuthRemoteDataSourceImpl(publicClient, authenticatedClient)
+
+            val result = dataSource.getAuthUser()
+
+            assertIs<NetworkResult.Failure.Unknown>(result)
         }
-
-        val publicClient = createPublicClient(engine)
-        val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
-        val dataSource = AuthRemoteDataSourceImpl(publicClient, authenticatedClient)
-
-        val result = dataSource.getAuthUser()
-
-        assertIs<NetworkResult.Failure.Unknown>(result)
-    }
 
     @Test
-    fun decodeError_getAuthUser_hasExpectedResponse() = runTest {
-        val engine = MockEngine {
-            respond(
-                content = "{ invalid }",
-                status = HttpStatusCode.OK,
-                headers = headersOf(
-                    HttpHeaders.ContentType,
-                    ContentType.Application.Json.toString(),
-                ),
-            )
+    fun decodeError_getAuthUser_hasExpectedResponse() =
+        runTest {
+            val engine =
+                MockEngine {
+                    respond(
+                        content = "{ invalid }",
+                        status = HttpStatusCode.OK,
+                        headers =
+                            headersOf(
+                                HttpHeaders.ContentType,
+                                ContentType.Application.Json.toString(),
+                            ),
+                    )
+                }
+
+            val publicClient = createPublicClient(engine)
+            val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
+            val dataSource = AuthRemoteDataSourceImpl(publicClient, authenticatedClient)
+
+            val result = dataSource.getAuthUser()
+
+            assertIs<NetworkResult.Failure.Unknown>(result)
         }
-
-        val publicClient = createPublicClient(engine)
-        val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
-        val dataSource = AuthRemoteDataSourceImpl(publicClient, authenticatedClient)
-
-        val result = dataSource.getAuthUser()
-
-        assertIs<NetworkResult.Failure.Unknown>(result)
-    }
 }

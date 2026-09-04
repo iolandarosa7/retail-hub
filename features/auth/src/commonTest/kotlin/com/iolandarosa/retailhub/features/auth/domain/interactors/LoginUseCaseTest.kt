@@ -4,10 +4,9 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.auth.domain.usecase
+package com.iolandarosa.retailhub.features.auth.domain.interactors
 
 import com.iolandarosa.retailhub.core.model.NetworkResult
-import com.iolandarosa.retailhub.features.auth.domain.model.User
 import com.iolandarosa.retailhub.features.auth.domain.repository.AuthenticationRepository
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
@@ -23,22 +22,16 @@ class LoginUseCaseTest {
     private val useCase = LoginUseCaseImpl(repository)
 
     @Test
-    fun repositoryLoginReturnsUserWhenServiceSucceeds() =
+    fun success_invoke_hasExpectedResponse() =
         runTest {
             val username = "username"
             val password = "password"
 
-            val user =
-                User(
-                    id = 1,
-                    name = "name",
-                )
-
-            everySuspend { repository.login(any(), any()) } returns NetworkResult.Success(user)
+            everySuspend { repository.login(any(), any()) } returns NetworkResult.Success(Unit)
 
             val result = useCase(username, password)
 
-            assertEquals(NetworkResult.Success(user), result)
+            assertEquals(NetworkResult.Success(Unit), result)
 
             verifySuspend { repository.login(username, password) }
         }

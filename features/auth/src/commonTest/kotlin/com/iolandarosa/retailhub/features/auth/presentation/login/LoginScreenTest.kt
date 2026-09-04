@@ -4,7 +4,7 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.auth.login
+package com.iolandarosa.retailhub.features.auth.presentation.login
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -19,8 +19,7 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import com.iolandarosa.retailhub.core.model.ApiErrorResponse
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.features.auth.TestDispatcherProvider
-import com.iolandarosa.retailhub.features.auth.domain.model.User
-import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCase
+import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCase
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
@@ -107,7 +106,7 @@ class LoginScreenTest {
             var navigateToProfile = false
 
             everySuspend { loginUseCase(any(), any()) } returns
-                NetworkResult.Success(User(id = 1, name = "John"))
+                NetworkResult.Success(Unit)
 
             setContent {
                 LoginScreen(

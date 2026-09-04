@@ -4,7 +4,7 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.auth.login
+package com.iolandarosa.retailhub.features.auth.presentation.login
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
