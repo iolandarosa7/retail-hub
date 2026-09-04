@@ -4,15 +4,14 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.auth.login
+package com.iolandarosa.retailhub.features.auth.presentation.login
 
 import app.cash.turbine.test
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.ui.error.UiError
 import com.iolandarosa.retailhub.core.ui.form.fields.TextFormField
 import com.iolandarosa.retailhub.features.auth.TestDispatcherProvider
-import com.iolandarosa.retailhub.features.auth.domain.model.User
-import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCase
+import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCase
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
@@ -92,7 +91,7 @@ class LoginViewModelTest {
 
             everySuspend {
                 loginUseCase(any(), any())
-            } returns NetworkResult.Success(User(id = 1, name = "name"))
+            } returns NetworkResult.Success(Unit)
 
             setFieldValue(0, username)
             setFieldValue(1, password)

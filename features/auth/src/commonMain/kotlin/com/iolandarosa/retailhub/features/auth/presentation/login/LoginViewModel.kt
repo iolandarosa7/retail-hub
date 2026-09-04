@@ -4,7 +4,7 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.auth.login
+package com.iolandarosa.retailhub.features.auth.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,7 +12,7 @@ import com.iolandarosa.retailhub.core.common.dispatcher.DispatcherProvider
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.ui.extension.toUiError
 import com.iolandarosa.retailhub.core.ui.form.FormState
-import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCase
+import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

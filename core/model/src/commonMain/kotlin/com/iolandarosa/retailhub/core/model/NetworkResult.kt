@@ -43,4 +43,10 @@ sealed interface NetworkResult<out T> {
             is Success -> Success(transform(data))
             is Failure -> this
         }
+
+    fun mapUnit(): NetworkResult<Unit> =
+        when (this) {
+            is Success -> Success(Unit)
+            is Failure -> this
+        }
 }
