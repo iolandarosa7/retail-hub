@@ -81,6 +81,7 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.compose.ui.test)
             implementation(libs.ktor.client.serialization)
+            implementation(libs.coroutines.test)
         }
 
         getByName("androidDeviceTest") {
