@@ -65,9 +65,9 @@ class LoginViewModel(
             val username = formState.getFieldDataByName<String>(LoginForm.USERNAME) ?: ""
             val password = formState.getFieldDataByName<String>(LoginForm.PASSWORD) ?: ""
 
-            when (val response = loginUseCase(username = username, password = password)) {
+            when (val result = loginUseCase(username = username, password = password)) {
                 is NetworkResult.Failure -> {
-                    _state.update { it.copy(loginRequest = LoginRequestState.Error(error = response.toUiError())) }
+                    _state.update { it.copy(loginRequest = LoginRequestState.Error(error = result.toUiError())) }
                 }
 
                 is NetworkResult.Success -> {

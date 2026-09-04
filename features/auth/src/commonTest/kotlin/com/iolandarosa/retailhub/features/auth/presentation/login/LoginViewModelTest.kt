@@ -50,7 +50,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun initialStateIsCorrect() =
+    fun initialInstance_hasExpectedState() =
         runTest {
             assertEquals(LoginRequestState.Initial, viewModel.state.value.loginRequest)
 
@@ -67,7 +67,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun onLoginClickDoesNothingWhenFormIsInvalid() =
+    fun invalidForm_onLoginClicked_doesNothing() =
         runTest(scheduler) {
             viewModel.onIntent(LoginIntent.OnLoginClicked)
 
@@ -84,7 +84,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun onLoginSuccessChangesStateToSuccess() =
+    fun validFormAndSuccess_onLoginClicked_hasExpectedState() =
         runTest(scheduler) {
             val username = "username"
             val password = "password"
@@ -118,7 +118,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun onLoginErrorChangesStateToError() =
+    fun validFormAndError_onLoginClicked_hasExpectedState() =
         runTest(scheduler) {
             val username = "username"
             val password = "password"
@@ -148,7 +148,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun formChangeResetsError() =
+    fun valuesInForm_onFormFieldChanged_resetsError() =
         runTest(scheduler) {
             everySuspend {
                 loginUseCase(any(), any())
