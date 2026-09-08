@@ -4,15 +4,14 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.auth.login
+package com.iolandarosa.retailhub.features.auth.presentation.login
 
 import app.cash.turbine.test
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.ui.error.UiError
 import com.iolandarosa.retailhub.core.ui.form.fields.TextFormField
 import com.iolandarosa.retailhub.features.auth.TestDispatcherProvider
-import com.iolandarosa.retailhub.features.auth.domain.model.User
-import com.iolandarosa.retailhub.features.auth.domain.usecase.LoginUseCase
+import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCase
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
@@ -51,7 +50,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun initialStateIsCorrect() =
+    fun initialInstance_hasExpectedState() =
         runTest {
             assertEquals(LoginRequestState.Initial, viewModel.state.value.loginRequest)
 
@@ -68,7 +67,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun onLoginClickDoesNothingWhenFormIsInvalid() =
+    fun invalidForm_onLoginClicked_doesNothing() =
         runTest(scheduler) {
             viewModel.onIntent(LoginIntent.OnLoginClicked)
 
@@ -85,14 +84,14 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun onLoginSuccessChangesStateToSuccess() =
+    fun validFormAndSuccess_onLoginClicked_hasExpectedState() =
         runTest(scheduler) {
             val username = "username"
             val password = "password"
 
             everySuspend {
                 loginUseCase(any(), any())
-            } returns NetworkResult.Success(User(id = 1, name = "name"))
+            } returns NetworkResult.Success(Unit)
 
             setFieldValue(0, username)
             setFieldValue(1, password)
@@ -119,7 +118,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun onLoginErrorChangesStateToError() =
+    fun validFormAndError_onLoginClicked_hasExpectedState() =
         runTest(scheduler) {
             val username = "username"
             val password = "password"
@@ -149,7 +148,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun formChangeResetsError() =
+    fun valuesInForm_onFormFieldChanged_resetsError() =
         runTest(scheduler) {
             everySuspend {
                 loginUseCase(any(), any())

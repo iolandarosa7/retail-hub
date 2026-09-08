@@ -209,7 +209,7 @@ The contract must contain:
 
 - State
 - Intent
-- Effect
+- Effect (optional, add only when there is a concrete need for one-time events)
 
 Example:
 
@@ -294,6 +294,8 @@ Examples:
 Effects must not represent persistent UI state.
 
 Use the project's established Channel/Flow approach for effects.
+
+Add an Effects flow to the ViewModel only when at least one effect is defined in the contract.
 
 ---
 

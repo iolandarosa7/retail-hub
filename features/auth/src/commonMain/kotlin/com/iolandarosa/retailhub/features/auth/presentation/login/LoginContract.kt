@@ -4,7 +4,7 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.auth.login
+package com.iolandarosa.retailhub.features.auth.presentation.login
 
 sealed interface LoginIntent {
     data object OnFormFieldChanged : LoginIntent

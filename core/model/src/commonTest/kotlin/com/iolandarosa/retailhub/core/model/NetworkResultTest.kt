@@ -45,4 +45,39 @@ class NetworkResultTest {
             assertSame(failure, mapped)
         }
     }
+
+    @Test
+    fun success_mapUnit_hasTransformedValue() {
+        val result: NetworkResult<Int> = NetworkResult.Success(10)
+
+        val mapped = result.mapUnit()
+
+        assertEquals(
+            NetworkResult.Success(Unit),
+            mapped,
+        )
+    }
+
+    @Test
+    fun failure_mapUnit_doesNotChanges() {
+        val failures =
+            listOf(
+                NetworkResult.Failure.Server(500, "Server error"),
+                NetworkResult.Failure.Unauthorized,
+                NetworkResult.Failure.Forbidden,
+                NetworkResult.Failure.NoInternet,
+                NetworkResult.Failure.Timeout,
+                NetworkResult.Failure.Serialization("Invalid JSON"),
+                NetworkResult.Failure.ApiError(
+                    ApiErrorResponse("Something went wrong"),
+                ),
+                NetworkResult.Failure.Unknown("Unknown error"),
+            )
+
+        failures.forEach { failure ->
+            val mapped = failure.mapUnit()
+
+            assertSame(failure, mapped)
+        }
+    }
 }
