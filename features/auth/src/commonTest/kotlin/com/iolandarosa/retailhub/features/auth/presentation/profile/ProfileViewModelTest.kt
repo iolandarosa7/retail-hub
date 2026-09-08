@@ -48,7 +48,24 @@ class ProfileViewModelTest {
     @Test
     fun success_loadProfile_hasExpectedState() =
         runTest(scheduler) {
-            val data = User(id = 1, name = "name")
+            val data =
+                User(
+                    name = "name",
+                    image = "image",
+                    role = "role",
+                    email = "email",
+                    phone = "phone",
+                    age = 30,
+                    gender = "male",
+                    birthDate = "2000-01-01",
+                    bloodGroup = "A+",
+                    height = 180.0,
+                    weight = 80.0,
+                    eyeColor = "brown",
+                    hairColor = "black",
+                    hairType = "straight",
+                    address = "address",
+                )
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(data)
 
             viewModel.onIntent(ProfileIntent.LoadProfile)

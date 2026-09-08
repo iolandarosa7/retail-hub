@@ -19,7 +19,6 @@ console-reports:
     - 'ProjectStatisticsReport'
     - 'ComplexityReport'
     - 'NotificationReport'
-    - 'FindingsReport'
     - 'FileBasedFindingsReport'
 
 output-reports:

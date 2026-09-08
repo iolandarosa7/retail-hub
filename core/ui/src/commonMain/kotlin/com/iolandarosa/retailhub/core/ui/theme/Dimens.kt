@@ -22,4 +22,5 @@ object Dimens {
     val CornerRadiusLarge = 24.dp
 
     val SizeMedium = 16.dp
+    val SizeCircleImage = 120.dp
 }

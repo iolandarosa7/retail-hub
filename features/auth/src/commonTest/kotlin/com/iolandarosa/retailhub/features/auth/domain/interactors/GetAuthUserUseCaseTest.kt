@@ -18,7 +18,24 @@ class GetAuthUserUseCaseTest {
     @Test
     fun success_invoke_hasExpectedResponse() =
         runTest {
-            val data = User(id = 1, name = "name")
+            val data =
+                User(
+                    name = "name",
+                    image = "image",
+                    role = "role",
+                    email = "email",
+                    phone = "phone",
+                    age = 30,
+                    gender = "male",
+                    birthDate = "2000-01-01",
+                    bloodGroup = "A+",
+                    height = 180.0,
+                    weight = 80.0,
+                    eyeColor = "brown",
+                    hairColor = "black",
+                    hairType = "straight",
+                    address = "address",
+                )
             everySuspend { repository.getAuthUser() } returns NetworkResult.Success(data)
 
             val result = useCase()

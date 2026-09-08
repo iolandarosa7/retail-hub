@@ -89,7 +89,20 @@ class UserMapperTest {
 
         val user = userDto.toDomain()
 
-        assertEquals(1, user.id)
         assertEquals("firstName lastName", user.name)
+        assertEquals("image", user.image)
+        assertEquals("role", user.role)
+        assertEquals("email", user.email)
+        assertEquals("phone", user.phone)
+        assertEquals(1, user.age)
+        assertEquals("gender", user.gender)
+        assertEquals("birthDate", user.birthDate)
+        assertEquals("bloodGroup", user.bloodGroup)
+        assertEquals(40.0, user.height)
+        assertEquals(1.64, user.weight)
+        assertEquals("eyeColor", user.eyeColor)
+        assertEquals("color", user.hairColor)
+        assertEquals("type", user.hairType)
+        assertEquals("address, city, country", user.address)
     }
 }
