@@ -40,7 +40,6 @@ fun App() {
                         entry<ProfileRoute> {
                             ProfileScreen(
                                 paddingValues = innerPadding,
-                                onBack = navigator::pop,
                             )
                         }
                     },

@@ -6,34 +6,122 @@
 
 package com.iolandarosa.retailhub.features.auth.presentation.profile
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.iolandarosa.retailhub.core.ui.theme.Dimens
+import com.iolandarosa.retailhub.features.auth.domain.model.User
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import retailhub.features.auth.generated.resources.Res
+import retailhub.features.auth.generated.resources.ic_logout
+import retailhub.features.auth.generated.resources.logout
 
 @Composable
 fun ProfileScreen(
     paddingValues: PaddingValues,
-    onBack: () -> Unit,
     viewModel: ProfileViewModel = koinViewModel(),
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) {
         viewModel.onIntent(ProfileIntent.LoadProfile)
     }
 
-    Column(Modifier.padding(paddingValues)) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Button(onClick = onBack) {
-                Text("Back")
+    Box(
+        modifier =
+            Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+    ) {
+        when (val userRequest = state.userRequest) {
+            is UserRequestState.Error -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = userRequest.error.description ?: "Error loading profile",
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+
+            UserRequestState.Initial,
+            UserRequestState.Loading,
+            -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            is UserRequestState.Success -> {
+                ProfileScreenContent(
+                    user = userRequest.user,
+                    onLogout = { },
+                )
             }
         }
+    }
+}
+
+@Composable
+fun ProfileScreenContent(
+    user: User,
+    onLogout: () -> Unit,
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(Dimens.PaddingMedium),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge),
+    ) {
+        ProfileHeader(user)
+
+        ContactCard(user)
+
+        PersonalInfoCard(user)
+
+        PhysicalInfoCard(user)
+
+        AddressCard(user)
+
+        Button(
+            onClick = onLogout,
+            modifier = Modifier.fillMaxWidth(),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                ),
+        ) {
+            Icon(painter = painterResource(Res.drawable.ic_logout), contentDescription = null)
+            Text(stringResource(Res.string.logout))
+        }
+
+        Spacer(Modifier.height(Dimens.SpacingLarge))
     }
 }

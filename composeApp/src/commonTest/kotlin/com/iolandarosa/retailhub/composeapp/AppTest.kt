@@ -102,11 +102,7 @@ class AppTest {
             onNodeWithText("Sign in")
                 .assertIsNotDisplayed()
 
-            onNodeWithText("Back")
-                .assertIsDisplayed()
-                .performClick()
-
-            onNodeWithText("Sign in")
+            onNodeWithText("Error loading profile")
                 .assertIsDisplayed()
         }
 }
