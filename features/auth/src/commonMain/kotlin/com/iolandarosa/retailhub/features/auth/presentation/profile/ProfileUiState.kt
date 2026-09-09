@@ -32,8 +32,10 @@ sealed interface LogoutRequestState {
 data class ProfileUiState(
     val userRequest: UserRequestState = UserRequestState.Initial,
     val logoutRequest: LogoutRequestState = LogoutRequestState.Initial,
+    val isRefreshing: Boolean = false,
 ) {
     val isInteractionEnabled: Boolean get() =
         userRequest !is UserRequestState.Loading &&
+            !isRefreshing &&
             logoutRequest !is LogoutRequestState.Loading
 }

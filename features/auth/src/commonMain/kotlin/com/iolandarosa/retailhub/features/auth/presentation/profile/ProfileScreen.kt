@@ -26,6 +26,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -53,6 +54,7 @@ fun ProfileScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isEnabled by remember { derivedStateOf { state.isInteractionEnabled } }
+    val isRefreshing by remember { derivedStateOf { state.isRefreshing } }
 
     LaunchedEffect(Unit) {
         viewModel.onIntent(ProfileIntent.LoadProfile)
@@ -103,6 +105,8 @@ fun ProfileScreen(
                 ProfileScreenContent(
                     user = userRequest.user,
                     isEnabled = isEnabled,
+                    isRefreshing = isRefreshing,
+                    onRefresh = { viewModel.onIntent(ProfileIntent.RefreshProfile) },
                     onLogout = { viewModel.onIntent(ProfileIntent.Logout) },
                 )
             }
@@ -114,49 +118,53 @@ fun ProfileScreen(
 internal fun ProfileScreenContent(
     user: User,
     isEnabled: Boolean,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
     onLogout: () -> Unit,
 ) {
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(Dimens.PaddingMedium),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge),
-    ) {
-        ProfileHeader(user)
-
-        ContactCard(user)
-
-        PersonalInfoCard(user)
-
-        PhysicalInfoCard(user)
-
-        AddressCard(user)
-
-        Button(
-            onClick = onLogout,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = isEnabled,
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                ),
+    PullToRefreshBox(isRefreshing = isRefreshing, onRefresh = onRefresh) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(Dimens.PaddingMedium),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge),
         ) {
-            if (isEnabled) {
-                Icon(painter = painterResource(Res.drawable.ic_logout), contentDescription = null)
-            } else {
-                CircularProgressIndicator(
-                    Modifier.size(Dimens.SizeMedium),
-                    color = MaterialTheme.colorScheme.onTertiaryContainer,
-                )
-            }
-            Spacer(Modifier.width(Dimens.SpacingMedium))
-            Text(stringResource(Res.string.logout))
-        }
+            ProfileHeader(user)
 
-        Spacer(Modifier.height(Dimens.SpacingLarge))
+            ContactCard(user)
+
+            PersonalInfoCard(user)
+
+            PhysicalInfoCard(user)
+
+            AddressCard(user)
+
+            Button(
+                onClick = onLogout,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isEnabled,
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                    ),
+            ) {
+                if (isEnabled) {
+                    Icon(painter = painterResource(Res.drawable.ic_logout), contentDescription = null)
+                } else {
+                    CircularProgressIndicator(
+                        Modifier.size(Dimens.SizeMedium),
+                        color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    )
+                }
+                Spacer(Modifier.width(Dimens.SpacingMedium))
+                Text(stringResource(Res.string.logout))
+            }
+
+            Spacer(Modifier.height(Dimens.SpacingLarge))
+        }
     }
 }

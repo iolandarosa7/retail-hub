@@ -24,7 +24,9 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileViewModelTest {
@@ -47,6 +49,8 @@ class ProfileViewModelTest {
     @Test
     fun initialInstance_hasExpectedState() {
         assertEquals(UserRequestState.Initial, viewModel.state.value.userRequest)
+        assertEquals(LogoutRequestState.Initial, viewModel.state.value.logoutRequest)
+        assertFalse(viewModel.state.value.isRefreshing)
     }
 
     @Test
@@ -62,6 +66,25 @@ class ProfileViewModelTest {
             advanceUntilIdle()
 
             assertEquals(UserRequestState.Success(data), viewModel.state.value.userRequest)
+
+            verifySuspend { getAuthUserUseCase() }
+        }
+
+    @Test
+    fun success_refreshProfile_hasExpectedState() =
+        runTest(scheduler) {
+            val data = TestUser.user
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(data)
+
+            viewModel.onIntent(ProfileIntent.RefreshProfile)
+
+            assertEquals(UserRequestState.Initial, viewModel.state.value.userRequest)
+            assertTrue(viewModel.state.value.isRefreshing)
+
+            advanceUntilIdle()
+
+            assertEquals(UserRequestState.Success(data), viewModel.state.value.userRequest)
+            assertFalse(viewModel.state.value.isRefreshing)
 
             verifySuspend { getAuthUserUseCase() }
         }
@@ -87,6 +110,28 @@ class ProfileViewModelTest {
         }
 
     @Test
+    fun errorUnauthorized_refreshProfile_hasExpectedStateAndEffect() =
+        runTest(scheduler) {
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Failure.Unauthorized
+
+            viewModel.onIntent(ProfileIntent.RefreshProfile)
+
+            assertEquals(UserRequestState.Initial, viewModel.state.value.userRequest)
+            assertTrue(viewModel.state.value.isRefreshing)
+
+            advanceUntilIdle()
+
+            viewModel.effects.test {
+                assertEquals(ProfileEffect.NavigateToLogin, awaitItem())
+            }
+
+            assertIs<UserRequestState.Initial>(viewModel.state.value.userRequest)
+            assertFalse(viewModel.state.value.isRefreshing)
+
+            verifySuspend { getAuthUserUseCase() }
+        }
+
+    @Test
     fun error_loadProfile_hasExpectedState() =
         runTest(scheduler) {
             val failure = NetworkResult.Failure.Unknown()
@@ -100,6 +145,26 @@ class ProfileViewModelTest {
             advanceUntilIdle()
 
             assertIs<UserRequestState.Error>(viewModel.state.value.userRequest)
+
+            verifySuspend { getAuthUserUseCase() }
+        }
+
+    @Test
+    fun error_refreshProfile_hasExpectedState() =
+        runTest(scheduler) {
+            val failure = NetworkResult.Failure.Unknown()
+
+            everySuspend { getAuthUserUseCase() } returns failure
+
+            viewModel.onIntent(ProfileIntent.RefreshProfile)
+
+            assertEquals(UserRequestState.Initial, viewModel.state.value.userRequest)
+            assertTrue(viewModel.state.value.isRefreshing)
+
+            advanceUntilIdle()
+
+            assertIs<UserRequestState.Error>(viewModel.state.value.userRequest)
+            assertFalse(viewModel.state.value.isRefreshing)
 
             verifySuspend { getAuthUserUseCase() }
         }

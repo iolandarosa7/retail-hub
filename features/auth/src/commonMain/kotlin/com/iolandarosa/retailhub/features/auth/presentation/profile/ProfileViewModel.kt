@@ -34,29 +34,40 @@ class ProfileViewModel(
 
     fun onIntent(intent: ProfileIntent) {
         when (intent) {
-            ProfileIntent.LoadProfile -> getAuthUser()
+            ProfileIntent.LoadProfile -> getAuthUser(isRefresh = false)
             ProfileIntent.Logout -> logout()
+            ProfileIntent.RefreshProfile -> getAuthUser(isRefresh = true)
         }
     }
 
-    private fun getAuthUser() {
+    private fun getAuthUser(isRefresh: Boolean) {
         if (state.value.userRequest is UserRequestState.Loading) return
+        if (isRefresh && state.value.isRefreshing) return
 
-        _state.update { it.copy(userRequest = UserRequestState.Loading) }
+        _state.update {
+            if (isRefresh) {
+                it.copy(isRefreshing = true)
+            } else {
+                it.copy(userRequest = UserRequestState.Loading)
+            }
+        }
 
         viewModelScope.launch(dispatcherProvider.main) {
             when (val result = getAuthUserUseCase()) {
                 is NetworkResult.Failure.Unauthorized -> {
-                    _state.update { it.copy(userRequest = UserRequestState.Initial) }
+                    _state.update { it.copy(userRequest = UserRequestState.Initial, isRefreshing = false) }
+
                     _effects.send(ProfileEffect.NavigateToLogin)
                 }
 
                 is NetworkResult.Failure -> {
-                    _state.update { it.copy(userRequest = UserRequestState.Error(error = result.toUiError())) }
+                    _state.update {
+                        it.copy(userRequest = UserRequestState.Error(result.toUiError()), isRefreshing = false)
+                    }
                 }
 
                 is NetworkResult.Success -> {
-                    _state.update { it.copy(userRequest = UserRequestState.Success(result.data)) }
+                    _state.update { it.copy(userRequest = UserRequestState.Success(result.data), isRefreshing = false) }
                 }
             }
         }

@@ -10,6 +10,8 @@ sealed interface ProfileIntent {
     data object LoadProfile : ProfileIntent
 
     data object Logout : ProfileIntent
+
+    data object RefreshProfile : ProfileIntent
 }
 
 sealed interface ProfileEffect {

@@ -21,6 +21,7 @@ class ProfileUiStateTest {
         assertTrue(state.isInteractionEnabled)
         assertIs<UserRequestState.Initial>(state.userRequest)
         assertIs<LogoutRequestState.Initial>(state.logoutRequest)
+        assertFalse(state.isRefreshing)
     }
 
     @Test
@@ -29,6 +30,7 @@ class ProfileUiStateTest {
 
         assertFalse(state.isInteractionEnabled)
         assertIs<LogoutRequestState.Initial>(state.logoutRequest)
+        assertFalse(state.isRefreshing)
     }
 
     @Test
@@ -37,6 +39,7 @@ class ProfileUiStateTest {
 
         assertTrue(state.isInteractionEnabled)
         assertIs<LogoutRequestState.Initial>(state.logoutRequest)
+        assertFalse(state.isRefreshing)
     }
 
     @Test
@@ -45,6 +48,7 @@ class ProfileUiStateTest {
 
         assertTrue(state.isInteractionEnabled)
         assertIs<LogoutRequestState.Initial>(state.logoutRequest)
+        assertFalse(state.isRefreshing)
     }
 
     @Test
@@ -52,6 +56,7 @@ class ProfileUiStateTest {
         val state = ProfileUiState(userRequest = UserRequestState.Loading, logoutRequest = LogoutRequestState.Loading)
 
         assertFalse(state.isInteractionEnabled)
+        assertFalse(state.isRefreshing)
     }
 
     @Test
@@ -60,6 +65,7 @@ class ProfileUiStateTest {
             ProfileUiState(userRequest = UserRequestState.Error(UiError()), logoutRequest = LogoutRequestState.Loading)
 
         assertFalse(state.isInteractionEnabled)
+        assertFalse(state.isRefreshing)
     }
 
     @Test
@@ -71,5 +77,15 @@ class ProfileUiStateTest {
             )
 
         assertFalse(state.isInteractionEnabled)
+        assertFalse(state.isRefreshing)
+    }
+
+    @Test
+    fun isRefreshing_isInteractionEnabled_expectsFalse() {
+        val state = ProfileUiState(isRefreshing = true)
+
+        assertFalse(state.isInteractionEnabled)
+        assertIs<LogoutRequestState.Initial>(state.logoutRequest)
+        assertIs<UserRequestState.Initial>(state.userRequest)
     }
 }
