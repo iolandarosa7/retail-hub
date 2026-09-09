@@ -52,7 +52,9 @@ class AppTest {
             eyeColor = "brown",
             hairColor = "black",
             hairType = "straight",
-            address = "123 Main St, Lisbon, Portugal",
+            address = "123 Main St",
+            city = "Lisbon",
+            country = "Portugal"
         )
 
     private val loginUseCase = mock<LoginUseCase>()
@@ -90,6 +92,7 @@ class AppTest {
         profileViewModel =
             ProfileViewModel(
                 getAuthUserUseCase = getAuthUserUseCase,
+                logoutUseCase = mock(),
                 dispatcherProvider = TestDispatcherProvider(dispatcher),
             )
     }

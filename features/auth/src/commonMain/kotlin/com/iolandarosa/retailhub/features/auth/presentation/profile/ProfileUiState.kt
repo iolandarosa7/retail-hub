@@ -23,6 +23,17 @@ sealed interface UserRequestState {
     ) : UserRequestState
 }
 
+sealed interface LogoutRequestState {
+    data object Initial : LogoutRequestState
+
+    data object Loading : LogoutRequestState
+}
+
 data class ProfileUiState(
     val userRequest: UserRequestState = UserRequestState.Initial,
-)
+    val logoutRequest: LogoutRequestState = LogoutRequestState.Initial,
+) {
+    val isInteractionEnabled: Boolean get() =
+        userRequest !is UserRequestState.Loading &&
+            logoutRequest !is LogoutRequestState.Loading
+}

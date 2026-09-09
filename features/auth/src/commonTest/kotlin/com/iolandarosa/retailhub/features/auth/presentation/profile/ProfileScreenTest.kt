@@ -9,13 +9,17 @@ package com.iolandarosa.retailhub.features.auth.presentation.profile
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.v2.runComposeUiTest
 import app.cash.turbine.test
 import com.iolandarosa.retailhub.core.model.ApiErrorResponse
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.features.auth.TestDispatcherProvider
 import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
+import com.iolandarosa.retailhub.features.auth.domain.interactors.LogoutUseCase
 import com.iolandarosa.retailhub.features.auth.utils.TestUser
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
@@ -30,6 +34,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class ProfileScreenTest {
     private val getAuthUserUseCase = mock<GetAuthUserUseCase>()
+    private val logoutUseCase = mock<LogoutUseCase>()
 
     private lateinit var scheduler: TestCoroutineScheduler
     private lateinit var dispatcher: CoroutineDispatcher
@@ -43,6 +48,7 @@ class ProfileScreenTest {
         viewModel =
             ProfileViewModel(
                 getAuthUserUseCase = getAuthUserUseCase,
+                logoutUseCase = logoutUseCase,
                 dispatcherProvider = TestDispatcherProvider(dispatcher),
             )
     }
@@ -107,5 +113,36 @@ class ProfileScreenTest {
             scheduler.advanceUntilIdle()
 
             onNodeWithText(errorMessage).assertIsDisplayed()
+        }
+
+    @Test
+    fun logoutClick_screenLoaded_expectCallbackCalled() =
+        runComposeUiTest(runTestContext = dispatcher) {
+            val user = TestUser.user
+            var callbackCalled = false
+
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { logoutUseCase() } returns Unit
+
+            setContent {
+                ProfileScreen(
+                    paddingValues = PaddingValues(),
+                    navigateToLogin = { callbackCalled = true },
+                    viewModel = viewModel,
+                )
+            }
+
+            scheduler.advanceUntilIdle()
+
+            onNodeWithText("Logout")
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertIsEnabled()
+                .performClick()
+
+            viewModel.effects.test {
+                awaitIdle()
+                assertTrue(callbackCalled)
+            }
         }
 }

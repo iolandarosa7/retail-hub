@@ -8,6 +8,8 @@ package com.iolandarosa.retailhub.features.auth.presentation.profile
 
 sealed interface ProfileIntent {
     data object LoadProfile : ProfileIntent
+
+    data object Logout : ProfileIntent
 }
 
 sealed interface ProfileEffect {

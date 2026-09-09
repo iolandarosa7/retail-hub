@@ -12,6 +12,7 @@ import com.iolandarosa.retailhub.core.common.dispatcher.DispatcherProvider
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.ui.extension.toUiError
 import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
+import com.iolandarosa.retailhub.features.auth.domain.interactors.LogoutUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 
 class ProfileViewModel(
     private val getAuthUserUseCase: GetAuthUserUseCase,
+    private val logoutUseCase: LogoutUseCase,
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
     private val _state: MutableStateFlow<ProfileUiState> =
@@ -33,6 +35,7 @@ class ProfileViewModel(
     fun onIntent(intent: ProfileIntent) {
         when (intent) {
             ProfileIntent.LoadProfile -> getAuthUser()
+            ProfileIntent.Logout -> logout()
         }
     }
 
@@ -56,6 +59,18 @@ class ProfileViewModel(
                     _state.update { it.copy(userRequest = UserRequestState.Success(result.data)) }
                 }
             }
+        }
+    }
+
+    private fun logout() {
+        if (state.value.logoutRequest is LogoutRequestState.Loading) return
+
+        _state.update { it.copy(logoutRequest = LogoutRequestState.Loading) }
+
+        viewModelScope.launch(dispatcherProvider.main) {
+            logoutUseCase()
+            _state.update { it.copy(logoutRequest = LogoutRequestState.Initial) }
+            _effects.send(ProfileEffect.NavigateToLogin)
         }
     }
 }
