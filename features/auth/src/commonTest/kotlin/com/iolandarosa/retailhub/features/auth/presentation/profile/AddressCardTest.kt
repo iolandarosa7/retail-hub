@@ -24,6 +24,6 @@ class AddressCardTest {
                 AddressCard(user = user)
             }
 
-            onNodeWithText(user.address).assertIsDisplayed()
+            onNodeWithText("${user.address}, ${user.city}, ${user.country}").assertIsDisplayed()
         }
 }

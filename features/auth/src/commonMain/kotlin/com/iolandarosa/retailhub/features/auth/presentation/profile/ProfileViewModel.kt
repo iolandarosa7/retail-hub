@@ -12,8 +12,10 @@ import com.iolandarosa.retailhub.core.common.dispatcher.DispatcherProvider
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.ui.extension.toUiError
 import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -24,6 +26,9 @@ class ProfileViewModel(
     private val _state: MutableStateFlow<ProfileUiState> =
         MutableStateFlow(ProfileUiState())
     val state = _state.asStateFlow()
+
+    private val _effects = Channel<ProfileEffect>(Channel.BUFFERED)
+    val effects = _effects.receiveAsFlow()
 
     fun onIntent(intent: ProfileIntent) {
         when (intent) {
@@ -38,6 +43,11 @@ class ProfileViewModel(
 
         viewModelScope.launch(dispatcherProvider.main) {
             when (val result = getAuthUserUseCase()) {
+                is NetworkResult.Failure.Unauthorized -> {
+                    _state.update { it.copy(userRequest = UserRequestState.Initial) }
+                    _effects.send(ProfileEffect.NavigateToLogin)
+                }
+
                 is NetworkResult.Failure -> {
                     _state.update { it.copy(userRequest = UserRequestState.Error(error = result.toUiError())) }
                 }

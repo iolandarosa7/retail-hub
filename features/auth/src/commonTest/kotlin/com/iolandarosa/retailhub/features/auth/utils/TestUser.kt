@@ -25,6 +25,8 @@ object TestUser {
             eyeColor = "brown",
             hairColor = "black",
             hairType = "straight",
-            address = "123 Main St, Lisbon, Portugal",
+            address = "123 Main St",
+            city = "Lisbon",
+            country = "Portugal",
         )
 }

@@ -36,6 +36,10 @@ suspend inline fun <reified T> HttpResponse.handleResponse(): NetworkResult<T> =
             NetworkResult.Failure.Forbidden
         }
 
+        status == HttpStatusCode.NotFound -> {
+            NetworkResult.Failure.NotFound
+        }
+
         status.value in 500..599 -> {
             NetworkResult.Failure.Server(code = status.value, message = bodyAsText())
         }

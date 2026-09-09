@@ -28,7 +28,9 @@ class UserTest {
                 eyeColor = "brown",
                 hairColor = "black",
                 hairType = "straight",
-                address = "123 Main St, Lisbon, Portugal",
+                address = "123 Main St",
+                city = "Lisbon",
+                country = "Portugal",
             )
 
         assertEquals("John Doe", user.name)
@@ -45,6 +47,8 @@ class UserTest {
         assertEquals("brown", user.eyeColor)
         assertEquals("black", user.hairColor)
         assertEquals("straight", user.hairType)
-        assertEquals("123 Main St, Lisbon, Portugal", user.address)
+        assertEquals("123 Main St", user.address)
+        assertEquals("Lisbon", user.city)
+        assertEquals("Portugal", user.country)
     }
 }

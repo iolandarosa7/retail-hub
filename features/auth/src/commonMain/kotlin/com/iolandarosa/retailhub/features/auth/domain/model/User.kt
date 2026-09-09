@@ -22,4 +22,6 @@ data class User(
     val hairColor: String,
     val hairType: String,
     val address: String,
+    val city: String,
+    val country: String,
 )

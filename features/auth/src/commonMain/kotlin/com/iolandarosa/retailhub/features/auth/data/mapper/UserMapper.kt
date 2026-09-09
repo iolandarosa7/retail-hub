@@ -25,5 +25,7 @@ internal fun UserDto.toDomain(): User =
         eyeColor = this.eyeColor,
         hairColor = this.hair.color,
         hairType = this.hair.type,
-        address = "${this.address.address}, ${this.address.city}, ${this.address.country}",
+        address = this.address.address,
+        city = this.address.city,
+        country = this.address.country,
     )

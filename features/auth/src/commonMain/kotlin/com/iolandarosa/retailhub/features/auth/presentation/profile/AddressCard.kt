@@ -22,6 +22,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import retailhub.features.auth.generated.resources.Res
 import retailhub.features.auth.generated.resources.address
+import retailhub.features.auth.generated.resources.address_formatted
 import retailhub.features.auth.generated.resources.ic_address
 import retailhub.features.auth.generated.resources.ic_arrow_forward
 
@@ -39,7 +40,7 @@ internal fun AddressCard(user: User) {
                 tint = MaterialTheme.colorScheme.tertiary,
             )
             Text(
-                text = user.address,
+                text = stringResource(Res.string.address_formatted, user.address, user.city, user.country),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f),
             )

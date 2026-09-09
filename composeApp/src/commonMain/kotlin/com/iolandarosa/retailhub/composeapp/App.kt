@@ -21,7 +21,7 @@ import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileScree
 
 @Composable
 fun App() {
-    val navigator = rememberNavigator(initialRoute = LoginRoute)
+    val navigator = rememberNavigator(initialRoute = ProfileRoute)
 
     RetailHubTheme {
         Scaffold(Modifier.fillMaxSize()) { innerPadding ->
@@ -33,13 +33,14 @@ fun App() {
                         entry<LoginRoute> {
                             LoginScreen(
                                 paddingValues = innerPadding,
-                                navigateToProfile = { navigator.navigate(ProfileRoute) },
+                                navigateToProfile = { navigator.navigateInitialRoute(ProfileRoute) },
                             )
                         }
 
                         entry<ProfileRoute> {
                             ProfileScreen(
                                 paddingValues = innerPadding,
+                                navigateToLogin = { navigator.navigateInitialRoute(LoginRoute) },
                             )
                         }
                     },

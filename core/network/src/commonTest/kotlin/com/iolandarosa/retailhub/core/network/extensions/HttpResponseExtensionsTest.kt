@@ -131,6 +131,25 @@ class HttpResponseExtensionsTest {
         }
 
     @Test
+    fun statusNotFound_handleResponse_expectsNotFoundFailure() =
+        runTest {
+            val client =
+                createPublicClient(
+                    MockEngine {
+                        respond(
+                            content = "",
+                            status = HttpStatusCode.NotFound,
+                        )
+                    },
+                )
+
+            val response = client.get("/")
+            val result = response.handleResponse<TestDto>()
+
+            assertIs<NetworkResult.Failure.NotFound>(result)
+        }
+
+    @Test
     fun statusServerError_handleResponse_expectsServerFailure() =
         runTest {
             val errorMessage = "Internal Server Error"

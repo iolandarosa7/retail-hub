@@ -42,12 +42,21 @@ import retailhub.features.auth.generated.resources.logout
 @Composable
 fun ProfileScreen(
     paddingValues: PaddingValues,
+    navigateToLogin: () -> Unit,
     viewModel: ProfileViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.onIntent(ProfileIntent.LoadProfile)
+    }
+
+    LaunchedEffect(viewModel.effects) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                ProfileEffect.NavigateToLogin -> navigateToLogin()
+            }
+        }
     }
 
     Box(

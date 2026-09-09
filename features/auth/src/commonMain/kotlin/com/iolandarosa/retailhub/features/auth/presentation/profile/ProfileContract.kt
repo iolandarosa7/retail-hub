@@ -10,4 +10,6 @@ sealed interface ProfileIntent {
     data object LoadProfile : ProfileIntent
 }
 
-sealed interface ProfileEffect
+sealed interface ProfileEffect {
+    data object NavigateToLogin : ProfileEffect
+}

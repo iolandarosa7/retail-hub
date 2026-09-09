@@ -24,8 +24,8 @@ class PhysicalInfoCardTest {
                 PhysicalInfoCard(user = user)
             }
 
-            onNodeWithText("${user.height} cm").assertIsDisplayed()
-            onNodeWithText("${user.height} kg").assertIsDisplayed()
+            onNodeWithText("180.0 cm").assertIsDisplayed()
+            onNodeWithText("80.0 kg").assertIsDisplayed()
             onNodeWithText(user.bloodGroup).assertIsDisplayed()
             onNodeWithText(user.eyeColor).assertIsDisplayed()
             onNodeWithText(user.hairColor).assertIsDisplayed()

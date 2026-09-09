@@ -12,6 +12,7 @@ import com.iolandarosa.retailhub.core.ui.error.UiError
 import retailhub.core.ui.generated.resources.Res
 import retailhub.core.ui.generated.resources.error_forbidden
 import retailhub.core.ui.generated.resources.error_no_internet
+import retailhub.core.ui.generated.resources.error_not_found
 import retailhub.core.ui.generated.resources.error_serialization
 import retailhub.core.ui.generated.resources.error_server
 import retailhub.core.ui.generated.resources.error_timeout
@@ -87,6 +88,13 @@ class NetworkResultExtensionsTest {
         val result = NetworkResult.Failure.Unauthorized.toUiError()
 
         assertEquals(Res.string.error_unauthorized, result.descriptionId)
+    }
+
+    @Test
+    fun notFound_maps_toNotFoundError() {
+        val result = NetworkResult.Failure.NotFound.toUiError()
+
+        assertEquals(Res.string.error_not_found, result.descriptionId)
     }
 
     @Test

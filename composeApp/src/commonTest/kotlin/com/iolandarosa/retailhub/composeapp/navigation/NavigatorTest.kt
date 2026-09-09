@@ -59,4 +59,15 @@ class NavigatorTest {
         assertEquals(1, navigator.backStack.size)
         assertEquals(listOf<AppRoute>(LoginRoute), navigator.backStack)
     }
+
+    @Test
+    fun initialState_navigateInitialRoute_keepsOnlyOneRoute() {
+        assertEquals(1, navigator.backStack.size)
+        assertEquals(listOf<AppRoute>(LoginRoute), navigator.backStack)
+
+        navigator.navigateInitialRoute(ProfileRoute)
+
+        assertEquals(1, navigator.backStack.size)
+        assertEquals(listOf<AppRoute>(ProfileRoute), navigator.backStack)
+    }
 }

@@ -21,6 +21,8 @@ sealed interface NetworkResult<out T> {
 
         data object Forbidden : Failure
 
+        data object NotFound : Failure
+
         data object NoInternet : Failure
 
         data object Timeout : Failure

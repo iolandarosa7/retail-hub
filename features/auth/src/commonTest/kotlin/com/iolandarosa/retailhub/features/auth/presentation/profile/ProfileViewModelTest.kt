@@ -6,6 +6,7 @@
 
 package com.iolandarosa.retailhub.features.auth.presentation.profile
 
+import app.cash.turbine.test
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.features.auth.TestDispatcherProvider
 import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
@@ -58,6 +59,26 @@ class ProfileViewModelTest {
             advanceUntilIdle()
 
             assertEquals(UserRequestState.Success(data), viewModel.state.value.userRequest)
+
+            verifySuspend { getAuthUserUseCase() }
+        }
+
+    @Test
+    fun errorUnauthorized_loadProfile_hasExpectedStateAndEffect() =
+        runTest(scheduler) {
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Failure.Unauthorized
+
+            viewModel.onIntent(ProfileIntent.LoadProfile)
+
+            assertEquals(UserRequestState.Loading, viewModel.state.value.userRequest)
+
+            advanceUntilIdle()
+
+            viewModel.effects.test {
+                assertEquals(ProfileEffect.NavigateToLogin, awaitItem())
+            }
+
+            assertIs<UserRequestState.Initial>(viewModel.state.value.userRequest)
 
             verifySuspend { getAuthUserUseCase() }
         }

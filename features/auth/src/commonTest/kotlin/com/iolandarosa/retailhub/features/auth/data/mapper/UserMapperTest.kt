@@ -103,6 +103,8 @@ class UserMapperTest {
         assertEquals("eyeColor", user.eyeColor)
         assertEquals("color", user.hairColor)
         assertEquals("type", user.hairType)
-        assertEquals("address, city, country", user.address)
+        assertEquals("address", user.address)
+        assertEquals("city", user.city)
+        assertEquals("country", user.country)
     }
 }

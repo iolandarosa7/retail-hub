@@ -11,6 +11,7 @@ import com.iolandarosa.retailhub.core.ui.error.UiError
 import retailhub.core.ui.generated.resources.Res
 import retailhub.core.ui.generated.resources.error_forbidden
 import retailhub.core.ui.generated.resources.error_no_internet
+import retailhub.core.ui.generated.resources.error_not_found
 import retailhub.core.ui.generated.resources.error_serialization
 import retailhub.core.ui.generated.resources.error_server
 import retailhub.core.ui.generated.resources.error_timeout
@@ -25,5 +26,6 @@ fun NetworkResult.Failure.toUiError(): UiError =
         is NetworkResult.Failure.Server -> UiError(descriptionId = Res.string.error_server)
         NetworkResult.Failure.Timeout -> UiError(descriptionId = Res.string.error_timeout)
         NetworkResult.Failure.Unauthorized -> UiError(descriptionId = Res.string.error_unauthorized)
+        NetworkResult.Failure.NotFound -> UiError(descriptionId = Res.string.error_not_found)
         is NetworkResult.Failure.Unknown -> UiError()
     }

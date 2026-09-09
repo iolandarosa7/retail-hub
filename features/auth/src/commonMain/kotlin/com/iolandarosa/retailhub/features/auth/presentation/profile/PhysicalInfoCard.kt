@@ -24,8 +24,10 @@ import retailhub.features.auth.generated.resources.eyes
 import retailhub.features.auth.generated.resources.hair_color
 import retailhub.features.auth.generated.resources.hair_type
 import retailhub.features.auth.generated.resources.height
+import retailhub.features.auth.generated.resources.height_value
 import retailhub.features.auth.generated.resources.physical
 import retailhub.features.auth.generated.resources.weight
+import retailhub.features.auth.generated.resources.weight_value
 
 @Composable
 internal fun PhysicalInfoCard(user: User) {
@@ -34,12 +36,12 @@ internal fun PhysicalInfoCard(user: User) {
             Row(Modifier.fillMaxWidth()) {
                 PhysicalGridItem(
                     modifier = Modifier.weight(1f),
-                    value = "${user.height} cm",
+                    value = stringResource(Res.string.height_value, user.height),
                     label = stringResource(Res.string.height),
                 )
                 PhysicalGridItem(
                     modifier = Modifier.weight(1f),
-                    value = "${user.weight} kg",
+                    value = stringResource(Res.string.weight_value, user.weight),
                     label = stringResource(Res.string.weight),
                 )
             }
