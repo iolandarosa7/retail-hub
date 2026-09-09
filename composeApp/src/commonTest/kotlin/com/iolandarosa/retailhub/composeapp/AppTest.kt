@@ -54,7 +54,7 @@ class AppTest {
             hairType = "straight",
             address = "123 Main St",
             city = "Lisbon",
-            country = "Portugal"
+            country = "Portugal",
         )
 
     private val loginUseCase = mock<LoginUseCase>()

@@ -84,9 +84,7 @@ fun ProfileScreen(
             UserRequestState.Initial,
             UserRequestState.Loading,
             -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
+                ProfileScreenSkeleton()
             }
 
             is UserRequestState.Success -> {

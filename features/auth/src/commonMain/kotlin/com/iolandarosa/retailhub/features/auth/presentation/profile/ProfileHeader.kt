@@ -9,8 +9,11 @@ package com.iolandarosa.retailhub.features.auth.presentation.profile
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,36 +23,64 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import coil3.compose.AsyncImage
+import com.iolandarosa.retailhub.core.ui.progress.Skeleton
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
 import com.iolandarosa.retailhub.features.auth.domain.model.User
 
 @Composable
-internal fun ProfileHeader(user: User) {
+internal fun ProfileHeader(user: User? = null) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall),
     ) {
-        AsyncImage(
-            model = user.image,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier =
-                Modifier
-                    .size(Dimens.SizeCircleImage)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-        )
-
-        Text(
-            text = user.name,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-        )
-
-        Text(
-            text = user.role,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        if (user != null) {
+            ProfileHeaderContent(user)
+        } else {
+            ProfileSkeleton()
+        }
     }
+}
+
+@Composable
+internal fun ProfileHeaderContent(user: User) {
+    AsyncImage(
+        model = user.image,
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier =
+            Modifier
+                .size(Dimens.SizeCircleImage)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+    )
+
+    Text(
+        text = user.name,
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Bold,
+    )
+
+    Text(
+        text = user.role,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+@Composable
+internal fun ProfileSkeleton() {
+    val nameFraction = 0.7f
+    val roleFraction = 0.3f
+
+    Skeleton(
+        modifier = Modifier.size(Dimens.SizeCircleImage),
+        shape = CircleShape,
+        contentDescription = "Loading User Profile",
+    )
+
+    Skeleton(
+        modifier = Modifier.fillMaxWidth(nameFraction).height(Dimens.SizeExtraLarge),
+        shape = RoundedCornerShape(Dimens.CIRCLE_RADIUS),
+    )
+    Skeleton(modifier = Modifier.fillMaxWidth(roleFraction).height(Dimens.SizeMedium))
 }
