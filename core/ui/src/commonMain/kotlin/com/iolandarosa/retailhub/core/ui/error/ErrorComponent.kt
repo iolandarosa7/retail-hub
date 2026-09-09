@@ -31,6 +31,7 @@ fun ErrorComponent(
     description: String,
     trailingContent: @Composable () -> Unit,
 ) {
+    val descriptionWidthFraction = 0.7f
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -56,7 +57,7 @@ fun ErrorComponent(
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = Dimens.PaddingSmall).fillMaxWidth(0.7f),
+            modifier = Modifier.padding(top = Dimens.PaddingSmall).fillMaxWidth(descriptionWidthFraction),
         )
 
         trailingContent()

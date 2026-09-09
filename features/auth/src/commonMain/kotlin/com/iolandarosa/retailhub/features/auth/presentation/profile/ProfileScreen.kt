@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.iolandarosa.retailhub.core.ui.error.ErrorComponent
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
 import com.iolandarosa.retailhub.features.auth.domain.model.User
 import org.jetbrains.compose.resources.painterResource
@@ -42,6 +43,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import retailhub.features.auth.generated.resources.Res
 import retailhub.features.auth.generated.resources.ic_logout
 import retailhub.features.auth.generated.resources.logout
+import retailhub.features.auth.generated.resources.retry
 
 @Composable
 fun ProfileScreen(
@@ -73,12 +75,22 @@ fun ProfileScreen(
     ) {
         when (val userRequest = state.userRequest) {
             is UserRequestState.Error -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = userRequest.error.description ?: "Error loading profile",
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
+                ErrorComponent(
+                    modifier = Modifier.fillMaxSize().padding(Dimens.PaddingMedium),
+                    title = stringResource(userRequest.error.titleId),
+                    description = userRequest.error.description ?: stringResource(userRequest.error.descriptionId),
+                    trailingContent = {
+                        if (userRequest.error.hasRetry) {
+                            Button(
+                                onClick = { viewModel.onIntent(ProfileIntent.LoadProfile) },
+                                enabled = isEnabled,
+                                modifier = Modifier.padding(top = Dimens.PaddingExtraLarge).fillMaxWidth(0.5f),
+                            ) {
+                                Text(stringResource(Res.string.retry))
+                            }
+                        }
+                    },
+                )
             }
 
             UserRequestState.Initial,
