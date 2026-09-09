@@ -14,7 +14,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.serialization.SerializationException
-import kotlin.runCatching
 
 suspend inline fun <reified T> HttpResponse.handleResponse(): NetworkResult<T> =
     when {

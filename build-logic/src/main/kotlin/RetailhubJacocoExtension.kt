@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 

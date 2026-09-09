@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.features.auth.domain.interactors
 
 import com.iolandarosa.retailhub.core.model.NetworkResult

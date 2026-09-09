@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 object JacocoConfig {
     const val VERSION = "0.8.14"
 

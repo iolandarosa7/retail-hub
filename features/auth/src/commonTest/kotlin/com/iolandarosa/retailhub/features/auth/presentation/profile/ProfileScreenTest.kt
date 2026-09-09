@@ -15,7 +15,7 @@ import com.iolandarosa.retailhub.core.model.ApiErrorResponse
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.features.auth.TestDispatcherProvider
 import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
-import com.iolandarosa.retailhub.features.auth.domain.model.User
+import com.iolandarosa.retailhub.features.auth.utils.TestUser
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
 import dev.mokkery.mock
@@ -48,24 +48,7 @@ class ProfileScreenTest {
     @Test
     fun profileScreenDisplaysLoadingAndThenSuccess() =
         runComposeUiTest(runTestContext = dispatcher) {
-            val user =
-                User(
-                    name = "John Doe",
-                    image = "image_url",
-                    role = "admin",
-                    email = "john@example.com",
-                    phone = "123456",
-                    age = 30,
-                    gender = "male",
-                    birthDate = "2000-01-01",
-                    bloodGroup = "A+",
-                    height = 180.0,
-                    weight = 80.0,
-                    eyeColor = "brown",
-                    hairColor = "black",
-                    hairType = "straight",
-                    address = "123 Main St",
-                )
+            val user = TestUser.user
 
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
 
@@ -76,14 +59,11 @@ class ProfileScreenTest {
                 )
             }
 
-            // Initially it might be loading, but runComposeUiTest handles synchronization.
-            // If it's too fast, it might already be in success state.
-
             scheduler.advanceUntilIdle()
 
-            onNodeWithText("John Doe").assertIsDisplayed()
-            onNodeWithText("admin").assertIsDisplayed()
-            onNodeWithText("john@example.com").assertIsDisplayed()
+            onNodeWithText(user.name).assertIsDisplayed()
+            onNodeWithText(user.role).assertIsDisplayed()
+            onNodeWithText(user.email).assertIsDisplayed()
         }
 
     @Test
