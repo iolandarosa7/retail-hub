@@ -64,7 +64,7 @@ fun LoginScreen(
     LaunchedEffect(viewModel.effects) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                LoginEffect.NavigateToProfile -> navigateToProfile()
+                LoginContract.Effect.NavigateToProfile -> navigateToProfile()
             }
         }
     }
@@ -145,7 +145,7 @@ fun LoginScreen(
                     Button(
                         onClick = {
                             keyboardController?.hide()
-                            viewModel.onIntent(LoginIntent.OnLoginClicked)
+                            viewModel.onIntent(LoginContract.Intent.OnLoginClicked)
                         },
                         enabled = isEnabled,
                     ) {

@@ -52,7 +52,7 @@ class LoginViewModelTest {
     @Test
     fun initialInstance_hasExpectedState() =
         runTest {
-            assertEquals(LoginRequestState.Initial, viewModel.state.value.loginRequest)
+            assertEquals(LoginContract.RequestState.Initial, viewModel.state.value.loginRequest)
 
             assertTrue(viewModel.state.value.isInteractionEnabled)
 
@@ -69,12 +69,12 @@ class LoginViewModelTest {
     @Test
     fun invalidForm_onLoginClicked_doesNothing() =
         runTest(scheduler) {
-            viewModel.onIntent(LoginIntent.OnLoginClicked)
+            viewModel.onIntent(LoginContract.Intent.OnLoginClicked)
 
             advanceUntilIdle()
 
             assertEquals(
-                LoginRequestState.Initial,
+                LoginContract.RequestState.Initial,
                 viewModel.state.value.loginRequest,
             )
 
@@ -96,9 +96,9 @@ class LoginViewModelTest {
             setFieldValue(0, username)
             setFieldValue(1, password)
 
-            viewModel.onIntent(LoginIntent.OnLoginClicked)
+            viewModel.onIntent(LoginContract.Intent.OnLoginClicked)
 
-            assertEquals(LoginRequestState.Loading, viewModel.state.value.loginRequest)
+            assertEquals(LoginContract.RequestState.Loading, viewModel.state.value.loginRequest)
 
             assertFalse(viewModel.state.value.isInteractionEnabled)
 
@@ -106,14 +106,14 @@ class LoginViewModelTest {
 
             advanceUntilIdle()
 
-            assertEquals(LoginRequestState.Success, viewModel.state.value.loginRequest)
+            assertEquals(LoginContract.RequestState.Success, viewModel.state.value.loginRequest)
 
             assertTrue(viewModel.state.value.isInteractionEnabled)
 
             verifySuspend { loginUseCase(username, password) }
 
             viewModel.effects.test {
-                assertEquals(LoginEffect.NavigateToProfile, awaitItem())
+                assertEquals(LoginContract.Effect.NavigateToProfile, awaitItem())
             }
         }
 
@@ -130,7 +130,7 @@ class LoginViewModelTest {
             setFieldValue(0, username)
             setFieldValue(1, password)
 
-            viewModel.onIntent(LoginIntent.OnLoginClicked)
+            viewModel.onIntent(LoginContract.Intent.OnLoginClicked)
 
             assertFalse(viewModel.state.value.isInteractionEnabled)
 
@@ -138,7 +138,7 @@ class LoginViewModelTest {
 
             advanceUntilIdle()
 
-            assertIs<LoginRequestState.Error>(viewModel.state.value.loginRequest)
+            assertIs<LoginContract.RequestState.Error>(viewModel.state.value.loginRequest)
 
             assertTrue(viewModel.state.value.isInteractionEnabled)
 
@@ -157,15 +157,15 @@ class LoginViewModelTest {
             setFieldValue(0, "username")
             setFieldValue(1, "password")
 
-            viewModel.onIntent(LoginIntent.OnLoginClicked)
+            viewModel.onIntent(LoginContract.Intent.OnLoginClicked)
 
             advanceUntilIdle()
 
-            assertIs<LoginRequestState.Error>(viewModel.state.value.loginRequest)
+            assertIs<LoginContract.RequestState.Error>(viewModel.state.value.loginRequest)
 
-            viewModel.onIntent(LoginIntent.OnFormFieldChanged)
+            viewModel.onIntent(LoginContract.Intent.OnFormFieldChanged)
 
-            assertEquals(LoginRequestState.Initial, viewModel.state.value.loginRequest)
+            assertEquals(LoginContract.RequestState.Initial, viewModel.state.value.loginRequest)
         }
 
     private fun setFieldValue(
