@@ -7,9 +7,11 @@
 package com.iolandarosa.retailhub.features.auth.presentation.profile
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -21,6 +23,7 @@ import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.features.auth.TestDispatcherProvider
 import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
 import com.iolandarosa.retailhub.features.auth.domain.interactors.LogoutUseCase
+import com.iolandarosa.retailhub.features.auth.domain.model.Address
 import com.iolandarosa.retailhub.features.auth.utils.TestUser
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
@@ -30,6 +33,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -54,6 +58,17 @@ class ProfileScreenTest {
             )
     }
 
+    @Composable
+    private fun TestProfileScreen(
+        navigateToLogin: () -> Unit = {},
+        navigateToAddressDetails: (Address) -> Unit = {},
+    ) = ProfileScreen(
+        paddingValues = PaddingValues(),
+        navigateToLogin = navigateToLogin,
+        viewModel = viewModel,
+        navigateToAddressDetails = navigateToAddressDetails,
+    )
+
     @Test
     fun success_screenLoaded_displayUserData() =
         runComposeUiTest(runTestContext = dispatcher) {
@@ -61,15 +76,10 @@ class ProfileScreenTest {
 
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
 
-            setContent {
-                ProfileScreen(
-                    paddingValues = PaddingValues(),
-                    navigateToLogin = {},
-                    viewModel = viewModel,
-                )
-            }
+            setContent { TestProfileScreen() }
 
             onNodeWithContentDescription("Loading User Profile").assertIsDisplayed()
+            onNodeWithContentDescription("Address details").assertIsNotEnabled()
 
             scheduler.advanceUntilIdle()
 
@@ -86,11 +96,7 @@ class ProfileScreenTest {
             var callbackCalled = false
 
             setContent {
-                ProfileScreen(
-                    paddingValues = PaddingValues(),
-                    navigateToLogin = { callbackCalled = true },
-                    viewModel = viewModel,
-                )
+                TestProfileScreen(navigateToLogin = { callbackCalled = true })
             }
 
             viewModel.effects.test {
@@ -105,13 +111,7 @@ class ProfileScreenTest {
             val errorMessage = "Error message"
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Failure.ApiError(ApiErrorResponse(errorMessage))
 
-            setContent {
-                ProfileScreen(
-                    paddingValues = PaddingValues(),
-                    navigateToLogin = {},
-                    viewModel = viewModel,
-                )
-            }
+            setContent { TestProfileScreen() }
 
             scheduler.advanceUntilIdle()
 
@@ -128,11 +128,7 @@ class ProfileScreenTest {
             everySuspend { logoutUseCase() } returns Unit
 
             setContent {
-                ProfileScreen(
-                    paddingValues = PaddingValues(),
-                    navigateToLogin = { callbackCalled = true },
-                    viewModel = viewModel,
-                )
+                TestProfileScreen(navigateToLogin = { callbackCalled = true })
             }
 
             scheduler.advanceUntilIdle()
@@ -146,6 +142,29 @@ class ProfileScreenTest {
             viewModel.effects.test {
                 awaitIdle()
                 assertTrue(callbackCalled)
+            }
+        }
+
+    @Test
+    fun success_addressClick_expectedCallbackCalled() =
+        runComposeUiTest(runTestContext = dispatcher) {
+            val user = TestUser.user
+            var address: Address? = null
+
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+
+            setContent { TestProfileScreen(navigateToAddressDetails = { address = it }) }
+
+            scheduler.advanceUntilIdle()
+
+            onNodeWithContentDescription("Address details")
+                .performScrollTo()
+                .assertIsEnabled()
+                .performClick()
+
+            viewModel.effects.test {
+                awaitIdle()
+                assertEquals(user.address, address)
             }
         }
 }

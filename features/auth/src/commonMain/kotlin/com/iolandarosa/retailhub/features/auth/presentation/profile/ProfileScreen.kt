@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iolandarosa.retailhub.core.ui.error.ErrorComponent
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
+import com.iolandarosa.retailhub.features.auth.domain.model.Address
 import com.iolandarosa.retailhub.features.auth.domain.model.User
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -50,6 +51,7 @@ import retailhub.features.auth.generated.resources.retry
 fun ProfileScreen(
     paddingValues: PaddingValues,
     navigateToLogin: () -> Unit,
+    navigateToAddressDetails: (Address) -> Unit,
     viewModel: ProfileViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -57,13 +59,14 @@ fun ProfileScreen(
     val isRefreshing by remember { derivedStateOf { state.isRefreshing } }
 
     LaunchedEffect(Unit) {
-        viewModel.onIntent(ProfileIntent.LoadProfile)
+        viewModel.onIntent(ProfileContract.Intent.LoadProfile)
     }
 
     LaunchedEffect(viewModel.effects) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                ProfileEffect.NavigateToLogin -> navigateToLogin()
+                ProfileContract.Effect.NavigateToLogin -> navigateToLogin()
+                is ProfileContract.Effect.NavigateToAddressDetails -> navigateToAddressDetails(effect.address)
             }
         }
     }
@@ -76,7 +79,7 @@ fun ProfileScreen(
                 .background(MaterialTheme.colorScheme.background),
     ) {
         when (val userRequest = state.userRequest) {
-            is UserRequestState.Error -> {
+            is ProfileContract.UserRequestState.Error -> {
                 ErrorComponent(
                     modifier = Modifier.fillMaxSize().padding(Dimens.PaddingMedium),
                     title = stringResource(userRequest.error.titleId),
@@ -84,7 +87,7 @@ fun ProfileScreen(
                     trailingContent = {
                         if (userRequest.error.hasRetry) {
                             Button(
-                                onClick = { viewModel.onIntent(ProfileIntent.LoadProfile) },
+                                onClick = { viewModel.onIntent(ProfileContract.Intent.LoadProfile) },
                                 enabled = isEnabled,
                                 modifier = Modifier.padding(top = Dimens.PaddingExtraLarge).fillMaxWidth(0.5f),
                             ) {
@@ -95,19 +98,22 @@ fun ProfileScreen(
                 )
             }
 
-            UserRequestState.Initial,
-            UserRequestState.Loading,
+            ProfileContract.UserRequestState.Initial,
+            ProfileContract.UserRequestState.Loading,
             -> {
                 ProfileScreenSkeleton()
             }
 
-            is UserRequestState.Success -> {
+            is ProfileContract.UserRequestState.Success -> {
                 ProfileScreenContent(
                     user = userRequest.user,
                     isEnabled = isEnabled,
                     isRefreshing = isRefreshing,
-                    onRefresh = { viewModel.onIntent(ProfileIntent.RefreshProfile) },
-                    onLogout = { viewModel.onIntent(ProfileIntent.Logout) },
+                    onRefresh = { viewModel.onIntent(ProfileContract.Intent.RefreshProfile) },
+                    onLogout = { viewModel.onIntent(ProfileContract.Intent.Logout) },
+                    onAddressDetailsClick = { address ->
+                        viewModel.onIntent(ProfileContract.Intent.ViewAddressDetails(address))
+                    },
                 )
             }
         }
@@ -121,6 +127,7 @@ internal fun ProfileScreenContent(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     onLogout: () -> Unit,
+    onAddressDetailsClick: (Address) -> Unit,
 ) {
     PullToRefreshBox(isRefreshing = isRefreshing, onRefresh = onRefresh) {
         Column(
@@ -140,7 +147,7 @@ internal fun ProfileScreenContent(
 
             PhysicalInfoCard(user)
 
-            AddressCard(user)
+            AddressCard(address = user.address, onClick = { onAddressDetailsClick(user.address) })
 
             Button(
                 onClick = onLogout,
