@@ -160,14 +160,18 @@ internal fun ProfileScreenContent(
                     ),
             ) {
                 if (isEnabled) {
-                    Icon(painter = painterResource(Res.drawable.ic_logout), contentDescription = null)
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_logout),
+                        contentDescription = null,
+                        modifier = Modifier.size(Dimens.SizeIconButton),
+                    )
                 } else {
                     CircularProgressIndicator(
                         Modifier.size(Dimens.SizeMedium),
                         color = MaterialTheme.colorScheme.onTertiaryContainer,
                     )
                 }
-                Spacer(Modifier.width(Dimens.SpacingMedium))
+                Spacer(Modifier.width(Dimens.SpacingSmall))
                 Text(stringResource(Res.string.logout))
             }
 

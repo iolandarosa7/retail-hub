@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.composeapp.navigation
 
 import retailhub.composeapp.generated.resources.Res
@@ -9,10 +15,11 @@ import kotlin.test.assertTrue
 class AppBarConfigTest {
     @Test
     fun appBarConfigInstance_hasExpectedValues() {
-        val appBarConfig = AppBarConfig(
-            titleRes = Res.string.address_details,
-            showBack = true
-        )
+        val appBarConfig =
+            AppBarConfig(
+                titleRes = Res.string.address_details,
+                showBack = true,
+            )
 
         assertEquals(Res.string.address_details, appBarConfig.titleRes)
         assertTrue(appBarConfig.showBack)

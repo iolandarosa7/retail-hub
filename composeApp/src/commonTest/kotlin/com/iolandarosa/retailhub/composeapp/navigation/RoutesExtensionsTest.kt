@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.composeapp.navigation
 
 import com.iolandarosa.retailhub.features.auth.domain.model.Address
@@ -11,17 +17,19 @@ import kotlin.test.assertNull
 class RoutesExtensionsTest {
     @Test
     fun addressRoute_appBarConfig_hasExpectedValue() {
-        val config = AddressRoute(
-            address = Address(
-                street = "address",
-                city = "city",
-                state = "state",
-                stateCode = "stateCode",
-                postalCode = "postalCode",
-                coordinates = Coordinates(lat = 1.0, lng = 1.0),
-                country = "country",
-            ),
-        ).appBarConfig()
+        val config =
+            AddressRoute(
+                address =
+                    Address(
+                        street = "address",
+                        city = "city",
+                        state = "state",
+                        stateCode = "stateCode",
+                        postalCode = "postalCode",
+                        coordinates = Coordinates(lat = 1.0, lng = 1.0),
+                        country = "country",
+                    ),
+            ).appBarConfig()
 
         assertEquals(Res.string.address_details, config?.titleRes)
         assertEquals(true, config?.showBack)

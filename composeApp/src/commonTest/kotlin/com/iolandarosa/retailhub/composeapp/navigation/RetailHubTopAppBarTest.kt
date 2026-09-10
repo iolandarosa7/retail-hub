@@ -1,3 +1,9 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.composeapp.navigation
 
 import androidx.compose.runtime.Composable
@@ -14,9 +20,9 @@ import retailhub.composeapp.generated.resources.address_details
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-
 class RetailHubTopAppBarTest {
     private val config = AppBarConfig(Res.string.address_details, showBack = true)
+
     @Composable
     private fun TestRetailHubTopAppBar(
         appBarConfig: AppBarConfig = config,
