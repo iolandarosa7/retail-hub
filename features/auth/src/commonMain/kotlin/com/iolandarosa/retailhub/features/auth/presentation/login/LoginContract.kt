@@ -20,6 +20,7 @@ interface LoginContract {
 
     sealed interface Intent {
         data object OnFormFieldChanged : Intent
+
         data object OnLoginClicked : Intent
     }
 
@@ -29,8 +30,13 @@ interface LoginContract {
 
     sealed interface RequestState {
         data object Initial : RequestState
+
         data object Loading : RequestState
+
         data object Success : RequestState
-        data class Error(val error: UiError) : RequestState
+
+        data class Error(
+            val error: UiError,
+        ) : RequestState
     }
 }

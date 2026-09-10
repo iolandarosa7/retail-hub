@@ -12,10 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.iolandarosa.retailhub.composeapp.navigation.AddressRoute
 import com.iolandarosa.retailhub.composeapp.navigation.LoginRoute
 import com.iolandarosa.retailhub.composeapp.navigation.ProfileRoute
 import com.iolandarosa.retailhub.composeapp.navigation.rememberNavigator
 import com.iolandarosa.retailhub.core.ui.theme.RetailHubTheme
+import com.iolandarosa.retailhub.features.auth.presentation.address.AddressScreen
 import com.iolandarosa.retailhub.features.auth.presentation.login.LoginScreen
 import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileScreen
 
@@ -41,6 +43,14 @@ fun App() {
                             ProfileScreen(
                                 paddingValues = innerPadding,
                                 navigateToLogin = { navigator.navigateInitialRoute(LoginRoute) },
+                                navigateToAddressDetails = { navigator.navigate(AddressRoute(it)) },
+                            )
+                        }
+
+                        entry<AddressRoute> { key ->
+                            AddressScreen(
+                                address = key.address,
+                                onBack = navigator::pop,
                             )
                         }
                     },

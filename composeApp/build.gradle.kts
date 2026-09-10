@@ -75,6 +75,8 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.compose.ui.test)
             implementation(libs.koin.compose.viewModel)
+            // turbine
+            implementation(libs.turbine)
         }
         getByName("androidDeviceTest") {
             dependencies {

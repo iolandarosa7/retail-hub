@@ -67,7 +67,11 @@ class LoginViewModel(
 
             when (val result = loginUseCase(username = username, password = password)) {
                 is NetworkResult.Failure -> {
-                    _state.update { it.copy(loginRequest = LoginContract.RequestState.Error(error = result.toUiError())) }
+                    _state.update {
+                        it.copy(
+                            loginRequest = LoginContract.RequestState.Error(error = result.toUiError()),
+                        )
+                    }
                 }
 
                 is NetworkResult.Success -> {

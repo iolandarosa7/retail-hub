@@ -9,18 +9,24 @@ package com.iolandarosa.retailhub.composeapp
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.v2.runComposeUiTest
+import app.cash.turbine.test
 import com.iolandarosa.retailhub.composeapp.di.appModules
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
 import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCase
+import com.iolandarosa.retailhub.features.auth.domain.model.Address
+import com.iolandarosa.retailhub.features.auth.domain.model.Coordinates
 import com.iolandarosa.retailhub.features.auth.domain.model.User
 import com.iolandarosa.retailhub.features.auth.presentation.login.LoginViewModel
 import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileViewModel
 import dev.mokkery.answering.returns
+import dev.mokkery.answering.sequentiallyReturns
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
@@ -52,9 +58,16 @@ class AppTest {
             eyeColor = "brown",
             hairColor = "black",
             hairType = "straight",
-            address = "123 Main St",
-            city = "Lisbon",
-            country = "Portugal",
+            address =
+                Address(
+                    street = "address",
+                    city = "city",
+                    state = "state",
+                    stateCode = "stateCode",
+                    postalCode = "postalCode",
+                    coordinates = Coordinates(lat = 1.0, lng = 1.0),
+                    country = "country",
+                ),
         )
 
     private val loginUseCase = mock<LoginUseCase>()
@@ -135,7 +148,11 @@ class AppTest {
     @Test
     fun signInSuccess_renderScreen_navigatesProfileScreen() =
         runComposeUiTest(runTestContext = dispatcher) {
-            everySuspend { getAuthUserUseCase() } returns NetworkResult.Failure.Unauthorized
+            everySuspend { getAuthUserUseCase() } sequentiallyReturns
+                listOf(
+                    NetworkResult.Failure.Unauthorized,
+                    NetworkResult.Success(user),
+                )
             everySuspend { loginUseCase(any(), any()) } returns
                 NetworkResult.Success(Unit)
 
@@ -145,7 +162,9 @@ class AppTest {
                 }
             }
 
-            scheduler.advanceUntilIdle()
+            profileViewModel.effects.test {
+                awaitIdle()
+            }
 
             onNodeWithText("Sign in")
                 .assertIsDisplayed()
@@ -158,8 +177,34 @@ class AppTest {
                 .assertIsDisplayed()
                 .performClick()
 
+            loginViewModel.effects.test {
+                awaitIdle()
+            }
+
+            onNodeWithText(user.name).assertIsDisplayed()
+        }
+
+    @Test
+    fun componentLoaded_onAddressClick_showsAddressScreen() =
+        runComposeUiTest(runTestContext = dispatcher) {
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+
+            setContent {
+                KoinIsolatedContext(koinApp) {
+                    App()
+                }
+            }
+
             scheduler.advanceUntilIdle()
 
-            onNodeWithText("Sign in").assertDoesNotExist()
+            onNodeWithContentDescription("Address details")
+                .performScrollTo()
+                .performClick()
+
+            profileViewModel.effects.test {
+                awaitIdle()
+            }
+
+            onNodeWithText("MAP").assertIsDisplayed()
         }
 }
