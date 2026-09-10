@@ -11,6 +11,10 @@ import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.features.auth.TestDispatcherProvider
 import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
 import com.iolandarosa.retailhub.features.auth.domain.interactors.LogoutUseCase
+import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileContract.Effect
+import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileContract.Intent
+import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileContract.LogoutRequestState
+import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileContract.UserRequestState
 import com.iolandarosa.retailhub.features.auth.utils.TestUser
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
@@ -59,7 +63,7 @@ class ProfileViewModelTest {
             val data = TestUser.user
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(data)
 
-            viewModel.onIntent(ProfileIntent.LoadProfile)
+            viewModel.onIntent(Intent.LoadProfile)
 
             assertEquals(UserRequestState.Loading, viewModel.state.value.userRequest)
 
@@ -76,7 +80,7 @@ class ProfileViewModelTest {
             val data = TestUser.user
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(data)
 
-            viewModel.onIntent(ProfileIntent.RefreshProfile)
+            viewModel.onIntent(Intent.RefreshProfile)
 
             assertEquals(UserRequestState.Initial, viewModel.state.value.userRequest)
             assertTrue(viewModel.state.value.isRefreshing)
@@ -94,14 +98,14 @@ class ProfileViewModelTest {
         runTest(scheduler) {
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Failure.Unauthorized
 
-            viewModel.onIntent(ProfileIntent.LoadProfile)
+            viewModel.onIntent(Intent.LoadProfile)
 
             assertEquals(UserRequestState.Loading, viewModel.state.value.userRequest)
 
             advanceUntilIdle()
 
             viewModel.effects.test {
-                assertEquals(ProfileEffect.NavigateToLogin, awaitItem())
+                assertEquals(Effect.NavigateToLogin, awaitItem())
             }
 
             assertIs<UserRequestState.Initial>(viewModel.state.value.userRequest)
@@ -114,7 +118,7 @@ class ProfileViewModelTest {
         runTest(scheduler) {
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Failure.Unauthorized
 
-            viewModel.onIntent(ProfileIntent.RefreshProfile)
+            viewModel.onIntent(Intent.RefreshProfile)
 
             assertEquals(UserRequestState.Initial, viewModel.state.value.userRequest)
             assertTrue(viewModel.state.value.isRefreshing)
@@ -122,7 +126,7 @@ class ProfileViewModelTest {
             advanceUntilIdle()
 
             viewModel.effects.test {
-                assertEquals(ProfileEffect.NavigateToLogin, awaitItem())
+                assertEquals(Effect.NavigateToLogin, awaitItem())
             }
 
             assertIs<UserRequestState.Initial>(viewModel.state.value.userRequest)
@@ -138,7 +142,7 @@ class ProfileViewModelTest {
 
             everySuspend { getAuthUserUseCase() } returns failure
 
-            viewModel.onIntent(ProfileIntent.LoadProfile)
+            viewModel.onIntent(Intent.LoadProfile)
 
             assertEquals(UserRequestState.Loading, viewModel.state.value.userRequest)
 
@@ -156,7 +160,7 @@ class ProfileViewModelTest {
 
             everySuspend { getAuthUserUseCase() } returns failure
 
-            viewModel.onIntent(ProfileIntent.RefreshProfile)
+            viewModel.onIntent(Intent.RefreshProfile)
 
             assertEquals(UserRequestState.Initial, viewModel.state.value.userRequest)
             assertTrue(viewModel.state.value.isRefreshing)
@@ -174,7 +178,7 @@ class ProfileViewModelTest {
         runTest(scheduler) {
             everySuspend { logoutUseCase() } returns Unit
 
-            viewModel.onIntent(ProfileIntent.Logout)
+            viewModel.onIntent(Intent.Logout)
 
             assertEquals(LogoutRequestState.Loading, viewModel.state.value.logoutRequest)
 
@@ -183,9 +187,20 @@ class ProfileViewModelTest {
             assertEquals(LogoutRequestState.Initial, viewModel.state.value.logoutRequest)
 
             viewModel.effects.test {
-                assertEquals(ProfileEffect.NavigateToLogin, awaitItem())
+                assertEquals(Effect.NavigateToLogin, awaitItem())
             }
 
             verifySuspend { logoutUseCase() }
+        }
+
+    @Test
+    fun viewAddressDetails_hasExpectedEffect() =
+        runTest(scheduler) {
+            val address = TestUser.user.address
+            viewModel.onIntent(Intent.ViewAddressDetails(address))
+
+            viewModel.effects.test {
+                assertEquals(Effect.NavigateToAddressDetails(address), awaitItem())
+            }
         }
 }
