@@ -6,6 +6,8 @@
 
 package com.iolandarosa.retailhub.features.auth.utils
 
+import com.iolandarosa.retailhub.features.auth.domain.model.Address
+import com.iolandarosa.retailhub.features.auth.domain.model.Coordinates
 import com.iolandarosa.retailhub.features.auth.domain.model.User
 
 object TestUser {
@@ -25,8 +27,15 @@ object TestUser {
             eyeColor = "brown",
             hairColor = "black",
             hairType = "straight",
-            address = "123 Main St",
-            city = "Lisbon",
-            country = "Portugal",
+            address =
+                Address(
+                    street = "address",
+                    city = "city",
+                    state = "state",
+                    stateCode = "stateCode",
+                    postalCode = "postalCode",
+                    coordinates = Coordinates(lat = 1.0, lng = 1.0),
+                    country = "country",
+                ),
         )
 }

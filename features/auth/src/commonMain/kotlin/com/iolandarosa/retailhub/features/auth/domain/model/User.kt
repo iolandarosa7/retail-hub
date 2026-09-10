@@ -21,7 +21,5 @@ data class User(
     val eyeColor: String,
     val hairColor: String,
     val hairType: String,
-    val address: String,
-    val city: String,
-    val country: String,
+    val address: Address,
 )
