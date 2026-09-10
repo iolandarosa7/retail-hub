@@ -11,12 +11,20 @@ import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.ui.error.UiError
 import retailhub.core.ui.generated.resources.Res
 import retailhub.core.ui.generated.resources.error_forbidden
+import retailhub.core.ui.generated.resources.error_forbidden_title
 import retailhub.core.ui.generated.resources.error_no_internet
+import retailhub.core.ui.generated.resources.error_no_internet_title
+import retailhub.core.ui.generated.resources.error_not_found
+import retailhub.core.ui.generated.resources.error_not_found_title
 import retailhub.core.ui.generated.resources.error_serialization
 import retailhub.core.ui.generated.resources.error_server
+import retailhub.core.ui.generated.resources.error_server_title
 import retailhub.core.ui.generated.resources.error_timeout
+import retailhub.core.ui.generated.resources.error_timeout_title
 import retailhub.core.ui.generated.resources.error_unauthorized
+import retailhub.core.ui.generated.resources.error_unauthorized_title
 import retailhub.core.ui.generated.resources.error_unknown
+import retailhub.core.ui.generated.resources.error_unknown_title
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -34,6 +42,7 @@ class NetworkResultExtensionsTest {
 
         assertEquals(expectedMessage, result.description)
         assertEquals(Res.string.error_unknown, result.descriptionId)
+        assertEquals(Res.string.error_unknown_title, result.titleId)
     }
 
     @Test
@@ -41,6 +50,7 @@ class NetworkResultExtensionsTest {
         val result = NetworkResult.Failure.Forbidden.toUiError()
 
         assertEquals(Res.string.error_forbidden, result.descriptionId)
+        assertEquals(Res.string.error_forbidden_title, result.titleId)
     }
 
     @Test
@@ -48,6 +58,7 @@ class NetworkResultExtensionsTest {
         val result = NetworkResult.Failure.NoInternet.toUiError()
 
         assertEquals(Res.string.error_no_internet, result.descriptionId)
+        assertEquals(Res.string.error_no_internet_title, result.titleId)
     }
 
     @Test
@@ -60,6 +71,7 @@ class NetworkResultExtensionsTest {
         val result = failure.toUiError()
 
         assertEquals(Res.string.error_serialization, result.descriptionId)
+        assertEquals(Res.string.error_unknown_title, result.titleId)
     }
 
     @Test
@@ -73,6 +85,7 @@ class NetworkResultExtensionsTest {
         val result = failure.toUiError()
 
         assertEquals(Res.string.error_server, result.descriptionId)
+        assertEquals(Res.string.error_server_title, result.titleId)
     }
 
     @Test
@@ -80,6 +93,7 @@ class NetworkResultExtensionsTest {
         val result = NetworkResult.Failure.Timeout.toUiError()
 
         assertEquals(Res.string.error_timeout, result.descriptionId)
+        assertEquals(Res.string.error_timeout_title, result.titleId)
     }
 
     @Test
@@ -87,6 +101,15 @@ class NetworkResultExtensionsTest {
         val result = NetworkResult.Failure.Unauthorized.toUiError()
 
         assertEquals(Res.string.error_unauthorized, result.descriptionId)
+        assertEquals(Res.string.error_unauthorized_title, result.titleId)
+    }
+
+    @Test
+    fun notFound_maps_toNotFoundError() {
+        val result = NetworkResult.Failure.NotFound.toUiError()
+
+        assertEquals(Res.string.error_not_found, result.descriptionId)
+        assertEquals(Res.string.error_not_found_title, result.titleId)
     }
 
     @Test

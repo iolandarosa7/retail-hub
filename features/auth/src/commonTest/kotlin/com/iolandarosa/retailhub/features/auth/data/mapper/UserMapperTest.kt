@@ -13,12 +13,14 @@ import com.iolandarosa.retailhub.features.auth.data.model.CoordinatesDto
 import com.iolandarosa.retailhub.features.auth.data.model.CryptoDto
 import com.iolandarosa.retailhub.features.auth.data.model.HairDto
 import com.iolandarosa.retailhub.features.auth.data.model.UserDto
+import com.iolandarosa.retailhub.features.auth.domain.model.Address
+import com.iolandarosa.retailhub.features.auth.domain.model.Coordinates
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class UserMapperTest {
     @Test
-    fun userDtoMapperExecutionHasExpectedResult() {
+    fun userDto_toDomains_hasExpectedResult() {
         val userDto =
             UserDto(
                 id = 1,
@@ -88,6 +90,16 @@ class UserMapperTest {
             )
 
         val user = userDto.toDomain()
+        val expectedAddress =
+            Address(
+                street = "address",
+                city = "city",
+                state = "state",
+                stateCode = "stateCode",
+                postalCode = "postalCode",
+                coordinates = Coordinates(lat = 1.0, lng = 1.0),
+                country = "country",
+            )
 
         assertEquals("firstName lastName", user.name)
         assertEquals("image", user.image)
@@ -103,6 +115,6 @@ class UserMapperTest {
         assertEquals("eyeColor", user.eyeColor)
         assertEquals("color", user.hairColor)
         assertEquals("type", user.hairType)
-        assertEquals("address, city, country", user.address)
+        assertEquals(expectedAddress, user.address)
     }
 }

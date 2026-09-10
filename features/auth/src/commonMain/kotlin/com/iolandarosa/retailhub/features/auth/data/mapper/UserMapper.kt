@@ -7,6 +7,8 @@
 package com.iolandarosa.retailhub.features.auth.data.mapper
 
 import com.iolandarosa.retailhub.features.auth.data.model.UserDto
+import com.iolandarosa.retailhub.features.auth.domain.model.Address
+import com.iolandarosa.retailhub.features.auth.domain.model.Coordinates
 import com.iolandarosa.retailhub.features.auth.domain.model.User
 
 internal fun UserDto.toDomain(): User =
@@ -25,5 +27,18 @@ internal fun UserDto.toDomain(): User =
         eyeColor = this.eyeColor,
         hairColor = this.hair.color,
         hairType = this.hair.type,
-        address = "${this.address.address}, ${this.address.city}, ${this.address.country}",
+        address =
+            Address(
+                street = this.address.address,
+                city = this.address.city,
+                state = this.address.state,
+                stateCode = this.address.stateCode,
+                postalCode = this.address.postalCode,
+                country = this.address.country,
+                coordinates =
+                    Coordinates(
+                        lat = this.address.coordinates.lat,
+                        lng = this.address.coordinates.lng,
+                    ),
+            ),
     )

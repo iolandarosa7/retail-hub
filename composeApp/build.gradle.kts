@@ -63,6 +63,7 @@ kotlin {
             implementation(libs.jetbrains.navigation3.ui)
             implementation(libs.koin.core)
             implementation(libs.ktor.client.serialization)
+            implementation(libs.compose.components.resources)
 
             implementation(project(":core:common"))
             implementation(project(":core:network"))
@@ -75,6 +76,8 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.compose.ui.test)
             implementation(libs.koin.compose.viewModel)
+            // turbine
+            implementation(libs.turbine)
         }
         getByName("androidDeviceTest") {
             dependencies {

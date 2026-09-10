@@ -15,24 +15,24 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class LoginUiStateTest {
+class LoginContractTest {
     private val formState = FormState(fields = emptyList())
 
     @Test
-    fun initialStateEnablesInteractionAndHasNoError() {
-        val state = LoginUiState(formState = formState)
+    fun initialState_isInteractionEnabledAndError_expectsTrueAndNull() {
+        val state = LoginContract.State(formState = formState)
 
         assertTrue(state.isInteractionEnabled)
         assertNull(state.error)
-        assertIs<LoginRequestState.Initial>(state.loginRequest)
+        assertIs<LoginContract.RequestState.Initial>(state.loginRequest)
     }
 
     @Test
-    fun loadingStateDisablesInteractionAndHasNoError() {
+    fun loginRequestLoading_isInteractionEnabledAndError_expectsFalseAndNull() {
         val state =
-            LoginUiState(
+            LoginContract.State(
                 formState = formState,
-                loginRequest = LoginRequestState.Loading,
+                loginRequest = LoginContract.RequestState.Loading,
             )
 
         assertFalse(state.isInteractionEnabled)
@@ -40,11 +40,11 @@ class LoginUiStateTest {
     }
 
     @Test
-    fun successStateEnablesInteractionAndHasNoError() {
+    fun loginRequestSuccess_isInteractionEnabledAndError_expectsFalseAndNull() {
         val state =
-            LoginUiState(
+            LoginContract.State(
                 formState = formState,
-                loginRequest = LoginRequestState.Success,
+                loginRequest = LoginContract.RequestState.Success,
             )
 
         assertTrue(state.isInteractionEnabled)
@@ -52,13 +52,13 @@ class LoginUiStateTest {
     }
 
     @Test
-    fun errorStateEnablesInteractionAndExposesError() {
+    fun loginRequestError_isInteractionEnabledAndError_expectsFalseAndErrorValue() {
         val error = UiError(description = "error")
 
         val state =
-            LoginUiState(
+            LoginContract.State(
                 formState = formState,
-                loginRequest = LoginRequestState.Error(error),
+                loginRequest = LoginContract.RequestState.Error(error),
             )
 
         assertTrue(state.isInteractionEnabled)

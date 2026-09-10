@@ -8,39 +8,42 @@ package com.iolandarosa.retailhub.features.auth.presentation.profile
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
-import com.iolandarosa.retailhub.features.auth.domain.model.User
+import com.iolandarosa.retailhub.features.auth.utils.TestUser
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
 class AddressCardTest {
     @Test
-    fun addressCardDisplaysAddress() =
+    fun componentLoaded_onClick_callsExpectedCallback() =
         runComposeUiTest {
-            val user =
-                User(
-                    name = "John Doe",
-                    image = "image_url",
-                    role = "admin",
-                    email = "john@example.com",
-                    phone = "123456",
-                    age = 30,
-                    gender = "male",
-                    birthDate = "2000-01-01",
-                    bloodGroup = "A+",
-                    height = 180.0,
-                    weight = 80.0,
-                    eyeColor = "brown",
-                    hairColor = "black",
-                    hairType = "straight",
-                    address = "123 Main St, Lisbon, Portugal",
-                )
+            val address = TestUser.user.address
+            var callbackCalled = false
 
             setContent {
-                AddressCard(user = user)
+                AddressCard(address = address, onClick = { callbackCalled = true })
             }
 
-            onNodeWithText("123 Main St, Lisbon, Portugal").assertIsDisplayed()
+            onNodeWithText("${address.street}, ${address.city}, ${address.postalCode}").assertIsDisplayed()
+
+            onNodeWithContentDescription("Address details")
+                .assertIsEnabled()
+                .performClick()
+
+            waitUntil { callbackCalled }
+        }
+
+    @Test
+    fun nullAddress_componentLoaded_hasExpectedUI() =
+        runComposeUiTest {
+            setContent { AddressCard() }
+
+            onNodeWithContentDescription("Address details")
+                .assertIsNotEnabled()
         }
 }

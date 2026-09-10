@@ -12,40 +12,108 @@ import com.iolandarosa.retailhub.core.common.dispatcher.DispatcherProvider
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.ui.extension.toUiError
 import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
+import com.iolandarosa.retailhub.features.auth.domain.interactors.LogoutUseCase
+import com.iolandarosa.retailhub.features.auth.domain.model.Address
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
     private val getAuthUserUseCase: GetAuthUserUseCase,
+    private val logoutUseCase: LogoutUseCase,
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
-    private val _state: MutableStateFlow<ProfileUiState> =
-        MutableStateFlow(ProfileUiState())
+    private val _state: MutableStateFlow<ProfileContract.State> =
+        MutableStateFlow(ProfileContract.State())
     val state = _state.asStateFlow()
 
-    fun onIntent(intent: ProfileIntent) {
+    private val _effects = Channel<ProfileContract.Effect>(Channel.BUFFERED)
+    val effects = _effects.receiveAsFlow()
+
+    fun onIntent(intent: ProfileContract.Intent) {
         when (intent) {
-            ProfileIntent.LoadProfile -> getAuthUser()
+            ProfileContract.Intent.LoadProfile -> {
+                getAuthUser(isRefresh = false)
+            }
+
+            ProfileContract.Intent.Logout -> {
+                logout()
+            }
+
+            ProfileContract.Intent.RefreshProfile -> {
+                getAuthUser(isRefresh = true)
+            }
+
+            is ProfileContract.Intent.ViewAddressDetails -> {
+                viewAddressDetails(intent.address)
+            }
         }
     }
 
-    private fun getAuthUser() {
-        if (state.value.userRequest is UserRequestState.Loading) return
+    private fun getAuthUser(isRefresh: Boolean) {
+        if (state.value.userRequest is ProfileContract.UserRequestState.Loading) return
+        if (isRefresh && state.value.isRefreshing) return
 
-        _state.update { it.copy(userRequest = UserRequestState.Loading) }
+        _state.update {
+            if (isRefresh) {
+                it.copy(isRefreshing = true)
+            } else {
+                it.copy(userRequest = ProfileContract.UserRequestState.Loading)
+            }
+        }
 
         viewModelScope.launch(dispatcherProvider.main) {
             when (val result = getAuthUserUseCase()) {
+                is NetworkResult.Failure.Unauthorized -> {
+                    _state.update {
+                        it.copy(
+                            userRequest = ProfileContract.UserRequestState.Initial,
+                            isRefreshing = false,
+                        )
+                    }
+
+                    _effects.send(ProfileContract.Effect.NavigateToLogin)
+                }
+
                 is NetworkResult.Failure -> {
-                    _state.update { it.copy(userRequest = UserRequestState.Error(error = result.toUiError())) }
+                    _state.update {
+                        it.copy(
+                            userRequest = ProfileContract.UserRequestState.Error(result.toUiError()),
+                            isRefreshing = false,
+                        )
+                    }
                 }
 
                 is NetworkResult.Success -> {
-                    _state.update { it.copy(userRequest = UserRequestState.Success(result.data)) }
+                    _state.update {
+                        it.copy(
+                            userRequest = ProfileContract.UserRequestState.Success(result.data),
+                            isRefreshing = false,
+                        )
+                    }
                 }
             }
+        }
+    }
+
+    private fun logout() {
+        if (state.value.logoutRequest is ProfileContract.LogoutRequestState.Loading) return
+
+        _state.update { it.copy(logoutRequest = ProfileContract.LogoutRequestState.Loading) }
+
+        viewModelScope.launch(dispatcherProvider.main) {
+            logoutUseCase()
+            _state.update { it.copy(logoutRequest = ProfileContract.LogoutRequestState.Initial) }
+            _effects.send(ProfileContract.Effect.NavigateToLogin)
+        }
+    }
+
+    private fun viewAddressDetails(address: Address) {
+        viewModelScope.launch(dispatcherProvider.main) {
+            _effects.send(ProfileContract.Effect.NavigateToAddressDetails(address))
         }
     }
 }

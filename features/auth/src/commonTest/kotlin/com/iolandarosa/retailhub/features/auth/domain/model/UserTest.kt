@@ -12,6 +12,17 @@ import kotlin.test.assertEquals
 class UserTest {
     @Test
     fun userInstance_hasExpectedValues() {
+        val expectedAddress =
+            Address(
+                street = "address",
+                city = "city",
+                state = "state",
+                stateCode = "stateCode",
+                postalCode = "postalCode",
+                coordinates = Coordinates(lat = 1.0, lng = 1.0),
+                country = "country",
+            )
+
         val user =
             User(
                 name = "John Doe",
@@ -28,7 +39,7 @@ class UserTest {
                 eyeColor = "brown",
                 hairColor = "black",
                 hairType = "straight",
-                address = "123 Main St, Lisbon, Portugal",
+                address = expectedAddress,
             )
 
         assertEquals("John Doe", user.name)
@@ -45,6 +56,6 @@ class UserTest {
         assertEquals("brown", user.eyeColor)
         assertEquals("black", user.hairColor)
         assertEquals("straight", user.hairType)
-        assertEquals("123 Main St, Lisbon, Portugal", user.address)
+        assertEquals(expectedAddress, user.address)
     }
 }

@@ -93,7 +93,7 @@ class LoginScreenTest {
             scheduler.advanceUntilIdle()
 
             assertEquals(
-                LoginRequestState.Initial,
+                LoginContract.RequestState.Initial,
                 viewModel.state.value.loginRequest,
             )
 
@@ -121,7 +121,7 @@ class LoginScreenTest {
             onNodeWithText("Sign in").performClick()
 
             assertEquals(
-                LoginRequestState.Loading,
+                LoginContract.RequestState.Loading,
                 viewModel.state.value.loginRequest,
             )
 
@@ -132,7 +132,7 @@ class LoginScreenTest {
             scheduler.advanceUntilIdle()
 
             assertEquals(
-                LoginRequestState.Success,
+                LoginContract.RequestState.Success,
                 viewModel.state.value.loginRequest,
             )
 
@@ -163,13 +163,13 @@ class LoginScreenTest {
             onNodeWithText("Sign in").performClick()
 
             assertEquals(
-                LoginRequestState.Loading,
+                LoginContract.RequestState.Loading,
                 viewModel.state.value.loginRequest,
             )
 
             scheduler.advanceUntilIdle()
 
-            assertIs<LoginRequestState.Error>(viewModel.state.value.loginRequest)
+            assertIs<LoginContract.RequestState.Error>(viewModel.state.value.loginRequest)
 
             onNodeWithText(errorMessage)
                 .assertIsDisplayed()

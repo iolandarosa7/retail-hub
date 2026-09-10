@@ -21,6 +21,11 @@ class Navigator(
         backStack.add(route)
     }
 
+    fun navigateInitialRoute(route: AppRoute) {
+        backStack.clear()
+        backStack.add(route)
+    }
+
     fun pop() {
         if (backStack.size > 1) {
             backStack.removeLast()

@@ -24,34 +24,34 @@ class LoginViewModel(
     private val loginUseCase: LoginUseCase,
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
-    private val _state: MutableStateFlow<LoginUiState> =
+    private val _state: MutableStateFlow<LoginContract.State> =
         MutableStateFlow(
-            LoginUiState(
+            LoginContract.State(
                 formState =
                     FormState(
                         fields =
                             LoginForm.get(
-                                onValueChanged = { onIntent(LoginIntent.OnFormFieldChanged) },
-                                onActionDone = { onIntent(LoginIntent.OnLoginClicked) },
+                                onValueChanged = { onIntent(LoginContract.Intent.OnFormFieldChanged) },
+                                onActionDone = { onIntent(LoginContract.Intent.OnLoginClicked) },
                             ),
                     ),
             ),
         )
     val state = _state.asStateFlow()
 
-    private val _effects = Channel<LoginEffect>(Channel.BUFFERED)
+    private val _effects = Channel<LoginContract.Effect>(Channel.BUFFERED)
     val effects = _effects.receiveAsFlow()
 
-    fun onIntent(intent: LoginIntent) {
+    fun onIntent(intent: LoginContract.Intent) {
         when (intent) {
-            LoginIntent.OnFormFieldChanged -> resetError()
-            LoginIntent.OnLoginClicked -> login()
+            LoginContract.Intent.OnFormFieldChanged -> resetError()
+            LoginContract.Intent.OnLoginClicked -> login()
         }
     }
 
     private fun resetError() {
-        if (_state.value.loginRequest !is LoginRequestState.Initial) {
-            _state.update { it.copy(loginRequest = LoginRequestState.Initial) }
+        if (_state.value.loginRequest !is LoginContract.RequestState.Initial) {
+            _state.update { it.copy(loginRequest = LoginContract.RequestState.Initial) }
         }
     }
 
@@ -59,7 +59,7 @@ class LoginViewModel(
         val formState = _state.value.formState
         if (!formState.isFormValid()) return
 
-        _state.update { it.copy(loginRequest = LoginRequestState.Loading) }
+        _state.update { it.copy(loginRequest = LoginContract.RequestState.Loading) }
 
         viewModelScope.launch(dispatcherProvider.main) {
             val username = formState.getFieldDataByName<String>(LoginForm.USERNAME) ?: ""
@@ -67,12 +67,16 @@ class LoginViewModel(
 
             when (val result = loginUseCase(username = username, password = password)) {
                 is NetworkResult.Failure -> {
-                    _state.update { it.copy(loginRequest = LoginRequestState.Error(error = result.toUiError())) }
+                    _state.update {
+                        it.copy(
+                            loginRequest = LoginContract.RequestState.Error(error = result.toUiError()),
+                        )
+                    }
                 }
 
                 is NetworkResult.Success -> {
-                    _state.update { it.copy(loginRequest = LoginRequestState.Success) }
-                    _effects.send(LoginEffect.NavigateToProfile)
+                    _state.update { it.copy(loginRequest = LoginContract.RequestState.Success) }
+                    _effects.send(LoginContract.Effect.NavigateToProfile)
                 }
             }
         }
