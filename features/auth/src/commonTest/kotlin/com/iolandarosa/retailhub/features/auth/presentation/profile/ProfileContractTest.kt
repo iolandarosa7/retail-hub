@@ -7,16 +7,19 @@
 package com.iolandarosa.retailhub.features.auth.presentation.profile
 
 import com.iolandarosa.retailhub.core.ui.error.UiError
+import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileContract.LogoutRequestState
+import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileContract.State
+import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileContract.UserRequestState
 import com.iolandarosa.retailhub.features.auth.utils.TestUser
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
-class ProfileUiStateTest {
+class ProfileContractTest {
     @Test
     fun initialState_isInteractionEnabled_expectsTrue() {
-        val state = ProfileUiState()
+        val state = State()
 
         assertTrue(state.isInteractionEnabled)
         assertIs<UserRequestState.Initial>(state.userRequest)
@@ -26,7 +29,7 @@ class ProfileUiStateTest {
 
     @Test
     fun userRequestLoading_isInteractionEnabled_expectsFalse() {
-        val state = ProfileUiState(userRequest = UserRequestState.Loading)
+        val state = State(userRequest = UserRequestState.Loading)
 
         assertFalse(state.isInteractionEnabled)
         assertIs<LogoutRequestState.Initial>(state.logoutRequest)
@@ -35,7 +38,7 @@ class ProfileUiStateTest {
 
     @Test
     fun userRequestError_isInteractionEnabled_expectsTrue() {
-        val state = ProfileUiState(userRequest = UserRequestState.Error(UiError()))
+        val state = State(userRequest = UserRequestState.Error(UiError()))
 
         assertTrue(state.isInteractionEnabled)
         assertIs<LogoutRequestState.Initial>(state.logoutRequest)
@@ -44,7 +47,7 @@ class ProfileUiStateTest {
 
     @Test
     fun userRequestSuccess_isInteractionEnabled_expectsTrue() {
-        val state = ProfileUiState(userRequest = UserRequestState.Success(TestUser.user))
+        val state = State(userRequest = UserRequestState.Success(TestUser.user))
 
         assertTrue(state.isInteractionEnabled)
         assertIs<LogoutRequestState.Initial>(state.logoutRequest)
@@ -53,7 +56,7 @@ class ProfileUiStateTest {
 
     @Test
     fun userRequestLoadingAndLogoutRequestLoading_isInteractionEnabled_expectsFalse() {
-        val state = ProfileUiState(userRequest = UserRequestState.Loading, logoutRequest = LogoutRequestState.Loading)
+        val state = State(userRequest = UserRequestState.Loading, logoutRequest = LogoutRequestState.Loading)
 
         assertFalse(state.isInteractionEnabled)
         assertFalse(state.isRefreshing)
@@ -62,7 +65,7 @@ class ProfileUiStateTest {
     @Test
     fun userRequestErrorAndLogoutRequestLoading_isInteractionEnabled_expectsFalse() {
         val state =
-            ProfileUiState(userRequest = UserRequestState.Error(UiError()), logoutRequest = LogoutRequestState.Loading)
+            State(userRequest = UserRequestState.Error(UiError()), logoutRequest = LogoutRequestState.Loading)
 
         assertFalse(state.isInteractionEnabled)
         assertFalse(state.isRefreshing)
@@ -71,7 +74,7 @@ class ProfileUiStateTest {
     @Test
     fun userRequestSuccessAndLogoutRequestLoading_isInteractionEnabled_expectsFalse() {
         val state =
-            ProfileUiState(
+            State(
                 userRequest = UserRequestState.Success(TestUser.user),
                 logoutRequest = LogoutRequestState.Loading,
             )
@@ -82,7 +85,7 @@ class ProfileUiStateTest {
 
     @Test
     fun isRefreshing_isInteractionEnabled_expectsFalse() {
-        val state = ProfileUiState(isRefreshing = true)
+        val state = State(isRefreshing = true)
 
         assertFalse(state.isInteractionEnabled)
         assertIs<LogoutRequestState.Initial>(state.logoutRequest)
