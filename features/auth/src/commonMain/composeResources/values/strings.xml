@@ -7,6 +7,8 @@
     <string name="blood_group">Blood group</string>
     <string name="contact">Contact</string>
     <string name="coordinates">Coordinates</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
     <string name="country">Country</string>
     <string name="eyes">Eyes</string>
     <string name="gender">Gender</string>

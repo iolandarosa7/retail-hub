@@ -27,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -35,8 +36,11 @@ import com.iolandarosa.retailhub.core.ui.theme.Dimens
 import com.iolandarosa.retailhub.features.auth.domain.model.Address
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import retailhub.features.auth.generated.resources.Res
 import retailhub.features.auth.generated.resources.coordinates
+import retailhub.features.auth.generated.resources.copied_to_clipboard
+import retailhub.features.auth.generated.resources.copy_to_clipboard
 import retailhub.features.auth.generated.resources.country
 import retailhub.features.auth.generated.resources.ic_address
 import retailhub.features.auth.generated.resources.ic_copy
@@ -48,7 +52,21 @@ import retailhub.features.auth.generated.resources.open_in_maps
 fun AddressScreen(
     paddingValues: PaddingValues,
     address: Address,
+    onShowMessage: (String) -> Unit,
+    viewModel: AddressViewModel = koinViewModel(),
 ) {
+    val copiedMessage = stringResource(Res.string.copied_to_clipboard)
+
+    LaunchedEffect(viewModel.effects) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                AddressContract.Effect.ShowCopySuccess -> {
+                    onShowMessage(copiedMessage)
+                }
+            }
+        }
+    }
+
     Column(
         modifier =
             Modifier
@@ -66,7 +84,10 @@ fun AddressScreen(
 
         CountrySection(address)
 
-        CoordinatesSection(address)
+        CoordinatesSection(
+            "${address.coordinates.lat}, ${address.coordinates.lng}",
+            onCopyClick = { viewModel.onIntent(AddressContract.Intent.OnClipboardCopy(it)) },
+        )
 
         OpenInMapsButton()
 
@@ -144,7 +165,10 @@ private fun CountrySection(address: Address) {
 }
 
 @Composable
-private fun CoordinatesSection(address: Address) {
+private fun CoordinatesSection(
+    coordinatesStr: String,
+    onCopyClick: (value: String) -> Unit,
+) {
     Column {
         SectionTitle(stringResource(Res.string.coordinates))
 
@@ -154,15 +178,15 @@ private fun CoordinatesSection(address: Address) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "${address.coordinates.lat}, ${address.coordinates.lng}",
+                text = coordinatesStr,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
             )
 
-            IconButton(onClick = {}) {
+            IconButton(onClick = { onCopyClick(coordinatesStr) }) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_copy),
-                    contentDescription = null,
+                    contentDescription = stringResource(Res.string.copy_to_clipboard),
                     tint = MaterialTheme.colorScheme.tertiary,
                 )
             }

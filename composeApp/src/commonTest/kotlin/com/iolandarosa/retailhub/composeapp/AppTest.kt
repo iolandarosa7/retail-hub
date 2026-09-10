@@ -23,6 +23,7 @@ import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCase
 import com.iolandarosa.retailhub.features.auth.domain.model.Address
 import com.iolandarosa.retailhub.features.auth.domain.model.Coordinates
 import com.iolandarosa.retailhub.features.auth.domain.model.User
+import com.iolandarosa.retailhub.features.auth.presentation.address.AddressViewModel
 import com.iolandarosa.retailhub.features.auth.presentation.login.LoginViewModel
 import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileViewModel
 import dev.mokkery.answering.returns
@@ -77,6 +78,7 @@ class AppTest {
     private lateinit var dispatcher: CoroutineDispatcher
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var profileViewModel: ProfileViewModel
+    private lateinit var addressViewModel: AddressViewModel
 
     private val koinApp =
         koinApplication {
@@ -87,6 +89,7 @@ class AppTest {
                 module {
                     viewModel { loginViewModel }
                     viewModel { profileViewModel }
+                    viewModel { addressViewModel }
                 },
             )
         }
@@ -107,6 +110,12 @@ class AppTest {
                 getAuthUserUseCase = getAuthUserUseCase,
                 logoutUseCase = mock(),
                 dispatcherProvider = TestDispatcherProvider(dispatcher),
+            )
+
+        addressViewModel =
+            AddressViewModel(
+                dispatcherProvider = TestDispatcherProvider(dispatcher),
+                clipboardManager = mock(),
             )
     }
 

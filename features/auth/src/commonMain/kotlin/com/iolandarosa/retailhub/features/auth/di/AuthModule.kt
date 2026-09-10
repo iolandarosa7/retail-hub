@@ -17,6 +17,7 @@ import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCaseIm
 import com.iolandarosa.retailhub.features.auth.domain.interactors.LogoutUseCase
 import com.iolandarosa.retailhub.features.auth.domain.interactors.LogoutUseCaseImpl
 import com.iolandarosa.retailhub.features.auth.domain.repository.AuthenticationRepository
+import com.iolandarosa.retailhub.features.auth.presentation.address.AddressViewModel
 import com.iolandarosa.retailhub.features.auth.presentation.login.LoginViewModel
 import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileViewModel
 import org.koin.core.module.dsl.viewModel
@@ -42,4 +43,5 @@ val authModule =
         factory<LogoutUseCase> { LogoutUseCaseImpl(get()) }
         viewModel { LoginViewModel(loginUseCase = get(), dispatcherProvider = get()) }
         viewModel { ProfileViewModel(getAuthUserUseCase = get(), logoutUseCase = get(), dispatcherProvider = get()) }
+        viewModel { AddressViewModel(get(), get()) }
     }
