@@ -63,6 +63,7 @@ kotlin {
             implementation(libs.jetbrains.navigation3.ui)
             implementation(libs.koin.core)
             implementation(libs.ktor.client.serialization)
+            implementation(libs.compose.components.resources)
 
             implementation(project(":core:common"))
             implementation(project(":core:network"))

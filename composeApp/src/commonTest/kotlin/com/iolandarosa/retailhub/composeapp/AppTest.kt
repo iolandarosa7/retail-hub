@@ -205,6 +205,6 @@ class AppTest {
                 awaitIdle()
             }
 
-            onNodeWithText("MAP").assertIsDisplayed()
+            onNodeWithText("Address details").assertIsDisplayed()
         }
 }

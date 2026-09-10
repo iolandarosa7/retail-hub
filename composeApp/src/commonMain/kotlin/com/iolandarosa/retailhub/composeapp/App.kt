@@ -6,6 +6,10 @@
 
 package com.iolandarosa.retailhub.composeapp
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -15,6 +19,8 @@ import androidx.navigation3.ui.NavDisplay
 import com.iolandarosa.retailhub.composeapp.navigation.AddressRoute
 import com.iolandarosa.retailhub.composeapp.navigation.LoginRoute
 import com.iolandarosa.retailhub.composeapp.navigation.ProfileRoute
+import com.iolandarosa.retailhub.composeapp.navigation.RetailHubTopAppBar
+import com.iolandarosa.retailhub.composeapp.navigation.appBarConfig
 import com.iolandarosa.retailhub.composeapp.navigation.rememberNavigator
 import com.iolandarosa.retailhub.core.ui.theme.RetailHubTheme
 import com.iolandarosa.retailhub.features.auth.presentation.address.AddressScreen
@@ -24,9 +30,25 @@ import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileScree
 @Composable
 fun App() {
     val navigator = rememberNavigator(initialRoute = ProfileRoute)
+    val appBarConfig = navigator.backStack.last().appBarConfig()
 
     RetailHubTheme {
-        Scaffold(Modifier.fillMaxSize()) { innerPadding ->
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
+                AnimatedContent(
+                    targetState = appBarConfig,
+                    transitionSpec = {
+                        fadeIn() togetherWith fadeOut()
+                    },
+                    label = "TopAppBarAnimation",
+                ) { config ->
+                    config?.let {
+                        RetailHubTopAppBar(it, onBack = navigator::pop)
+                    }
+                }
+            },
+        ) { innerPadding ->
             NavDisplay(
                 backStack = navigator.backStack,
                 onBack = navigator::pop,
@@ -49,8 +71,8 @@ fun App() {
 
                         entry<AddressRoute> { key ->
                             AddressScreen(
+                                paddingValues = innerPadding,
                                 address = key.address,
-                                onBack = navigator::pop,
                             )
                         }
                     },
