@@ -41,7 +41,6 @@ import com.iolandarosa.retailhub.features.auth.domain.model.Address
 import com.iolandarosa.retailhub.features.auth.domain.model.User
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 import retailhub.features.auth.generated.resources.Res
 import retailhub.features.auth.generated.resources.ic_logout
 import retailhub.features.auth.generated.resources.logout
@@ -52,7 +51,7 @@ fun ProfileScreen(
     paddingValues: PaddingValues,
     navigateToLogin: () -> Unit,
     navigateToAddressDetails: (Address) -> Unit,
-    viewModel: ProfileViewModel = koinViewModel(),
+    viewModel: ProfileViewModel,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isEnabled by remember { derivedStateOf { state.isInteractionEnabled } }

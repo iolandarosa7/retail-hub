@@ -62,6 +62,7 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.jetbrains.navigation3.ui)
             implementation(libs.koin.core)
+            implementation(libs.koin.compose.viewModel)
             implementation(libs.ktor.client.serialization)
             implementation(libs.compose.components.resources)
 

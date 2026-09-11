@@ -41,7 +41,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iolandarosa.retailhub.core.ui.form.components.FormFieldRenderer
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 import retailhub.features.auth.generated.resources.Res
 import retailhub.features.auth.generated.resources.introduce_credentials_description
 import retailhub.features.auth.generated.resources.sign_in
@@ -52,7 +51,7 @@ import retailhub.features.auth.generated.resources.welcome_back
 fun LoginScreen(
     paddingValues: PaddingValues,
     navigateToProfile: () -> Unit,
-    viewModel: LoginViewModel = koinViewModel(),
+    viewModel: LoginViewModel,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 

@@ -31,6 +31,8 @@ import com.iolandarosa.retailhub.features.auth.presentation.address.AddressScree
 import com.iolandarosa.retailhub.features.auth.presentation.login.LoginScreen
 import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileScreen
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun App() {
@@ -70,6 +72,7 @@ fun App() {
                             LoginScreen(
                                 paddingValues = innerPadding,
                                 navigateToProfile = { navigator.navigateInitialRoute(ProfileRoute) },
+                                viewModel = koinViewModel(),
                             )
                         }
 
@@ -78,14 +81,15 @@ fun App() {
                                 paddingValues = innerPadding,
                                 navigateToLogin = { navigator.navigateInitialRoute(LoginRoute) },
                                 navigateToAddressDetails = { navigator.navigate(AddressRoute(it)) },
+                                viewModel = koinViewModel(),
                             )
                         }
 
                         entry<AddressRoute> { key ->
                             AddressScreen(
                                 paddingValues = innerPadding,
-                                address = key.address,
                                 onShowMessage = showSnackBar,
+                                viewModel = koinViewModel(parameters = { parametersOf(key.address) }),
                             )
                         }
                     },

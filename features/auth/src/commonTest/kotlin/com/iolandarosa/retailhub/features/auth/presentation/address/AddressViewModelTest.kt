@@ -8,7 +8,9 @@ package com.iolandarosa.retailhub.features.auth.presentation.address
 
 import app.cash.turbine.test
 import com.iolandarosa.retailhub.core.common.clipboard.AppClipboardManager
+import com.iolandarosa.retailhub.features.auth.BuildKonfig
 import com.iolandarosa.retailhub.features.auth.TestDispatcherProvider
+import com.iolandarosa.retailhub.features.auth.utils.TestUser
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.mock
@@ -33,9 +35,26 @@ class AddressViewModelTest {
     fun setup() {
         viewModel =
             AddressViewModel(
+                address = TestUser.user.address,
                 dispatcherProvider = TestDispatcherProvider(dispatcher),
                 clipboardManager = clipboardManager,
             )
+    }
+
+    @Test
+    fun initialState_viewModelInstance_hasExpectedValues() {
+        assertEquals(TestUser.user.address, viewModel.state.value.address)
+        assertEquals(
+            "https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/static/" +
+                "pin-s+A0CFD2(${TestUser.user.address.coordinates.lng},${TestUser.user.address.coordinates.lat})/" +
+                "${TestUser.user.address.coordinates.lng},${TestUser.user.address.coordinates.lat},16/300x200.png?" +
+                "attribution=false&logo=false&access_token=${BuildKonfig.MAPBOX_TOKEN}",
+            viewModel.state.value.mapUrl,
+        )
+        assertEquals(
+            "${TestUser.user.address.coordinates.lat}, ${TestUser.user.address.coordinates.lng}",
+            viewModel.state.value.coordinatesStr,
+        )
     }
 
     @Test

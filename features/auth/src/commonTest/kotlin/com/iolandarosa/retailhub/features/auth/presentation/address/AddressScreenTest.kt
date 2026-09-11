@@ -45,6 +45,7 @@ class AddressScreenTest {
         dispatcher = StandardTestDispatcher(scheduler)
         viewModel =
             AddressViewModel(
+                address = address,
                 clipboardManager = clipboardManager,
                 dispatcherProvider = TestDispatcherProvider(dispatcher),
             )
@@ -54,7 +55,6 @@ class AddressScreenTest {
     fun TestAddressScreen(onShowMessage: (String) -> Unit = {}) =
         AddressScreen(
             paddingValues = PaddingValues(),
-            address = address,
             onShowMessage = onShowMessage,
             viewModel = viewModel,
         )
@@ -68,11 +68,10 @@ class AddressScreenTest {
 
             onNodeWithText(address.street).assertIsDisplayed()
             onNodeWithText("${address.city}, ${address.stateCode} ${address.postalCode}").assertIsDisplayed()
-            onNodeWithText("MAP").assertIsDisplayed()
+            onNodeWithContentDescription("Map image of user location").assertIsDisplayed()
             onNodeWithText("LOCATION").assertIsDisplayed()
             onNodeWithText(address.city).assertIsDisplayed()
             onNodeWithText("${address.state} · ${address.stateCode}").assertIsDisplayed()
-            onNodeWithText(address.postalCode).assertIsDisplayed()
             onNodeWithText("COUNTRY").assertIsDisplayed()
             onNodeWithText(address.country).assertIsDisplayed()
             onNodeWithText("COORDINATES").assertIsDisplayed()
