@@ -6,11 +6,18 @@
 
 package com.iolandarosa.retailhub.core.network.extensions
 
+import com.iolandarosa.retailhub.core.datastore.domain.TokenManager
+import com.iolandarosa.retailhub.core.model.AuthTokens
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.network.TestDto
+import com.iolandarosa.retailhub.core.network.client.createAuthenticatedClient
 import com.iolandarosa.retailhub.core.network.client.createPublicClient
+import dev.mokkery.answering.sequentiallyReturns
+import dev.mokkery.everySuspend
+import dev.mokkery.mock
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.respondOk
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -20,6 +27,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.util.network.UnresolvedAddressException
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.SerializationException
 import kotlin.test.Test
@@ -27,6 +35,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class HttpClientExtensionsTest {
+    private val tokenManager: TokenManager = mock()
+
     @Test
     fun successfulRequest_safeRequest_returnsSuccess() =
         runTest {
@@ -142,5 +152,41 @@ class HttpClientExtensionsTest {
 
             assertIs<NetworkResult.Failure.Unknown>(result)
             assertEquals(errorMessage, result.message)
+        }
+
+    @Test
+    fun invalidateAuthTokens_removesAuthorizationHeader() =
+        runTest {
+            val accessToken = "accessToken"
+            everySuspend { tokenManager.getAuthTokens() } sequentiallyReturns
+                listOf(
+                    flowOf(
+                        AuthTokens(accessToken, "refreshToken"),
+                    ),
+                    flowOf(null),
+                )
+
+            var authorizationHeader: String? = null
+
+            val engine =
+                MockEngine { request ->
+                    authorizationHeader = request.headers[HttpHeaders.Authorization]
+
+                    respondOk()
+                }
+
+            val publicClient = createPublicClient(engine)
+
+            val client = createAuthenticatedClient(tokenManager, publicClient, engine)
+
+            client.get("test")
+
+            assertEquals("Bearer $accessToken", authorizationHeader)
+
+            client.invalidateAuthTokens()
+
+            client.get("test")
+
+            assertEquals(null, authorizationHeader)
         }
 }

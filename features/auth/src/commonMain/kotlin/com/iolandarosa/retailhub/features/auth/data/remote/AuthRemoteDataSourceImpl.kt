@@ -8,6 +8,7 @@ package com.iolandarosa.retailhub.features.auth.data.remote
 
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.network.endpoint.Endpoints
+import com.iolandarosa.retailhub.core.network.extensions.invalidateAuthTokens
 import com.iolandarosa.retailhub.core.network.extensions.safeRequest
 import com.iolandarosa.retailhub.features.auth.data.model.AuthenticationDto
 import com.iolandarosa.retailhub.features.auth.data.model.UserDto
@@ -33,4 +34,8 @@ internal class AuthRemoteDataSourceImpl(
 
     override suspend fun getAuthUser(): NetworkResult<UserDto> =
         authenticatedClient.safeRequest { get(Endpoints.AUTH_USER_URL) }
+
+    override suspend fun invalidateAuthTokens() {
+        authenticatedClient.invalidateAuthTokens()
+    }
 }

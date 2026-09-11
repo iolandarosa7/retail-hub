@@ -16,4 +16,6 @@ interface AuthenticationRepository {
     ): NetworkResult<Unit>
 
     suspend fun getAuthUser(): NetworkResult<User>
+
+    suspend fun logout()
 }

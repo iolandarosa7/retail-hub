@@ -7,6 +7,7 @@
 package com.iolandarosa.retailhub.features.auth.domain.interactors
 
 import com.iolandarosa.retailhub.core.datastore.domain.TokenManager
+import com.iolandarosa.retailhub.features.auth.domain.repository.AuthenticationRepository
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
 import dev.mokkery.mock
@@ -16,18 +17,18 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class LogoutUseCaseTest {
-    private val tokenManager = mock<TokenManager>()
-    private val useCase = LogoutUseCaseImpl(tokenManager)
+    private val repository = mock<AuthenticationRepository>()
+    private val useCase = LogoutUseCaseImpl(repository)
 
     @Test
     fun success_invoke_hasExpectedResponse() =
         runTest {
-            everySuspend { tokenManager.clearTokens() } returns Unit
+            everySuspend { repository.logout() } returns Unit
 
             val result = useCase()
 
             assertEquals(Unit, result)
 
-            verifySuspend { tokenManager.clearTokens() }
+            verifySuspend { repository.logout() }
         }
 }

@@ -42,4 +42,9 @@ internal class AuthenticationRepositoryImpl(
     }
 
     override suspend fun getAuthUser(): NetworkResult<User> = service.getAuthUser().map { it.toDomain() }
+
+    override suspend fun logout() {
+        tokenManager.clearTokens()
+        service.invalidateAuthTokens()
+    }
 }
