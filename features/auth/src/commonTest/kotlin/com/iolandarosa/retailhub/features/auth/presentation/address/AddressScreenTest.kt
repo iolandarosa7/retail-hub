@@ -16,6 +16,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
 import app.cash.turbine.test
 import com.iolandarosa.retailhub.core.common.clipboard.AppClipboardManager
+import com.iolandarosa.retailhub.core.common.maps.MapManager
 import com.iolandarosa.retailhub.core.ui.theme.RetailHubTheme
 import com.iolandarosa.retailhub.features.auth.TestDispatcherProvider
 import com.iolandarosa.retailhub.features.auth.utils.TestUser
@@ -36,11 +37,13 @@ class AddressScreenTest {
     private lateinit var dispatcher: CoroutineDispatcher
     private lateinit var viewModel: AddressViewModel
     private val clipboardManager: AppClipboardManager = mock()
+    private val mapManager: MapManager = mock()
 
     private val address = TestUser.user.address
 
     @BeforeTest
     fun setup() {
+        every { mapManager.getStaticMapUrl(any(), any()) } returns "https://map.com"
         scheduler = TestCoroutineScheduler()
         dispatcher = StandardTestDispatcher(scheduler)
         viewModel =
@@ -48,6 +51,7 @@ class AddressScreenTest {
                 address = address,
                 clipboardManager = clipboardManager,
                 dispatcherProvider = TestDispatcherProvider(dispatcher),
+                mapManager = mapManager,
             )
     }
 
@@ -77,6 +81,8 @@ class AddressScreenTest {
             onNodeWithText("COORDINATES").assertIsDisplayed()
             onNodeWithText("${address.coordinates.lat}, ${address.coordinates.lng}").assertIsDisplayed()
             onNodeWithText("Open in Maps").assertIsDisplayed()
+
+            verify { mapManager.getStaticMapUrl(address.coordinates.lat, address.coordinates.lng) }
         }
 
     @Test
@@ -125,5 +131,19 @@ class AddressScreenTest {
             }
 
             waitUntil { clipboardText == "Copied to clipboard" }
+        }
+
+    @Test
+    fun initialState_clickOpenMaps_expectMethodCalled() =
+        runComposeUiTest {
+            every { mapManager.openMap(any(), any(), any()) } returns Unit
+
+            setContent {
+                RetailHubTheme { TestAddressScreen() }
+            }
+
+            onNodeWithText("Open in Maps").performClick()
+
+            verify { mapManager.openMap(address.coordinates.lat, address.coordinates.lng, address.street) }
         }
 }

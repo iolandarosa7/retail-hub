@@ -44,6 +44,11 @@ val authModule =
         viewModel { LoginViewModel(loginUseCase = get(), dispatcherProvider = get()) }
         viewModel { ProfileViewModel(getAuthUserUseCase = get(), logoutUseCase = get(), dispatcherProvider = get()) }
         viewModel { params ->
-            AddressViewModel(address = params.get(), dispatcherProvider = get(), clipboardManager = get())
+            AddressViewModel(
+                address = params.get(),
+                dispatcherProvider = get(),
+                clipboardManager = get(),
+                mapManager = get(),
+            )
         }
     }

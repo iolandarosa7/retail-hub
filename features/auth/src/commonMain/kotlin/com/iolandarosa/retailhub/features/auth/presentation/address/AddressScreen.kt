@@ -82,7 +82,7 @@ fun AddressScreen(
     ) {
         AddressSummary(state.address)
 
-        MapImage(state.mapUrl)
+        MapImage(state.staticMapUrl)
 
         LocationDetails(state.address)
 
@@ -93,7 +93,7 @@ fun AddressScreen(
             onCopyClick = { viewModel.onIntent(AddressContract.Intent.OnClipboardCopy(it)) },
         )
 
-        OpenInMapsButton()
+        OpenInMapsButton { viewModel.onIntent(AddressContract.Intent.OpenMap) }
 
         Spacer(Modifier.height(Dimens.SpacingLarge))
     }
@@ -182,9 +182,9 @@ private fun CoordinatesSection(
 }
 
 @Composable
-private fun OpenInMapsButton() {
+private fun OpenInMapsButton(openMap: () -> Unit) {
     Button(
-        onClick = {},
+        onClick = openMap,
         modifier = Modifier.fillMaxWidth(),
         colors =
             ButtonDefaults.buttonColors(

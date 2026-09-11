@@ -17,6 +17,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.v2.runComposeUiTest
 import app.cash.turbine.test
 import com.iolandarosa.retailhub.composeapp.di.appModules
+import com.iolandarosa.retailhub.core.common.maps.MapManager
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
 import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCase
@@ -28,6 +29,7 @@ import com.iolandarosa.retailhub.features.auth.presentation.login.LoginViewModel
 import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileViewModel
 import dev.mokkery.answering.returns
 import dev.mokkery.answering.sequentiallyReturns
+import dev.mokkery.every
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
@@ -73,6 +75,7 @@ class AppTest {
 
     private val loginUseCase = mock<LoginUseCase>()
     private val getAuthUserUseCase = mock<GetAuthUserUseCase>()
+    private val mapManager = mock<MapManager>()
 
     private lateinit var scheduler: TestCoroutineScheduler
     private lateinit var dispatcher: CoroutineDispatcher
@@ -96,6 +99,8 @@ class AppTest {
 
     @BeforeTest
     fun setup() {
+        every { mapManager.getStaticMapUrl(any(), any()) } returns "https://maps.com"
+
         scheduler = TestCoroutineScheduler()
         dispatcher = StandardTestDispatcher(scheduler)
 
@@ -117,6 +122,7 @@ class AppTest {
                 dispatcherProvider = TestDispatcherProvider(dispatcher),
                 clipboardManager = mock(),
                 address = user.address,
+                mapManager = mapManager,
             )
     }
 

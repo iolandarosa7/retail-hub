@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iolandarosa.retailhub.core.common.clipboard.AppClipboardManager
 import com.iolandarosa.retailhub.core.common.dispatcher.DispatcherProvider
+import com.iolandarosa.retailhub.core.common.maps.MapManager
 import com.iolandarosa.retailhub.features.auth.domain.model.Address
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,8 +23,15 @@ class AddressViewModel(
     address: Address,
     private val dispatcherProvider: DispatcherProvider,
     private val clipboardManager: AppClipboardManager,
+    private val mapManager: MapManager,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(AddressContract.State(address))
+    private val _state =
+        MutableStateFlow(
+            AddressContract.State(
+                address,
+                mapManager.getStaticMapUrl(address.coordinates.lat, address.coordinates.lng),
+            ),
+        )
     val state: StateFlow<AddressContract.State> = _state.asStateFlow()
 
     private val _effects = Channel<AddressContract.Effect>(Channel.BUFFERED)
@@ -31,7 +39,17 @@ class AddressViewModel(
 
     fun onIntent(intent: AddressContract.Intent) {
         when (intent) {
-            is AddressContract.Intent.OnClipboardCopy -> copyClipboard(intent.value)
+            is AddressContract.Intent.OnClipboardCopy -> {
+                copyClipboard(intent.value)
+            }
+
+            is AddressContract.Intent.OpenMap -> {
+                mapManager.openMap(
+                    state.value.address.coordinates.lat,
+                    state.value.address.coordinates.lng,
+                    state.value.address.street,
+                )
+            }
         }
     }
 
