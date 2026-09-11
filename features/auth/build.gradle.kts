@@ -1,4 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -21,7 +23,11 @@ retailhubJacoco {
 buildkonfig {
     packageName = "com.iolandarosa.retailhub.features.auth"
 
-    val mapboxToken: String = project.findProperty("MAPBOX_ACCESS_TOKEN") as? String ?: ""
+    val secretPropertiesFile = rootProject.file("secrets.properties")
+    val secretProperties = Properties()
+    secretProperties.load(FileInputStream(secretPropertiesFile))
+
+    val mapboxToken: String = secretProperties.getProperty("MAPBOX_ACCESS_TOKEN") ?: ""
 
     defaultConfigs {
         buildConfigField(STRING, "MAPBOX_TOKEN", mapboxToken)

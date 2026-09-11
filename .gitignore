@@ -43,3 +43,6 @@ fastlane/test_output
 # Firebase (if generated locally)
 google-services.json
 GoogleService-Info.plist
+
+# secrets keys
+secrets.properties
