@@ -8,6 +8,8 @@ package com.iolandarosa.retailhub.core.common.di
 
 import com.iolandarosa.retailhub.core.common.clipboard.AppClipboardManager
 import com.iolandarosa.retailhub.core.common.clipboard.IosClipboardManager
+import com.iolandarosa.retailhub.core.common.maps.IosMapNavigator
+import com.iolandarosa.retailhub.core.common.maps.MapNavigator
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -15,4 +17,10 @@ actual val platformClipboardModule: Module
     get() =
         module {
             single<AppClipboardManager> { IosClipboardManager() }
+        }
+
+actual val platformMapsModule: Module
+    get() =
+        module {
+            single<MapNavigator> { IosMapNavigator() }
         }
