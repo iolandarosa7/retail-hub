@@ -15,4 +15,6 @@ interface AuthRemoteDataSource {
     suspend fun login(request: LoginRequest): NetworkResult<AuthenticationDto>
 
     suspend fun getAuthUser(): NetworkResult<UserDto>
+
+    suspend fun invalidateAuthTokens()
 }

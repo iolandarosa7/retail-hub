@@ -11,6 +11,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.auth.authProvider
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 import io.ktor.client.statement.HttpResponse
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
@@ -34,3 +36,7 @@ suspend inline fun <reified T> HttpClient.safeRequest(
     } catch (e: Exception) {
         NetworkResult.Failure.Unknown(message = e.message)
     }
+
+fun HttpClient.invalidateAuthTokens() {
+    authProvider<BearerAuthProvider>()?.clearToken()
+}

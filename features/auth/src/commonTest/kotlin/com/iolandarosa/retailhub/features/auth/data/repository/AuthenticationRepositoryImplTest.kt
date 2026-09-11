@@ -128,4 +128,16 @@ class AuthenticationRepositoryImplTest {
 
             verifySuspend { service.getAuthUser() }
         }
+
+    @Test
+    fun initialState_logout_callsExpectedMethods() =
+        runTest {
+            everySuspend { tokenManager.clearTokens() } returns Unit
+            everySuspend { service.invalidateAuthTokens() } returns Unit
+
+            repository.logout()
+
+            verifySuspend { service.invalidateAuthTokens() }
+            verifySuspend { tokenManager.clearTokens() }
+        }
 }
