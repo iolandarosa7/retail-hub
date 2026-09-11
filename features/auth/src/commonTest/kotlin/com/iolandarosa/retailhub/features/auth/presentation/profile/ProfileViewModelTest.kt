@@ -8,6 +8,7 @@ package com.iolandarosa.retailhub.features.auth.presentation.profile
 
 import app.cash.turbine.test
 import com.iolandarosa.retailhub.core.model.NetworkResult
+import com.iolandarosa.retailhub.core.ui.images.PermissionType
 import com.iolandarosa.retailhub.features.auth.TestDispatcherProvider
 import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
 import com.iolandarosa.retailhub.features.auth.domain.interactors.LogoutUseCase
@@ -55,6 +56,7 @@ class ProfileViewModelTest {
         assertEquals(UserRequestState.Initial, viewModel.state.value.userRequest)
         assertEquals(LogoutRequestState.Initial, viewModel.state.value.logoutRequest)
         assertFalse(viewModel.state.value.isRefreshing)
+        assertFalse(viewModel.state.value.showImagePicker)
     }
 
     @Test
@@ -203,4 +205,26 @@ class ProfileViewModelTest {
                 assertEquals(Effect.NavigateToAddressDetails(address), awaitItem())
             }
         }
+
+    @Test
+    fun toggleShowImagePicker_showImagePickerBottomSheet_hasExpectedState() {
+        viewModel.onIntent(Intent.ShowImagePickerBottomSheet(true))
+
+        assertTrue(viewModel.state.value.showImagePicker)
+
+        viewModel.onIntent(Intent.ShowImagePickerBottomSheet(false))
+
+        assertFalse(viewModel.state.value.showImagePicker)
+    }
+
+    @Test
+    fun showImagePickerTrue_checkImagePermissions_hasExpectedState() {
+        viewModel.onIntent(Intent.ShowImagePickerBottomSheet(true))
+
+        assertTrue(viewModel.state.value.showImagePicker)
+
+        viewModel.onIntent(Intent.CheckImagePermissions(permissionType = PermissionType.CAMERA))
+
+        assertFalse(viewModel.state.value.showImagePicker)
+    }
 }

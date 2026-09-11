@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iolandarosa.retailhub.core.ui.error.ErrorComponent
+import com.iolandarosa.retailhub.core.ui.images.ImagePickerBottomSheet
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
 import com.iolandarosa.retailhub.features.auth.domain.model.Address
 import com.iolandarosa.retailhub.features.auth.domain.model.User
@@ -46,6 +48,7 @@ import retailhub.features.auth.generated.resources.ic_logout
 import retailhub.features.auth.generated.resources.logout
 import retailhub.features.auth.generated.resources.retry
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     paddingValues: PaddingValues,
@@ -113,8 +116,16 @@ fun ProfileScreen(
                     onAddressDetailsClick = { address ->
                         viewModel.onIntent(ProfileContract.Intent.ViewAddressDetails(address))
                     },
+                    onPhotoClick = { viewModel.onIntent(ProfileContract.Intent.ShowImagePickerBottomSheet(true)) },
                 )
             }
+        }
+
+        if (state.showImagePicker) {
+            ImagePickerBottomSheet(
+                onDismiss = { viewModel.onIntent(ProfileContract.Intent.ShowImagePickerBottomSheet(false)) },
+                onClick = { viewModel.onIntent(ProfileContract.Intent.CheckImagePermissions(it)) },
+            )
         }
     }
 }
@@ -127,6 +138,7 @@ internal fun ProfileScreenContent(
     onRefresh: () -> Unit,
     onLogout: () -> Unit,
     onAddressDetailsClick: (Address) -> Unit,
+    onPhotoClick: () -> Unit,
 ) {
     PullToRefreshBox(isRefreshing = isRefreshing, onRefresh = onRefresh) {
         Column(
@@ -138,7 +150,7 @@ internal fun ProfileScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge),
         ) {
-            ProfileHeader(user)
+            ProfileHeader(user = user, isEnabled = isEnabled, onPhotoClick = onPhotoClick)
 
             ContactCard(user)
 

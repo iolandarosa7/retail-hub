@@ -7,6 +7,7 @@
 package com.iolandarosa.retailhub.features.auth.presentation.profile
 
 import com.iolandarosa.retailhub.core.ui.error.UiError
+import com.iolandarosa.retailhub.core.ui.images.PermissionType
 import com.iolandarosa.retailhub.features.auth.domain.model.Address
 import com.iolandarosa.retailhub.features.auth.domain.model.User
 
@@ -15,6 +16,7 @@ interface ProfileContract {
         val userRequest: UserRequestState = UserRequestState.Initial,
         val logoutRequest: LogoutRequestState = LogoutRequestState.Initial,
         val isRefreshing: Boolean = false,
+        val showImagePicker: Boolean = false,
     ) {
         val isInteractionEnabled: Boolean
             get() =
@@ -32,6 +34,14 @@ interface ProfileContract {
 
         data class ViewAddressDetails(
             val address: Address,
+        ) : Intent
+
+        data class ShowImagePickerBottomSheet(
+            val show: Boolean,
+        ) : Intent
+
+        data class CheckImagePermissions(
+            val permissionType: PermissionType,
         ) : Intent
     }
 

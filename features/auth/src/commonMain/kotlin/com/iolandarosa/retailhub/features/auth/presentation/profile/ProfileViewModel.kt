@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.iolandarosa.retailhub.core.common.dispatcher.DispatcherProvider
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.ui.extension.toUiError
+import com.iolandarosa.retailhub.core.ui.images.PermissionType
 import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
 import com.iolandarosa.retailhub.features.auth.domain.interactors.LogoutUseCase
 import com.iolandarosa.retailhub.features.auth.domain.model.Address
@@ -49,6 +50,14 @@ class ProfileViewModel(
 
             is ProfileContract.Intent.ViewAddressDetails -> {
                 viewAddressDetails(intent.address)
+            }
+
+            is ProfileContract.Intent.ShowImagePickerBottomSheet -> {
+                _state.update { it.copy(showImagePicker = intent.show) }
+            }
+
+            is ProfileContract.Intent.CheckImagePermissions -> {
+                checkImagePermissions(intent.permissionType)
             }
         }
     }
@@ -115,5 +124,10 @@ class ProfileViewModel(
         viewModelScope.launch(dispatcherProvider.main) {
             _effects.send(ProfileContract.Effect.NavigateToAddressDetails(address))
         }
+    }
+
+    private fun checkImagePermissions(permissionType: PermissionType) {
+        _state.update { it.copy(showImagePicker = false) }
+        // todo will call a permission manager
     }
 }

@@ -25,6 +25,7 @@ class ProfileContractTest {
         assertIs<UserRequestState.Initial>(state.userRequest)
         assertIs<LogoutRequestState.Initial>(state.logoutRequest)
         assertFalse(state.isRefreshing)
+        assertFalse(state.showImagePicker)
     }
 
     @Test

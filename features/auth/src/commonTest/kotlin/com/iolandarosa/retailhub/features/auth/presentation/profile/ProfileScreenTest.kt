@@ -11,7 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -81,8 +83,12 @@ class ProfileScreenTest {
             onNodeWithContentDescription("Loading User Profile").assertIsDisplayed()
             onNodeWithContentDescription("Address details").assertIsNotEnabled()
 
+
             scheduler.advanceUntilIdle()
 
+            onNodeWithContentDescription("Update profile picture")
+                .assertIsDisplayed()
+                .assertIsEnabled()
             onNodeWithText(user.name).assertIsDisplayed()
             onNodeWithText(user.role).assertIsDisplayed()
             onNodeWithText(user.email).assertIsDisplayed()
@@ -166,5 +172,20 @@ class ProfileScreenTest {
                 awaitIdle()
                 assertEquals(user.address, address)
             }
+        }
+
+    @Test
+    fun success_showImagePickerClick_expectedPickerBottomSheetShown() =
+        runComposeUiTest(runTestContext = dispatcher) {
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(TestUser.user)
+
+            setContent { TestProfileScreen() }
+
+            scheduler.advanceUntilIdle()
+
+            onNodeWithContentDescription("Update profile picture")
+                .performClick()
+
+            onNodeWithText("Camera").assertIsDisplayed()
         }
 }
