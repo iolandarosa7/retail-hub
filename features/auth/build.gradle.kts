@@ -1,3 +1,5 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
@@ -6,6 +8,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.mokkery)
     alias(libs.plugins.retailHubJacoco)
+    alias(libs.plugins.buildkonfig)
 }
 
 retailhubJacoco {
@@ -13,6 +16,16 @@ retailhubJacoco {
 
     exclusions.add("**/generated/resources/**")
     exclusions.add("**/features/auth/di/**")
+}
+
+buildkonfig {
+    packageName = "com.iolandarosa.retailhub.features.auth"
+
+    val mapboxToken: String = project.findProperty("MAPBOX_ACCESS_TOKEN") as? String ?: ""
+
+    defaultConfigs {
+        buildConfigField(STRING, "MAPBOX_TOKEN", mapboxToken)
+    }
 }
 
 kotlin {

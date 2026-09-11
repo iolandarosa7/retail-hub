@@ -116,6 +116,7 @@ class AppTest {
             AddressViewModel(
                 dispatcherProvider = TestDispatcherProvider(dispatcher),
                 clipboardManager = mock(),
+                address = user.address,
             )
     }
 
