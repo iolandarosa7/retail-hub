@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -38,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iolandarosa.retailhub.core.ui.error.ErrorComponent
 import com.iolandarosa.retailhub.core.ui.images.ImagePickerBottomSheet
+import com.iolandarosa.retailhub.core.ui.images.InitializePermissionsAndPicker
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
 import com.iolandarosa.retailhub.features.auth.domain.model.Address
 import com.iolandarosa.retailhub.features.auth.domain.model.User
@@ -59,6 +61,12 @@ fun ProfileScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isEnabled by remember { derivedStateOf { state.isInteractionEnabled } }
     val isRefreshing by remember { derivedStateOf { state.isRefreshing } }
+    val showPermissionsDialog by remember { derivedStateOf { state.showPermissionsDialog } }
+
+    InitializePermissionsAndPicker(
+        permissionController = viewModel.permissionController,
+        imagePickerController = viewModel.imagePickerController,
+    )
 
     LaunchedEffect(Unit) {
         viewModel.onIntent(ProfileContract.Intent.LoadProfile)
@@ -109,6 +117,7 @@ fun ProfileScreen(
             is ProfileContract.UserRequestState.Success -> {
                 ProfileScreenContent(
                     user = userRequest.user,
+                    imageBytes = state.imageBytes,
                     isEnabled = isEnabled,
                     isRefreshing = isRefreshing,
                     onRefresh = { viewModel.onIntent(ProfileContract.Intent.RefreshProfile) },
@@ -127,12 +136,43 @@ fun ProfileScreen(
                 onClick = { viewModel.onIntent(ProfileContract.Intent.CheckImagePermissions(it)) },
             )
         }
+
+        if (showPermissionsDialog) {
+            state.permissionDialog?.let {
+                AlertDialog(
+                    onDismissRequest = { viewModel.onIntent(ProfileContract.Intent.ClosePermissionsDialog) },
+                    title = {
+                        Text(
+                            stringResource(it.titleId),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    },
+                    text = {
+                        Text(
+                            stringResource(it.descriptionId),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = { viewModel.onIntent(ProfileContract.Intent.ConfirmPermissionAction(it.type)) },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(stringResource(it.confirmButtonLabelId))
+                        }
+                    },
+                )
+            }
+        }
     }
 }
 
 @Composable
 internal fun ProfileScreenContent(
     user: User,
+    imageBytes: ByteArray?,
     isEnabled: Boolean,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
@@ -150,7 +190,12 @@ internal fun ProfileScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge),
         ) {
-            ProfileHeader(user = user, isEnabled = isEnabled, onPhotoClick = onPhotoClick)
+            ProfileHeader(
+                user = user,
+                imageBytes = imageBytes,
+                isEnabled = isEnabled,
+                onPhotoClick = onPhotoClick,
+            )
 
             ContactCard(user)
 

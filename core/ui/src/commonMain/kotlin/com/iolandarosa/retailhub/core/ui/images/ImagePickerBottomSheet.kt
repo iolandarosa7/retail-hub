@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -36,7 +37,7 @@ import retailhub.core.ui.generated.resources.image_bottom_sheet_description
 @Composable
 fun ImagePickerBottomSheet(
     onDismiss: () -> Unit,
-    onClick: (PermissionType) -> Unit,
+    onClick: (AppPermission) -> Unit,
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
@@ -54,7 +55,7 @@ fun ImagePickerBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(Dimens.PaddingMedium),
             ) {
                 Button(
-                    onClick = { onClick(PermissionType.CAMERA) },
+                    onClick = { onClick(AppPermission.Camera) },
                     modifier = Modifier.weight(1f),
                 ) {
                     Icon(painter = painterResource(Res.drawable.ic_camera_add), contentDescription = null)
@@ -63,7 +64,7 @@ fun ImagePickerBottomSheet(
                 }
 
                 Button(
-                    onClick = { onClick(PermissionType.GALLERY) },
+                    onClick = { onClick(AppPermission.Gallery) },
                     modifier = Modifier.weight(1f),
                 ) {
                     Icon(painter = painterResource(Res.drawable.ic_gallery_add), contentDescription = null)

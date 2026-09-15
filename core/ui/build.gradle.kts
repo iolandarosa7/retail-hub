@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.retailHubJacoco)
+    alias(libs.plugins.mokkery)
 }
 
 retailhubJacoco {
@@ -11,6 +12,7 @@ retailhubJacoco {
 
     exclusions.add("**/generated/resources/**")
     exclusions.add("**/theme/**")
+    exclusions.add("**/composeApp/di/**")
 }
 
 kotlin {
@@ -58,11 +60,20 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
             implementation(libs.compose.components.resources)
+
+            // koin
+            implementation(libs.koin.core)
         }
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.compose.ui.test)
+            implementation(libs.coroutines.test)
+        }
+
+        androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
+            implementation(project(":core:datastore"))
         }
 
         getByName("androidDeviceTest") {

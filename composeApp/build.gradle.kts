@@ -12,6 +12,9 @@ plugins {
 
 retailhubJacoco {
     testTask.set("connectedAndroidDeviceTest")
+
+    exclusions.add("**/generated/resources/**")
+    exclusions.add("**/composeApp/di/**")
 }
 
 kotlin {

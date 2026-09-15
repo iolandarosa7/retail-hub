@@ -8,7 +8,7 @@ package com.iolandarosa.retailhub.composeapp
 
 import com.iolandarosa.retailhub.core.datastore.domain.PreferencesManager
 import com.iolandarosa.retailhub.core.datastore.domain.TokenManager
-import com.iolandarosa.retailhub.core.ui.images.ImagePicker
+import com.iolandarosa.retailhub.core.ui.images.ImagePickerController
 import com.iolandarosa.retailhub.core.ui.images.ImageSource
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermissionStatus
@@ -31,13 +31,14 @@ val fakeTestModule =
                 override suspend fun requestPermission(permission: AppPermission): AppPermissionStatus =
                     AppPermissionStatus.Granted
 
-                override fun launchSettings() {}
-
+                override fun launchSettings() {
+                    Unit
+                }
             }
         }
 
-        single<ImagePicker> {
-            object : ImagePicker {
+        single<ImagePickerController> {
+            object : ImagePickerController {
                 override suspend fun pickImage(source: ImageSource): ByteArray? = null
             }
         }

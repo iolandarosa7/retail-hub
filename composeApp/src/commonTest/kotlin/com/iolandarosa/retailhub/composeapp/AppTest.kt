@@ -116,7 +116,7 @@ class AppTest {
                 logoutUseCase = mock(),
                 dispatcherProvider = TestDispatcherProvider(dispatcher),
                 permissionController = mock(),
-                imagePicker = mock(),
+                imagePickerController = mock(),
                 preferencesManager = mock(),
             )
 

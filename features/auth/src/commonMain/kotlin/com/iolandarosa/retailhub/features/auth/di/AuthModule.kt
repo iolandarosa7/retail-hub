@@ -42,7 +42,16 @@ val authModule =
         factory<GetAuthUserUseCase> { GetAuthUserUseCaseImpl(get()) }
         factory<LogoutUseCase> { LogoutUseCaseImpl(get()) }
         viewModel { LoginViewModel(loginUseCase = get(), dispatcherProvider = get()) }
-        viewModel { ProfileViewModel(getAuthUserUseCase = get(), logoutUseCase = get(), dispatcherProvider = get()) }
+        viewModel {
+            ProfileViewModel(
+                getAuthUserUseCase = get(),
+                logoutUseCase = get(),
+                dispatcherProvider = get(),
+                permissionController = get(),
+                imagePickerController = get(),
+                preferencesManager = get(),
+            )
+        }
         viewModel { params ->
             AddressViewModel(
                 address = params.get(),

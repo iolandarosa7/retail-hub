@@ -38,6 +38,7 @@ import retailhub.features.auth.generated.resources.update_profile_picture
 @Composable
 internal fun ProfileHeader(
     user: User? = null,
+    imageBytes: ByteArray? = null,
     isEnabled: Boolean = false,
     onPhotoClick: (() -> Unit)? = null,
 ) {
@@ -46,7 +47,7 @@ internal fun ProfileHeader(
         verticalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall),
     ) {
         if (user != null) {
-            ProfileHeaderContent(user, isEnabled, onPhotoClick)
+            ProfileHeaderContent(user, imageBytes, isEnabled, onPhotoClick)
         } else {
             ProfileSkeleton()
         }
@@ -56,6 +57,7 @@ internal fun ProfileHeader(
 @Composable
 internal fun ProfileHeaderContent(
     user: User,
+    imageBytes: ByteArray?,
     isEnabled: Boolean,
     onPhotoClick: (() -> Unit)?,
 ) {
@@ -63,7 +65,7 @@ internal fun ProfileHeaderContent(
         modifier = Modifier.size(Dimens.SizeCircleImage + (Dimens.SizeIconButton / 2)),
     ) {
         AsyncImage(
-            model = user.image,
+            model = imageBytes ?: user.image,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier =

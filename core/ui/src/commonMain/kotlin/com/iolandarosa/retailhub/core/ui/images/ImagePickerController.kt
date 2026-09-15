@@ -6,7 +6,6 @@
 
 package com.iolandarosa.retailhub.core.ui.images
 
-enum class PermissionType {
-    CAMERA,
-    GALLERY,
+interface ImagePickerController {
+    suspend fun pickImage(source: ImageSource): ByteArray?
 }

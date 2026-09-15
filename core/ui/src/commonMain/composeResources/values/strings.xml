@@ -1,5 +1,7 @@
 <resources>
     <string name="camera">Camera</string>
+    <string name="camera_permission_denied_description">Camera access has been denied. Please enable camera access in Settings to use this feature</string>
+    <string name="camera_permission_denied_title">Camera access required</string>
     <string name="error_forbidden">You don’t have permission to perform this action.</string>
     <string name="error_forbidden_title">403 - Forbidden</string>
     <string name="error_no_internet">No internet connection. Please check your connection and try again.</string>
@@ -17,5 +19,8 @@
     <string name="error_unknown">Something went wrong. Please try again.</string>
     <string name="error_unknown_title">Something went wrong</string>
     <string name="gallery">Gallery</string>
+    <string name="gallery_permission_denied_description">Photo library access has been denied. Please enable photo library access in Settings to use this feature</string>
+    <string name="gallery_permission_denied_title">Photo library access required</string>
     <string name="image_bottom_sheet_description">Take a photo or pick an image from the gallery</string>
+    <string name="open_settings">Open settings</string>
 </resources>

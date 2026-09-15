@@ -13,12 +13,13 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
+import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
 class ImagePickerBottomSheetTest {
     @Composable
-    fun TestImagePickerBottomSheet(onClick: (PermissionType) -> Unit = {}) =
+    fun TestImagePickerBottomSheet(onClick: (AppPermission) -> Unit = {}) =
         ImagePickerBottomSheet(
             onDismiss = {},
             onClick = onClick,
@@ -44,26 +45,26 @@ class ImagePickerBottomSheetTest {
     @Test
     fun componentLoaded_galleryClick_expectCallbackCalled() =
         runComposeUiTest {
-            var permissionType: PermissionType? = null
+            var permission: AppPermission? = null
 
-            setContent { TestImagePickerBottomSheet(onClick = { permissionType = it }) }
+            setContent { TestImagePickerBottomSheet(onClick = { permission = it }) }
 
             onNodeWithText("Gallery")
                 .performClick()
 
-            waitUntil { permissionType == PermissionType.GALLERY }
+            waitUntil { permission == AppPermission.Gallery }
         }
 
     @Test
     fun componentLoaded_cameraClick_expectCallbackCalled() =
         runComposeUiTest {
-            var permissionType: PermissionType? = null
+            var permission: AppPermission? = null
 
-            setContent { TestImagePickerBottomSheet(onClick = { permissionType = it }) }
+            setContent { TestImagePickerBottomSheet(onClick = { permission = it }) }
 
             onNodeWithText("Camera")
                 .performClick()
 
-            waitUntil { permissionType == PermissionType.CAMERA }
+            waitUntil { permission == AppPermission.Camera }
         }
 }

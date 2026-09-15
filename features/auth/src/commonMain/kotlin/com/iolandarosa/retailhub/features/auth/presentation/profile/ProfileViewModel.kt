@@ -9,9 +9,18 @@ package com.iolandarosa.retailhub.features.auth.presentation.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iolandarosa.retailhub.core.common.dispatcher.DispatcherProvider
+import com.iolandarosa.retailhub.core.datastore.domain.PreferencesManager
 import com.iolandarosa.retailhub.core.model.NetworkResult
+import com.iolandarosa.retailhub.core.ui.extension.toImageSource
+import com.iolandarosa.retailhub.core.ui.extension.toOpenSettingsDialog
+import com.iolandarosa.retailhub.core.ui.extension.toPreferencesKey
 import com.iolandarosa.retailhub.core.ui.extension.toUiError
-import com.iolandarosa.retailhub.core.ui.images.PermissionType
+import com.iolandarosa.retailhub.core.ui.images.ImagePickerController
+import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
+import com.iolandarosa.retailhub.core.ui.permissions.AppPermissionStatus
+import com.iolandarosa.retailhub.core.ui.permissions.PermissionController
+import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
+import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialogActionType
 import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
 import com.iolandarosa.retailhub.features.auth.domain.interactors.LogoutUseCase
 import com.iolandarosa.retailhub.features.auth.domain.model.Address
@@ -21,11 +30,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import retailhub.features.auth.generated.resources.Res
+import retailhub.features.auth.generated.resources.camera_permission_rational_confirm_btn
+import retailhub.features.auth.generated.resources.camera_permission_rational_description
+import retailhub.features.auth.generated.resources.camera_permission_rational_title
 
 class ProfileViewModel(
     private val getAuthUserUseCase: GetAuthUserUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val dispatcherProvider: DispatcherProvider,
+    val permissionController: PermissionController,
+    val imagePickerController: ImagePickerController,
+    private val preferencesManager: PreferencesManager,
 ) : ViewModel() {
     private val _state: MutableStateFlow<ProfileContract.State> =
         MutableStateFlow(ProfileContract.State())
@@ -57,7 +73,15 @@ class ProfileViewModel(
             }
 
             is ProfileContract.Intent.CheckImagePermissions -> {
-                checkImagePermissions(intent.permissionType)
+                checkImagePermissions(intent.permission)
+            }
+
+            ProfileContract.Intent.ClosePermissionsDialog -> {
+                _state.update { it.copy(permissionDialog = null) }
+            }
+
+            is ProfileContract.Intent.ConfirmPermissionAction -> {
+                handleDialogAction(intent.type)
             }
         }
     }
@@ -126,8 +150,73 @@ class ProfileViewModel(
         }
     }
 
-    private fun checkImagePermissions(permissionType: PermissionType) {
+    private fun checkImagePermissions(permission: AppPermission) {
         _state.update { it.copy(showImagePicker = false) }
-        // todo will call a permission manager
+
+        viewModelScope.launch(dispatcherProvider.main) {
+            when (val status = permissionController.checkPermission(permission)) {
+                AppPermissionStatus.Denied -> {
+                    _state.update {
+                        it.copy(
+                            permissionDialog = permission.toOpenSettingsDialog(),
+                        )
+                    }
+                }
+
+                AppPermissionStatus.Granted -> {
+                    captureImage(permission)
+                }
+
+                is AppPermissionStatus.ShouldRequest -> {
+                    if (status.showRational) {
+                        _state.update {
+                            it.copy(
+                                permissionDialog =
+                                    PermissionDialog(
+                                        titleId = Res.string.camera_permission_rational_title,
+                                        descriptionId = Res.string.camera_permission_rational_description,
+                                        confirmButtonLabelId = Res.string.camera_permission_rational_confirm_btn,
+                                        type = PermissionDialogActionType.CameraRational,
+                                    ),
+                            )
+                        }
+                    } else {
+                        requestPermissions(permission)
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun requestPermissions(permission: AppPermission) {
+        val result = permissionController.requestPermission(permission)
+        if (result == AppPermissionStatus.Granted) {
+            captureImage(permission)
+        }
+    }
+
+    private fun handleDialogAction(permissionDialogActionType: PermissionDialogActionType) {
+        _state.update { it.copy(permissionDialog = null) }
+
+        when (permissionDialogActionType) {
+            PermissionDialogActionType.CameraRational -> {
+                viewModelScope.launch(dispatcherProvider.main) {
+                    preferencesManager.setPermissionRequested(AppPermission.Camera.toPreferencesKey())
+                    requestPermissions(AppPermission.Camera)
+                }
+            }
+
+            PermissionDialogActionType.OpenSettings -> {
+                permissionController.launchSettings()
+            }
+        }
+    }
+
+    private suspend fun captureImage(permission: AppPermission) {
+        val imageBytes = imagePickerController.pickImage(permission.toImageSource())
+
+        if (imageBytes != null) {
+            _state.update { it.copy(imageBytes = imageBytes) }
+        }
     }
 }
