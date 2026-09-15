@@ -6,8 +6,8 @@
 
 package com.iolandarosa.retailhub.composeapp.navigation
 
-import com.iolandarosa.retailhub.features.auth.domain.model.Address
-import com.iolandarosa.retailhub.features.auth.domain.model.Coordinates
+import com.iolandarosa.retailhub.features.profile.domain.model.Address
+import com.iolandarosa.retailhub.features.profile.domain.model.Coordinates
 import retailhub.composeapp.generated.resources.Res
 import retailhub.composeapp.generated.resources.address_details
 import kotlin.test.Test

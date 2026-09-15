@@ -27,9 +27,9 @@ import com.iolandarosa.retailhub.composeapp.navigation.RetailHubTopAppBar
 import com.iolandarosa.retailhub.composeapp.navigation.appBarConfig
 import com.iolandarosa.retailhub.composeapp.navigation.rememberNavigator
 import com.iolandarosa.retailhub.core.ui.theme.RetailHubTheme
-import com.iolandarosa.retailhub.features.auth.presentation.address.AddressScreen
 import com.iolandarosa.retailhub.features.auth.presentation.login.LoginScreen
-import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileScreen
+import com.iolandarosa.retailhub.features.profile.presentation.address.AddressScreen
+import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileScreen
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf

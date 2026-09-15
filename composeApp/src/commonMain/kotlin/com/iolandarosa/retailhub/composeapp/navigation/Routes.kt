@@ -7,7 +7,7 @@
 package com.iolandarosa.retailhub.composeapp.navigation
 
 import androidx.navigation3.runtime.NavKey
-import com.iolandarosa.retailhub.features.auth.domain.model.Address
+import com.iolandarosa.retailhub.features.profile.domain.model.Address
 import kotlinx.serialization.Serializable
 
 @Serializable
