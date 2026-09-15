@@ -115,6 +115,9 @@ class AppTest {
                 getAuthUserUseCase = getAuthUserUseCase,
                 logoutUseCase = mock(),
                 dispatcherProvider = TestDispatcherProvider(dispatcher),
+                permissionController = mock(),
+                imagePicker = mock(),
+                preferencesManager = mock(),
             )
 
         addressViewModel =
