@@ -74,11 +74,11 @@ class ProfileScreenTest {
         navigateToLogin: () -> Unit = {},
         navigateToAddressDetails: (Address) -> Unit = {},
     ) = ProfileScreen(
-            paddingValues = PaddingValues(),
-            navigateToLogin = navigateToLogin,
-            viewModel = viewModel,
-            navigateToAddressDetails = navigateToAddressDetails,
-        )
+        paddingValues = PaddingValues(),
+        navigateToLogin = navigateToLogin,
+        viewModel = viewModel,
+        navigateToAddressDetails = navigateToAddressDetails,
+    )
 
     @Test
     fun success_screenLoaded_displayUserData() =
@@ -201,19 +201,22 @@ class ProfileScreenTest {
     fun success_cameraRationale_expectedPermissionDialogShown() =
         runComposeUiTest(runTestContext = dispatcher) {
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(TestUser.user)
+            everySuspend { permissionController.checkPermission(any()) } returns AppPermissionStatus.ShouldRequest(showRational = true)
 
             setContent { TestProfileScreen() }
 
             scheduler.advanceUntilIdle()
 
             viewModel.onIntent(
-                ProfileContract.Intent.ConfirmPermissionAction(
-                    type = PermissionDialogActionType.CameraRational
-                )
+                ProfileContract.Intent.CheckImagePermissions(AppPermission.Camera),
             )
 
+            scheduler.advanceUntilIdle()
+
             onNodeWithText("Allow camera").assertIsDisplayed()
-            onNodeWithText("Camera access is needed to take photos in the app. Please allow camera access to continue").assertIsDisplayed()
+            onNodeWithText(
+                "Camera access is needed to take photos in the app. Please allow camera access to continue",
+            ).assertIsDisplayed()
             onNodeWithText("Allow camera access").assertIsDisplayed()
         }
 
@@ -228,13 +231,15 @@ class ProfileScreenTest {
             scheduler.advanceUntilIdle()
 
             viewModel.onIntent(
-                ProfileContract.Intent.CheckImagePermissions(AppPermission.Camera)
+                ProfileContract.Intent.CheckImagePermissions(AppPermission.Camera),
             )
 
             scheduler.advanceUntilIdle()
 
             onNodeWithText("Camera access required").assertIsDisplayed()
-            onNodeWithText("Camera access has been denied. Please enable camera access in Settings to use this feature").assertIsDisplayed()
+            onNodeWithText(
+                "Camera access has been denied. Please enable camera access in Settings to use this feature",
+            ).assertIsDisplayed()
             onNodeWithText("Open settings").assertIsDisplayed()
         }
 
@@ -249,13 +254,16 @@ class ProfileScreenTest {
             scheduler.advanceUntilIdle()
 
             viewModel.onIntent(
-                ProfileContract.Intent.CheckImagePermissions(AppPermission.Gallery)
+                ProfileContract.Intent.CheckImagePermissions(AppPermission.Gallery),
             )
 
             scheduler.advanceUntilIdle()
 
             onNodeWithText("Photo library access required").assertIsDisplayed()
-            onNodeWithText("Photo library access has been denied. Please enable photo library access in Settings to use this feature").assertIsDisplayed()
+            onNodeWithText(
+                "Photo library access has been denied. " +
+                    "Please enable photo library access in Settings to use this feature",
+            ).assertIsDisplayed()
             onNodeWithText("Open settings").assertIsDisplayed()
         }
 }

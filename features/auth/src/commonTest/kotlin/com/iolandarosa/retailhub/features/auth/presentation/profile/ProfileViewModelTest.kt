@@ -259,7 +259,8 @@ class ProfileViewModelTest {
     @Test
     fun checkImagePermissions_denied_setsPermissionDialog() =
         runTest(scheduler) {
-            everySuspend { permissionController.checkPermission(AppPermission.Camera) } returns AppPermissionStatus.Denied
+            everySuspend { permissionController.checkPermission(AppPermission.Camera) } returns
+                AppPermissionStatus.Denied
 
             viewModel.onIntent(Intent.CheckImagePermissions(AppPermission.Camera))
             advanceUntilIdle()
@@ -272,7 +273,8 @@ class ProfileViewModelTest {
     fun checkImagePermissions_granted_capturesImage() =
         runTest(scheduler) {
             val imageBytes = byteArrayOf(1, 2, 3)
-            everySuspend { permissionController.checkPermission(AppPermission.Camera) } returns AppPermissionStatus.Granted
+            everySuspend { permissionController.checkPermission(AppPermission.Camera) } returns
+                AppPermissionStatus.Granted
             everySuspend { imagePickerController.pickImage(any()) } returns imageBytes
 
             viewModel.onIntent(Intent.CheckImagePermissions(AppPermission.Camera))
@@ -303,7 +305,8 @@ class ProfileViewModelTest {
         runTest(scheduler) {
             everySuspend { permissionController.checkPermission(AppPermission.Camera) } returns
                 AppPermissionStatus.ShouldRequest(showRational = false)
-            everySuspend { permissionController.requestPermission(AppPermission.Camera) } returns AppPermissionStatus.Granted
+            everySuspend { permissionController.requestPermission(AppPermission.Camera) } returns
+                AppPermissionStatus.Granted
             everySuspend { imagePickerController.pickImage(any()) } returns byteArrayOf(1)
 
             viewModel.onIntent(Intent.CheckImagePermissions(AppPermission.Camera))
@@ -316,7 +319,8 @@ class ProfileViewModelTest {
     fun confirmPermissionAction_cameraRational_requestsPermission() =
         runTest(scheduler) {
             everySuspend { preferencesManager.setPermissionRequested(PreferencesKey.CAMERA) } returns Unit
-            everySuspend { permissionController.requestPermission(AppPermission.Camera) } returns AppPermissionStatus.Granted
+            everySuspend { permissionController.requestPermission(AppPermission.Camera) } returns
+                AppPermissionStatus.Granted
             everySuspend { imagePickerController.pickImage(any()) } returns byteArrayOf(1)
 
             viewModel.onIntent(Intent.ConfirmPermissionAction(PermissionDialogActionType.CameraRational))
