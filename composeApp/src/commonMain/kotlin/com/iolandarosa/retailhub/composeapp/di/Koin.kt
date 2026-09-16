@@ -9,6 +9,7 @@ package com.iolandarosa.retailhub.composeapp.di
 import com.iolandarosa.retailhub.core.common.di.coreCommonModule
 import com.iolandarosa.retailhub.core.datastore.di.datastoreModule
 import com.iolandarosa.retailhub.core.network.di.networkModule
+import com.iolandarosa.retailhub.core.storage.di.coreStorageModule
 import com.iolandarosa.retailhub.core.ui.di.coreUiModule
 import com.iolandarosa.retailhub.features.auth.di.authModule
 import com.iolandarosa.retailhub.features.profile.di.profileModule
@@ -21,6 +22,7 @@ val appModules =
         datastoreModule,
         networkModule,
         coreUiModule,
+        coreStorageModule,
         authModule,
         profileModule,
     )
