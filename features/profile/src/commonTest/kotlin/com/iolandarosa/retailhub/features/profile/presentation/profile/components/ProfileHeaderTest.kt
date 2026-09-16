@@ -4,7 +4,7 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.profile.presentation.profile
+package com.iolandarosa.retailhub.features.profile.presentation.profile.components
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
@@ -43,7 +43,11 @@ class ProfileHeaderTest {
             var callbackCalled = false
 
             setContent {
-                ProfileHeader(user = user, isEnabled = true, onPhotoClick = { callbackCalled = true })
+                ProfileHeader(
+                    user = user,
+                    isEnabled = true,
+                    onPhotoClick = { callbackCalled = true },
+                )
             }
 
             onNodeWithContentDescription("Update profile picture")
@@ -79,6 +83,20 @@ class ProfileHeaderTest {
                 .assertIsNotDisplayed()
 
             onNodeWithContentDescription("Loading User Profile")
+                .assertIsDisplayed()
+        }
+
+    @Test
+    fun withImageBytes_componentLoaded_hasExpectedUI() =
+        runComposeUiTest {
+            setContent {
+                ProfileHeader(user = TestUser.user, isEnabled = true, imageBytes = byteArrayOf(1), onPhotoClick = { })
+            }
+
+            onNodeWithContentDescription("Update profile picture")
+                .assertIsNotDisplayed()
+
+            onNodeWithContentDescription("Delete profile picture")
                 .assertIsDisplayed()
         }
 }

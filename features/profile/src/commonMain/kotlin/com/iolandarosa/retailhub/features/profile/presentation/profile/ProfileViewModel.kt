@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.iolandarosa.retailhub.core.common.dispatcher.DispatcherProvider
 import com.iolandarosa.retailhub.core.datastore.domain.PreferencesManager
 import com.iolandarosa.retailhub.core.model.NetworkResult
+import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
 import com.iolandarosa.retailhub.core.ui.extension.toImageSource
 import com.iolandarosa.retailhub.core.ui.extension.toOpenSettingsDialog
 import com.iolandarosa.retailhub.core.ui.extension.toPreferencesKey
@@ -21,8 +22,11 @@ import com.iolandarosa.retailhub.core.ui.permissions.AppPermissionStatus
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionController
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialogActionType
+import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.LogoutUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.SaveUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.model.Address
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,6 +46,9 @@ class ProfileViewModel(
     val permissionController: PermissionController,
     val imagePickerController: ImagePickerController,
     private val preferencesManager: PreferencesManager,
+    private val getLocalUserImageUseCase: GetLocalUserImageUseCase,
+    private val saveUserImageUseCase: SaveUserImageUseCase,
+    private val deleteUserImageUseCase: DeleteUserImageUseCase,
 ) : ViewModel() {
     private val _state: MutableStateFlow<ProfileContract.State> =
         MutableStateFlow(ProfileContract.State())
@@ -68,12 +75,20 @@ class ProfileViewModel(
                 viewAddressDetails(intent.address)
             }
 
-            is ProfileContract.Intent.ShowImagePickerBottomSheet -> {
-                _state.update { it.copy(showImagePicker = intent.show) }
+            is ProfileContract.Intent.OnImageClick -> {
+                if (intent.isDelete) {
+                    deleteUserImage(intent.userId)
+                } else {
+                    _state.update { it.copy(showImagePicker = true) }
+                }
+            }
+
+            is ProfileContract.Intent.HideImagePickerBottomSheet -> {
+                _state.update { it.copy(showImagePicker = false) }
             }
 
             is ProfileContract.Intent.CheckImagePermissions -> {
-                checkImagePermissions(intent.permission)
+                checkImagePermissions(intent.permission, intent.userId)
             }
 
             ProfileContract.Intent.ClosePermissionsDialog -> {
@@ -81,7 +96,7 @@ class ProfileViewModel(
             }
 
             is ProfileContract.Intent.ConfirmPermissionAction -> {
-                handleDialogAction(intent.type)
+                handleDialogAction(intent.type, intent.userId)
             }
         }
     }
@@ -121,9 +136,12 @@ class ProfileViewModel(
                 }
 
                 is NetworkResult.Success -> {
+                    val localUserImage = getLocalUserImageUseCase(result.data.id)
+
                     _state.update {
                         it.copy(
                             userRequest = ProfileContract.UserRequestState.Success(result.data),
+                            imageBytes = localUserImage,
                             isRefreshing = false,
                         )
                     }
@@ -150,7 +168,10 @@ class ProfileViewModel(
         }
     }
 
-    private fun checkImagePermissions(permission: AppPermission) {
+    private fun checkImagePermissions(
+        permission: AppPermission,
+        userId: Int,
+    ) {
         _state.update { it.copy(showImagePicker = false) }
 
         viewModelScope.launch(dispatcherProvider.main) {
@@ -164,7 +185,7 @@ class ProfileViewModel(
                 }
 
                 AppPermissionStatus.Granted -> {
-                    captureImage(permission)
+                    captureImage(permission, userId)
                 }
 
                 is AppPermissionStatus.ShouldRequest -> {
@@ -181,28 +202,34 @@ class ProfileViewModel(
                             )
                         }
                     } else {
-                        requestPermissions(permission)
+                        requestPermissions(permission, userId)
                     }
                 }
             }
         }
     }
 
-    private suspend fun requestPermissions(permission: AppPermission) {
+    private suspend fun requestPermissions(
+        permission: AppPermission,
+        userId: Int,
+    ) {
         val result = permissionController.requestPermission(permission)
         if (result == AppPermissionStatus.Granted) {
-            captureImage(permission)
+            captureImage(permission, userId)
         }
     }
 
-    private fun handleDialogAction(permissionDialogActionType: PermissionDialogActionType) {
+    private fun handleDialogAction(
+        permissionDialogActionType: PermissionDialogActionType,
+        userId: Int,
+    ) {
         _state.update { it.copy(permissionDialog = null) }
 
         when (permissionDialogActionType) {
             PermissionDialogActionType.CameraRational -> {
                 viewModelScope.launch(dispatcherProvider.main) {
                     preferencesManager.setPermissionRequested(AppPermission.Camera.toPreferencesKey())
-                    requestPermissions(AppPermission.Camera)
+                    requestPermissions(AppPermission.Camera, userId)
                 }
             }
 
@@ -212,11 +239,36 @@ class ProfileViewModel(
         }
     }
 
-    private suspend fun captureImage(permission: AppPermission) {
+    private suspend fun captureImage(
+        permission: AppPermission,
+        userId: Int,
+    ) {
         val imageBytes = imagePickerController.pickImage(permission.toImageSource())
 
         if (imageBytes != null) {
-            _state.update { it.copy(imageBytes = imageBytes) }
+            when (val result = saveUserImageUseCase(userId, imageBytes)) {
+                is ImageStorageResult.Failure -> {
+                    _effects.send(ProfileContract.Effect.ShowImageStorageFailure(result, false))
+                }
+
+                ImageStorageResult.Success -> {
+                    _state.update { it.copy(imageBytes = imageBytes) }
+                }
+            }
+        }
+    }
+
+    private fun deleteUserImage(userId: Int) {
+        viewModelScope.launch(dispatcherProvider.io) {
+            when (val result = deleteUserImageUseCase(userId)) {
+                is ImageStorageResult.Failure -> {
+                    _effects.send(ProfileContract.Effect.ShowImageStorageFailure(result, true))
+                }
+
+                ImageStorageResult.Success -> {
+                    _state.update { it.copy(imageBytes = null) }
+                }
+            }
         }
     }
 }

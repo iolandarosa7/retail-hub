@@ -22,6 +22,7 @@ import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCase
 import com.iolandarosa.retailhub.features.auth.presentation.login.LoginViewModel
 import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.model.Address
 import com.iolandarosa.retailhub.features.profile.domain.model.Coordinates
 import com.iolandarosa.retailhub.features.profile.domain.model.User
@@ -47,6 +48,7 @@ import kotlin.test.Test
 class AppTest {
     private val user =
         User(
+            id = 1,
             name = "John Doe",
             image = "image_url",
             role = "admin",
@@ -75,6 +77,7 @@ class AppTest {
 
     private val loginUseCase = mock<LoginUseCase>()
     private val getAuthUserUseCase = mock<GetAuthUserUseCase>()
+    private val getLocalUserImageUseCase = mock<GetLocalUserImageUseCase>()
     private val mapManager = mock<MapManager>()
 
     private lateinit var scheduler: TestCoroutineScheduler
@@ -118,6 +121,9 @@ class AppTest {
                 permissionController = mock(),
                 imagePickerController = mock(),
                 preferencesManager = mock(),
+                getLocalUserImageUseCase = getLocalUserImageUseCase,
+                deleteUserImageUseCase = mock(),
+                saveUserImageUseCase = mock(),
             )
 
         addressViewModel =
@@ -133,6 +139,7 @@ class AppTest {
     fun initialStateSuccess_renderScreen_showsProfileScreen() =
         runComposeUiTest(runTestContext = dispatcher) {
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { getLocalUserImageUseCase(any()) } returns null
 
             setContent {
                 KoinIsolatedContext(koinApp) {
@@ -174,6 +181,7 @@ class AppTest {
                 )
             everySuspend { loginUseCase(any(), any()) } returns
                 NetworkResult.Success(Unit)
+            everySuspend { getLocalUserImageUseCase(any()) } returns null
 
             setContent {
                 KoinIsolatedContext(koinApp) {
@@ -207,6 +215,7 @@ class AppTest {
     fun componentLoaded_onAddressClick_showsAddressScreen() =
         runComposeUiTest(runTestContext = dispatcher) {
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { getLocalUserImageUseCase(any()) } returns null
 
             setContent {
                 KoinIsolatedContext(koinApp) {

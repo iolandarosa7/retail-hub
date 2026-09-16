@@ -17,6 +17,7 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import app.cash.turbine.test
 import com.iolandarosa.retailhub.core.common.clipboard.AppClipboardManager
 import com.iolandarosa.retailhub.core.common.maps.MapManager
+import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
 import com.iolandarosa.retailhub.core.ui.theme.RetailHubTheme
 import com.iolandarosa.retailhub.features.profile.TestDispatcherProvider
 import com.iolandarosa.retailhub.features.profile.utils.TestUser
@@ -56,10 +57,10 @@ class AddressScreenTest {
     }
 
     @Composable
-    fun TestAddressScreen(onShowMessage: (String) -> Unit = {}) =
+    fun TestAddressScreen(onShowMessage: (SnackBarData) -> Unit = {}) =
         AddressScreen(
             paddingValues = PaddingValues(),
-            onShowMessage = onShowMessage,
+            showSnackBar = onShowMessage,
             viewModel = viewModel,
         )
 
@@ -109,12 +110,12 @@ class AddressScreenTest {
             every { clipboardManager.copy(any()) } returns Unit
             every { clipboardManager.providesFeedback } returns false
 
-            var clipboardText: String? = null
+            var showSnackBar = false
 
             setContent {
                 RetailHubTheme {
                     TestAddressScreen(
-                        onShowMessage = { clipboardText = it },
+                        onShowMessage = { showSnackBar = true },
                     )
                 }
             }
@@ -130,7 +131,7 @@ class AddressScreenTest {
                 awaitIdle()
             }
 
-            waitUntil { clipboardText == "Copied to clipboard" }
+            waitUntil { showSnackBar }
         }
 
     @Test

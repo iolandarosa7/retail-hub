@@ -13,14 +13,14 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 
 class AppSnackBarVisualsTest {
-
     @Test
     fun defaultValues_instance_hasExpectedValues() {
-        val visuals = AppSnackBarVisuals(
-            messageId = null,
-            message = "Test message",
-            type = SnackBarType.INFO
-        )
+        val visuals =
+            AppSnackBarVisuals(
+                messageId = null,
+                message = "Test message",
+                type = SnackBarType.INFO,
+            )
 
         assertNull(visuals.messageId)
         assertEquals("Test message", visuals.message)
@@ -32,14 +32,15 @@ class AppSnackBarVisualsTest {
 
     @Test
     fun customValues_instance_hasExpectedValues() {
-        val visuals = AppSnackBarVisuals(
-            messageId = null,
-            message = "Error occurred",
-            type = SnackBarType.ERROR,
-            actionLabel = "Retry",
-            withDismissAction = true,
-            duration = SnackbarDuration.Long
-        )
+        val visuals =
+            AppSnackBarVisuals(
+                messageId = null,
+                message = "Error occurred",
+                type = SnackBarType.ERROR,
+                actionLabel = "Retry",
+                withDismissAction = true,
+                duration = SnackbarDuration.Long,
+            )
 
         assertNull(visuals.messageId)
         assertEquals("Error occurred", visuals.message)

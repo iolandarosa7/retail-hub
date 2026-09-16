@@ -20,13 +20,18 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import app.cash.turbine.test
 import com.iolandarosa.retailhub.core.model.ApiErrorResponse
 import com.iolandarosa.retailhub.core.model.NetworkResult
+import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
 import com.iolandarosa.retailhub.core.ui.images.ImagePickerController
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermissionStatus
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionController
+import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
 import com.iolandarosa.retailhub.features.profile.TestDispatcherProvider
+import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.LogoutUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.SaveUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.model.Address
 import com.iolandarosa.retailhub.features.profile.utils.TestUser
 import dev.mokkery.answering.returns
@@ -47,6 +52,9 @@ class ProfileScreenTest {
     private val logoutUseCase = mock<LogoutUseCase>()
     private val permissionController = mock<PermissionController>()
     private val imagePickerController = mock<ImagePickerController>()
+    private val getLocalUserImageUseCase = mock<GetLocalUserImageUseCase>()
+    private val saveUserImageUseCase = mock<SaveUserImageUseCase>()
+    private val deleteUserImageUseCase = mock<DeleteUserImageUseCase>()
 
     private lateinit var scheduler: TestCoroutineScheduler
     private lateinit var dispatcher: CoroutineDispatcher
@@ -65,6 +73,9 @@ class ProfileScreenTest {
                 permissionController = permissionController,
                 imagePickerController = imagePickerController,
                 preferencesManager = mock(),
+                getLocalUserImageUseCase = getLocalUserImageUseCase,
+                saveUserImageUseCase = saveUserImageUseCase,
+                deleteUserImageUseCase = deleteUserImageUseCase,
             )
     }
 
@@ -72,11 +83,13 @@ class ProfileScreenTest {
     private fun TestProfileScreen(
         navigateToLogin: () -> Unit = {},
         navigateToAddressDetails: (Address) -> Unit = {},
+        showSnackBar: (SnackBarData) -> Unit = {},
     ) = ProfileScreen(
         paddingValues = PaddingValues(),
         navigateToLogin = navigateToLogin,
         viewModel = viewModel,
         navigateToAddressDetails = navigateToAddressDetails,
+        showSnackBar = showSnackBar,
     )
 
     @Test
@@ -85,6 +98,7 @@ class ProfileScreenTest {
             val user = TestUser.user
 
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { getLocalUserImageUseCase(user.id) } returns null
 
             setContent { TestProfileScreen() }
 
@@ -138,6 +152,7 @@ class ProfileScreenTest {
             var callbackCalled = false
 
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { getLocalUserImageUseCase(user.id) } returns null
             everySuspend { logoutUseCase() } returns Unit
 
             setContent {
@@ -165,6 +180,7 @@ class ProfileScreenTest {
             var address: Address? = null
 
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { getLocalUserImageUseCase(user.id) } returns null
 
             setContent { TestProfileScreen(navigateToAddressDetails = { address = it }) }
 
@@ -184,7 +200,9 @@ class ProfileScreenTest {
     @Test
     fun success_showImagePickerClick_expectedPickerBottomSheetShown() =
         runComposeUiTest(runTestContext = dispatcher) {
-            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(TestUser.user)
+            val user = TestUser.user
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { getLocalUserImageUseCase(user.id) } returns null
 
             setContent { TestProfileScreen() }
 
@@ -199,7 +217,9 @@ class ProfileScreenTest {
     @Test
     fun success_cameraRationale_expectedPermissionDialogShown() =
         runComposeUiTest(runTestContext = dispatcher) {
-            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(TestUser.user)
+            val user = TestUser.user
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { getLocalUserImageUseCase(user.id) } returns null
             everySuspend { permissionController.checkPermission(any()) } returns
                 AppPermissionStatus.ShouldRequest(showRational = true)
 
@@ -208,7 +228,7 @@ class ProfileScreenTest {
             scheduler.advanceUntilIdle()
 
             viewModel.onIntent(
-                ProfileContract.Intent.CheckImagePermissions(AppPermission.Camera),
+                ProfileContract.Intent.CheckImagePermissions(AppPermission.Camera, user.id),
             )
 
             scheduler.advanceUntilIdle()
@@ -223,7 +243,9 @@ class ProfileScreenTest {
     @Test
     fun success_cameraOpenSettings_expectedPermissionDialogShown() =
         runComposeUiTest(runTestContext = dispatcher) {
-            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(TestUser.user)
+            val user = TestUser.user
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { getLocalUserImageUseCase(user.id) } returns null
             everySuspend { permissionController.checkPermission(any()) } returns AppPermissionStatus.Denied
 
             setContent { TestProfileScreen() }
@@ -231,7 +253,7 @@ class ProfileScreenTest {
             scheduler.advanceUntilIdle()
 
             viewModel.onIntent(
-                ProfileContract.Intent.CheckImagePermissions(AppPermission.Camera),
+                ProfileContract.Intent.CheckImagePermissions(AppPermission.Camera, user.id),
             )
 
             scheduler.advanceUntilIdle()
@@ -246,7 +268,9 @@ class ProfileScreenTest {
     @Test
     fun success_galleryOpenSettings_expectedPermissionDialogShown() =
         runComposeUiTest(runTestContext = dispatcher) {
-            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(TestUser.user)
+            val user = TestUser.user
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { getLocalUserImageUseCase(user.id) } returns null
             everySuspend { permissionController.checkPermission(any()) } returns AppPermissionStatus.Denied
 
             setContent { TestProfileScreen() }
@@ -254,7 +278,7 @@ class ProfileScreenTest {
             scheduler.advanceUntilIdle()
 
             viewModel.onIntent(
-                ProfileContract.Intent.CheckImagePermissions(AppPermission.Gallery),
+                ProfileContract.Intent.CheckImagePermissions(AppPermission.Gallery, user.id),
             )
 
             scheduler.advanceUntilIdle()
@@ -265,5 +289,31 @@ class ProfileScreenTest {
                     "Please enable photo library access in Settings to use this feature",
             ).assertIsDisplayed()
             onNodeWithText("Open settings").assertIsDisplayed()
+        }
+
+    @Test
+    fun errorDeleteImage_deleteImageClick_expectedCallbackCalled() =
+        runComposeUiTest(runTestContext = dispatcher) {
+            val user = TestUser.user
+            val expectedError = "error"
+            var snackBarData: SnackBarData? = null
+
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { getLocalUserImageUseCase(user.id) } returns byteArrayOf(1)
+            everySuspend { deleteUserImageUseCase(user.id) } returns ImageStorageResult.Failure.General(expectedError)
+
+            setContent { TestProfileScreen(showSnackBar = { snackBarData = it }) }
+
+            scheduler.advanceUntilIdle()
+
+            onNodeWithContentDescription("Delete profile picture")
+                .performScrollTo()
+                .assertIsEnabled()
+                .performClick()
+
+            viewModel.effects.test {
+                awaitIdle()
+                assertEquals(expectedError, snackBarData?.message)
+            }
         }
 }

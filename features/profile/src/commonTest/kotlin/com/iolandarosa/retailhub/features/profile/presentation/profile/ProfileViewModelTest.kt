@@ -9,8 +9,6 @@ package com.iolandarosa.retailhub.features.profile.presentation.profile
 import app.cash.turbine.test
 import com.iolandarosa.retailhub.core.datastore.domain.PreferencesManager
 import com.iolandarosa.retailhub.core.model.NetworkResult
-import com.iolandarosa.retailhub.core.model.PreferencesKey
-import com.iolandarosa.retailhub.core.ui.extension.toImageSource
 import com.iolandarosa.retailhub.core.ui.extension.toOpenSettingsDialog
 import com.iolandarosa.retailhub.core.ui.images.ImagePickerController
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
@@ -18,8 +16,11 @@ import com.iolandarosa.retailhub.core.ui.permissions.AppPermissionStatus
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionController
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialogActionType
 import com.iolandarosa.retailhub.features.profile.TestDispatcherProvider
+import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.LogoutUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.SaveUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileContract.Effect
 import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileContract.Intent
 import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileContract.LogoutRequestState
@@ -53,6 +54,9 @@ class ProfileViewModelTest {
     private val permissionController = mock<PermissionController>()
     private val preferencesManager = mock<PreferencesManager>()
     private val imagePickerController = mock<ImagePickerController>()
+    private val getLocalUserImageUseCase = mock<GetLocalUserImageUseCase>()
+    private val saveUserImageUseCase = mock<SaveUserImageUseCase>()
+    private val deleteUserImageUseCase = mock<DeleteUserImageUseCase>()
     private val scheduler = TestCoroutineScheduler()
     private val dispatcher = StandardTestDispatcher(scheduler)
     private lateinit var viewModel: ProfileViewModel
@@ -67,13 +71,16 @@ class ProfileViewModelTest {
                 permissionController,
                 imagePickerController,
                 preferencesManager,
+                getLocalUserImageUseCase,
+                saveUserImageUseCase,
+                deleteUserImageUseCase,
             )
     }
 
     @Test
     fun initialInstance_hasExpectedState() {
-        assertEquals(ProfileContract.UserRequestState.Initial, viewModel.state.value.userRequest)
-        assertEquals(ProfileContract.LogoutRequestState.Initial, viewModel.state.value.logoutRequest)
+        assertEquals(UserRequestState.Initial, viewModel.state.value.userRequest)
+        assertEquals(LogoutRequestState.Initial, viewModel.state.value.logoutRequest)
         assertFalse(viewModel.state.value.isRefreshing)
         assertFalse(viewModel.state.value.showImagePicker)
         assertNull(viewModel.state.value.permissionDialog)
@@ -85,7 +92,9 @@ class ProfileViewModelTest {
     fun success_loadProfile_hasExpectedState() =
         runTest(scheduler) {
             val data = TestUser.user
+            val localImage = byteArrayOf(1, 1, 1)
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(data)
+            everySuspend { getLocalUserImageUseCase(data.id) } returns localImage
 
             viewModel.onIntent(Intent.LoadProfile)
 
@@ -94,8 +103,10 @@ class ProfileViewModelTest {
             advanceUntilIdle()
 
             assertEquals(UserRequestState.Success(data), viewModel.state.value.userRequest)
+            assertEquals(localImage, viewModel.state.value.imageBytes)
 
             verifySuspend { getAuthUserUseCase() }
+            verifySuspend { getLocalUserImageUseCase(data.id) }
         }
 
     @Test
@@ -103,6 +114,7 @@ class ProfileViewModelTest {
         runTest(scheduler) {
             val data = TestUser.user
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(data)
+            everySuspend { getLocalUserImageUseCase(data.id) } returns null
 
             viewModel.onIntent(Intent.RefreshProfile)
 
@@ -112,9 +124,11 @@ class ProfileViewModelTest {
             advanceUntilIdle()
 
             assertEquals(UserRequestState.Success(data), viewModel.state.value.userRequest)
+            assertNull(viewModel.state.value.imageBytes)
             assertFalse(viewModel.state.value.isRefreshing)
 
             verifySuspend { getAuthUserUseCase() }
+            verifySuspend { getLocalUserImageUseCase(data.id) }
         }
 
     @Test
@@ -229,26 +243,93 @@ class ProfileViewModelTest {
         }
 
     @Test
-    fun toggleShowImagePicker_showImagePickerBottomSheet_hasExpectedState() {
-        viewModel.onIntent(Intent.ShowImagePickerBottomSheet(true))
+    fun onImageClick_isDeleteTrue_callsDeleteUserImage() =
+        runTest(scheduler) {
+            val userId = 1
+            everySuspend { deleteUserImageUseCase(userId) } returns
+                com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult.Success
 
+            viewModel.onIntent(Intent.OnImageClick(userId, isDelete = true))
+            advanceUntilIdle()
+
+            verifySuspend { deleteUserImageUseCase(userId) }
+            assertNull(viewModel.state.value.imageBytes)
+        }
+
+    @Test
+    fun onImageClick_isDeleteFalse_showsImagePicker() {
+        viewModel.onIntent(Intent.OnImageClick(userId = 1, isDelete = false))
+        assertTrue(viewModel.state.value.showImagePicker)
+    }
+
+    @Test
+    fun hideImagePickerBottomSheet_setsShowImagePickerToFalse() {
+        viewModel.onIntent(Intent.OnImageClick(userId = 1, isDelete = false))
         assertTrue(viewModel.state.value.showImagePicker)
 
-        viewModel.onIntent(Intent.ShowImagePickerBottomSheet(false))
-
+        viewModel.onIntent(Intent.HideImagePickerBottomSheet)
         assertFalse(viewModel.state.value.showImagePicker)
     }
 
     @Test
-    fun showImagePickerTrue_checkImagePermissions_hasExpectedState() {
-        viewModel.onIntent(Intent.ShowImagePickerBottomSheet(true))
+    fun checkImagePermissions_granted_savesImage() =
+        runTest(scheduler) {
+            val userId = 1
+            val imageBytes = byteArrayOf(1, 2, 3)
+            everySuspend { permissionController.checkPermission(AppPermission.Camera) } returns
+                AppPermissionStatus.Granted
+            everySuspend { imagePickerController.pickImage(any()) } returns imageBytes
+            everySuspend {
+                saveUserImageUseCase(
+                    userId,
+                    imageBytes,
+                )
+            } returns com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult.Success
 
-        assertTrue(viewModel.state.value.showImagePicker)
+            viewModel.onIntent(Intent.CheckImagePermissions(AppPermission.Camera, userId))
+            advanceUntilIdle()
 
-        viewModel.onIntent(Intent.CheckImagePermissions(permission = AppPermission.Camera))
+            assertEquals(imageBytes, viewModel.state.value.imageBytes)
+            assertFalse(viewModel.state.value.showImagePicker)
+            verifySuspend { saveUserImageUseCase(userId, imageBytes) }
+        }
 
-        assertFalse(viewModel.state.value.showImagePicker)
-    }
+    @Test
+    fun checkImagePermissions_granted_saveFailure_emitsEffect() =
+        runTest(scheduler) {
+            val userId = 1
+            val imageBytes = byteArrayOf(1, 2, 3)
+            val failure =
+                com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult.Failure.DirectoryNotFound
+            everySuspend { permissionController.checkPermission(AppPermission.Camera) } returns
+                AppPermissionStatus.Granted
+            everySuspend { imagePickerController.pickImage(any()) } returns imageBytes
+            everySuspend { saveUserImageUseCase(userId, imageBytes) } returns failure
+
+            viewModel.onIntent(Intent.CheckImagePermissions(AppPermission.Camera, userId))
+
+            viewModel.effects.test {
+                advanceUntilIdle()
+                assertEquals(Effect.ShowImageStorageFailure(failure, isDelete = false), awaitItem())
+            }
+        }
+
+    @Test
+    fun deleteUserImage_failure_emitsEffect() =
+        runTest(scheduler) {
+            val userId = 1
+            val failure =
+                com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult.Failure
+                    .General("Error")
+            everySuspend { deleteUserImageUseCase(userId) } returns failure
+
+            viewModel.onIntent(Intent.OnImageClick(userId, isDelete = true))
+
+            viewModel.effects.test {
+                advanceUntilIdle()
+                assertEquals(Effect.ShowImageStorageFailure(failure, isDelete = true), awaitItem())
+            }
+        }
 
     @Test
     fun closePermissionsDialog_setsPermissionDialogToNull() {
@@ -259,10 +340,11 @@ class ProfileViewModelTest {
     @Test
     fun checkImagePermissions_denied_setsPermissionDialog() =
         runTest(scheduler) {
+            val userId = 1
             everySuspend { permissionController.checkPermission(AppPermission.Camera) } returns
                 AppPermissionStatus.Denied
 
-            viewModel.onIntent(Intent.CheckImagePermissions(AppPermission.Camera))
+            viewModel.onIntent(Intent.CheckImagePermissions(AppPermission.Camera, userId))
             advanceUntilIdle()
 
             assertEquals(AppPermission.Camera.toOpenSettingsDialog(), viewModel.state.value.permissionDialog)
@@ -270,28 +352,13 @@ class ProfileViewModelTest {
         }
 
     @Test
-    fun checkImagePermissions_granted_capturesImage() =
-        runTest(scheduler) {
-            val imageBytes = byteArrayOf(1, 2, 3)
-            everySuspend { permissionController.checkPermission(AppPermission.Camera) } returns
-                AppPermissionStatus.Granted
-            everySuspend { imagePickerController.pickImage(any()) } returns imageBytes
-
-            viewModel.onIntent(Intent.CheckImagePermissions(AppPermission.Camera))
-            advanceUntilIdle()
-
-            assertTrue(imageBytes.contentEquals(viewModel.state.value.imageBytes))
-            assertFalse(viewModel.state.value.showImagePicker)
-            verifySuspend { imagePickerController.pickImage(AppPermission.Camera.toImageSource()) }
-        }
-
-    @Test
     fun checkImagePermissions_shouldRequestRational_setsPermissionDialog() =
         runTest(scheduler) {
+            val userId = 1
             everySuspend { permissionController.checkPermission(AppPermission.Camera) } returns
                 AppPermissionStatus.ShouldRequest(showRational = true)
 
-            viewModel.onIntent(Intent.CheckImagePermissions(AppPermission.Camera))
+            viewModel.onIntent(Intent.CheckImagePermissions(AppPermission.Camera, userId))
             advanceUntilIdle()
 
             val dialog = viewModel.state.value.permissionDialog
@@ -303,13 +370,20 @@ class ProfileViewModelTest {
     @Test
     fun checkImagePermissions_shouldRequestNoRational_requestsPermission() =
         runTest(scheduler) {
+            val userId = 1
             everySuspend { permissionController.checkPermission(AppPermission.Camera) } returns
                 AppPermissionStatus.ShouldRequest(showRational = false)
             everySuspend { permissionController.requestPermission(AppPermission.Camera) } returns
                 AppPermissionStatus.Granted
             everySuspend { imagePickerController.pickImage(any()) } returns byteArrayOf(1)
+            everySuspend {
+                saveUserImageUseCase(
+                    any(),
+                    any(),
+                )
+            } returns com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult.Success
 
-            viewModel.onIntent(Intent.CheckImagePermissions(AppPermission.Camera))
+            viewModel.onIntent(Intent.CheckImagePermissions(AppPermission.Camera, userId))
             advanceUntilIdle()
 
             verifySuspend { permissionController.requestPermission(AppPermission.Camera) }
@@ -318,25 +392,34 @@ class ProfileViewModelTest {
     @Test
     fun confirmPermissionAction_cameraRational_requestsPermission() =
         runTest(scheduler) {
-            everySuspend { preferencesManager.setPermissionRequested(PreferencesKey.CAMERA) } returns Unit
+            val userId = 1
+            val imageBytes = byteArrayOf(1)
+            everySuspend { preferencesManager.setPermissionRequested(any()) } returns Unit
             everySuspend { permissionController.requestPermission(AppPermission.Camera) } returns
                 AppPermissionStatus.Granted
-            everySuspend { imagePickerController.pickImage(any()) } returns byteArrayOf(1)
+            everySuspend { imagePickerController.pickImage(any()) } returns imageBytes
+            everySuspend {
+                saveUserImageUseCase(
+                    userId,
+                    imageBytes,
+                )
+            } returns com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult.Success
 
-            viewModel.onIntent(Intent.ConfirmPermissionAction(PermissionDialogActionType.CameraRational))
+            viewModel.onIntent(Intent.ConfirmPermissionAction(PermissionDialogActionType.CameraRational, userId))
             advanceUntilIdle()
 
-            verifySuspend { preferencesManager.setPermissionRequested(PreferencesKey.CAMERA) }
             verifySuspend { permissionController.requestPermission(AppPermission.Camera) }
             assertNull(viewModel.state.value.permissionDialog)
+            verifySuspend { saveUserImageUseCase(userId, imageBytes) }
         }
 
     @Test
     fun confirmPermissionAction_openSettings_launchesSettings() =
         runTest(scheduler) {
+            val userId = 1
             every { permissionController.launchSettings() } returns Unit
 
-            viewModel.onIntent(Intent.ConfirmPermissionAction(PermissionDialogActionType.OpenSettings))
+            viewModel.onIntent(Intent.ConfirmPermissionAction(PermissionDialogActionType.OpenSettings, userId))
             advanceUntilIdle()
 
             verify { permissionController.launchSettings() }

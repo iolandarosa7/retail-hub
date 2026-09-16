@@ -6,6 +6,7 @@
 
 package com.iolandarosa.retailhub.features.profile.presentation.profile
 
+import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
 import com.iolandarosa.retailhub.core.ui.error.UiError
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
@@ -74,18 +75,23 @@ interface ProfileContract {
             val address: Address,
         ) : Intent
 
-        data class ShowImagePickerBottomSheet(
-            val show: Boolean,
+        data object HideImagePickerBottomSheet : Intent
+
+        data class OnImageClick(
+            val userId: Int,
+            val isDelete: Boolean,
         ) : Intent
 
         data class CheckImagePermissions(
             val permission: AppPermission,
+            val userId: Int,
         ) : Intent
 
         data object ClosePermissionsDialog : Intent
 
         data class ConfirmPermissionAction(
             val type: PermissionDialogActionType,
+            val userId: Int,
         ) : Intent
     }
 
@@ -94,6 +100,11 @@ interface ProfileContract {
 
         data class NavigateToAddressDetails(
             val address: Address,
+        ) : Effect
+
+        data class ShowImageStorageFailure(
+            val error: ImageStorageResult.Failure,
+            val isDelete: Boolean,
         ) : Effect
     }
 

@@ -7,10 +7,17 @@
 package com.iolandarosa.retailhub.features.profile.presentation.profile
 
 import com.iolandarosa.retailhub.core.ui.error.UiError
+import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
+import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialogActionType
 import com.iolandarosa.retailhub.features.profile.utils.TestUser
+import retailhub.features.profile.generated.resources.Res
+import retailhub.features.profile.generated.resources.camera_permission_rational_confirm_btn
+import retailhub.features.profile.generated.resources.camera_permission_rational_description
+import retailhub.features.profile.generated.resources.camera_permission_rational_title
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ProfileContractTest {
@@ -23,6 +30,24 @@ class ProfileContractTest {
         assertIs<ProfileContract.LogoutRequestState.Initial>(state.logoutRequest)
         assertFalse(state.isRefreshing)
         assertFalse(state.showImagePicker)
+        assertNull(state.permissionDialog)
+        assertFalse(state.showPermissionsDialog)
+    }
+
+    @Test
+    fun hasPermissionDialog_showPermissionsDialog_expectsTrue() {
+        val state =
+            ProfileContract.State(
+                permissionDialog =
+                    PermissionDialog(
+                        titleId = Res.string.camera_permission_rational_title,
+                        descriptionId = Res.string.camera_permission_rational_description,
+                        confirmButtonLabelId = Res.string.camera_permission_rational_confirm_btn,
+                        type = PermissionDialogActionType.CameraRational,
+                    ),
+            )
+
+        assertTrue(state.showPermissionsDialog)
     }
 
     @Test

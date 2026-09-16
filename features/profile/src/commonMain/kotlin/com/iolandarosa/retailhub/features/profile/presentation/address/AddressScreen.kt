@@ -36,6 +36,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
 import com.iolandarosa.retailhub.features.profile.domain.model.Address
 import org.jetbrains.compose.resources.painterResource
@@ -54,18 +55,16 @@ import retailhub.features.profile.generated.resources.open_in_maps
 @Composable
 fun AddressScreen(
     paddingValues: PaddingValues,
-    onShowMessage: (String) -> Unit,
+    showSnackBar: (SnackBarData) -> Unit,
     viewModel: AddressViewModel,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-
-    val copiedMessage = stringResource(Res.string.copied_to_clipboard)
 
     LaunchedEffect(viewModel.effects) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 AddressContract.Effect.ShowCopySuccess -> {
-                    onShowMessage(copiedMessage)
+                    showSnackBar(SnackBarData(messageId = Res.string.copied_to_clipboard))
                 }
             }
         }

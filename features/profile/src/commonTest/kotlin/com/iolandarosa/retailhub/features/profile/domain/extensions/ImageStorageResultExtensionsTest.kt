@@ -16,11 +16,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ImageStorageResultExtensionsTest {
-
     @Test
     fun directoryNotFound_toSnackBarData_returnsCorrectSnackBarData() {
         val failure = ImageStorageResult.Failure.DirectoryNotFound
-        
+
         val snackBarDataDelete = failure.toSnackBarData(isDelete = true)
         assertEquals(Res.string.error_image_directory_not_found, snackBarDataDelete.messageId)
         assertEquals("", snackBarDataDelete.message)
@@ -35,7 +34,7 @@ class ImageStorageResultExtensionsTest {
     @Test
     fun generalFailure_toSnackBarData_whenDelete_returnsDeleteError() {
         val failure = ImageStorageResult.Failure.General(message = "Something went wrong")
-        
+
         val snackBarData = failure.toSnackBarData(isDelete = true)
         assertEquals(Res.string.error_image_delete, snackBarData.messageId)
         assertEquals("Something went wrong", snackBarData.message)
@@ -45,7 +44,7 @@ class ImageStorageResultExtensionsTest {
     @Test
     fun generalFailure_toSnackBarData_whenSave_returnsSaveError() {
         val failure = ImageStorageResult.Failure.General(message = "Save failed")
-        
+
         val snackBarData = failure.toSnackBarData(isDelete = false)
         assertEquals(Res.string.error_image_save, snackBarData.messageId)
         assertEquals("Save failed", snackBarData.message)
@@ -56,7 +55,7 @@ class ImageStorageResultExtensionsTest {
     fun exceptionFailure_toSnackBarData_whenDelete_returnsDeleteErrorWithMessage() {
         val exception = RuntimeException("Exception details")
         val failure = ImageStorageResult.Failure.Exception(exception)
-        
+
         val snackBarData = failure.toSnackBarData(isDelete = true)
         assertEquals(Res.string.error_image_delete, snackBarData.messageId)
         assertEquals("Exception details", snackBarData.message)
@@ -67,7 +66,7 @@ class ImageStorageResultExtensionsTest {
     fun exceptionFailure_toSnackBarData_whenSave_returnsSaveErrorWithMessage() {
         val exception = RuntimeException("Exception details")
         val failure = ImageStorageResult.Failure.Exception(exception)
-        
+
         val snackBarData = failure.toSnackBarData(isDelete = false)
         assertEquals(Res.string.error_image_save, snackBarData.messageId)
         assertEquals("Exception details", snackBarData.message)

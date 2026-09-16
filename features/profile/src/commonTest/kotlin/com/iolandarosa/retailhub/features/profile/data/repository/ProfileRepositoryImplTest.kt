@@ -8,6 +8,8 @@ package com.iolandarosa.retailhub.features.profile.data.repository
 
 import com.iolandarosa.retailhub.core.datastore.domain.TokenManager
 import com.iolandarosa.retailhub.core.model.NetworkResult
+import com.iolandarosa.retailhub.core.storage.domain.LocalImageStorage
+import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
 import com.iolandarosa.retailhub.features.profile.data.mapper.toDomain
 import com.iolandarosa.retailhub.features.profile.data.model.AddressDto
 import com.iolandarosa.retailhub.features.profile.data.model.BankDto
@@ -28,7 +30,9 @@ import kotlin.test.assertEquals
 class ProfileRepositoryImplTest {
     private val service = mock<ProfileRemoteDataSource>()
     private val tokenManager = mock<TokenManager>()
-    private val repository = ProfileRepositoryImpl(service, tokenManager)
+
+    private val localImageStorage = mock<LocalImageStorage>()
+    private val repository = ProfileRepositoryImpl(service, tokenManager, localImageStorage)
 
     @Test
     fun success_getAuthUser_returnsMappedResponse() =
@@ -96,5 +100,43 @@ class ProfileRepositoryImplTest {
 
             verifySuspend { service.invalidateAuthTokens() }
             verifySuspend { tokenManager.clearTokens() }
+        }
+
+    @Test
+    fun getLocalUserImage_callsStorageLoad() =
+        runTest {
+            val userId = 1
+            val expectedBytes = byteArrayOf(1, 2, 3)
+            everySuspend { localImageStorage.load("$userId") } returns expectedBytes
+
+            val result = repository.getLocalUserImage(userId)
+
+            assertEquals(expectedBytes, result)
+            verifySuspend { localImageStorage.load("$userId") }
+        }
+
+    @Test
+    fun saveUserImage_callsStorageSave() =
+        runTest {
+            val userId = 1
+            val bytes = byteArrayOf(4, 5, 6)
+            everySuspend { localImageStorage.save("$userId", bytes) } returns ImageStorageResult.Success
+
+            val result = repository.saveUserImage(userId, bytes)
+
+            assertEquals(ImageStorageResult.Success, result)
+            verifySuspend { localImageStorage.save("$userId", bytes) }
+        }
+
+    @Test
+    fun deleteUserImage_callsStorageDelete() =
+        runTest {
+            val userId = 1
+            everySuspend { localImageStorage.delete("$userId") } returns ImageStorageResult.Success
+
+            val result = repository.deleteUserImage(userId)
+
+            assertEquals(ImageStorageResult.Success, result)
+            verifySuspend { localImageStorage.delete("$userId") }
         }
 }

@@ -38,11 +38,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iolandarosa.retailhub.core.ui.error.ErrorComponent
+import com.iolandarosa.retailhub.core.ui.error.UiError
 import com.iolandarosa.retailhub.core.ui.images.ImagePickerBottomSheet
 import com.iolandarosa.retailhub.core.ui.images.InitializePermissionsAndPicker
+import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
+import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
+import com.iolandarosa.retailhub.features.profile.domain.extensions.toSnackBarData
 import com.iolandarosa.retailhub.features.profile.domain.model.Address
 import com.iolandarosa.retailhub.features.profile.domain.model.User
+import com.iolandarosa.retailhub.features.profile.presentation.profile.components.AddressCard
+import com.iolandarosa.retailhub.features.profile.presentation.profile.components.ContactCard
+import com.iolandarosa.retailhub.features.profile.presentation.profile.components.PersonalInfoCard
+import com.iolandarosa.retailhub.features.profile.presentation.profile.components.PhysicalInfoCard
+import com.iolandarosa.retailhub.features.profile.presentation.profile.components.ProfileHeader
+import com.iolandarosa.retailhub.features.profile.presentation.profile.components.ProfileScreenSkeleton
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import retailhub.features.profile.generated.resources.Res
@@ -56,6 +66,7 @@ fun ProfileScreen(
     paddingValues: PaddingValues,
     navigateToLogin: () -> Unit,
     navigateToAddressDetails: (Address) -> Unit,
+    showSnackBar: (SnackBarData) -> Unit,
     viewModel: ProfileViewModel,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -75,8 +86,17 @@ fun ProfileScreen(
     LaunchedEffect(viewModel.effects) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                ProfileContract.Effect.NavigateToLogin -> navigateToLogin()
-                is ProfileContract.Effect.NavigateToAddressDetails -> navigateToAddressDetails(effect.address)
+                ProfileContract.Effect.NavigateToLogin -> {
+                    navigateToLogin()
+                }
+
+                is ProfileContract.Effect.NavigateToAddressDetails -> {
+                    navigateToAddressDetails(effect.address)
+                }
+
+                is ProfileContract.Effect.ShowImageStorageFailure -> {
+                    showSnackBar(effect.error.toSnackBarData(effect.isDelete))
+                }
             }
         }
     }
@@ -90,21 +110,10 @@ fun ProfileScreen(
     ) {
         when (val userRequest = state.userRequest) {
             is ProfileContract.UserRequestState.Error -> {
-                ErrorComponent(
-                    modifier = Modifier.fillMaxSize().padding(Dimens.PaddingMedium),
-                    title = stringResource(userRequest.error.titleId),
-                    description = userRequest.error.description ?: stringResource(userRequest.error.descriptionId),
-                    trailingContent = {
-                        if (userRequest.error.hasRetry) {
-                            Button(
-                                onClick = { viewModel.onIntent(ProfileContract.Intent.LoadProfile) },
-                                enabled = isEnabled,
-                                modifier = Modifier.padding(top = Dimens.PaddingExtraLarge).fillMaxWidth(0.5f),
-                            ) {
-                                Text(stringResource(Res.string.retry))
-                            }
-                        }
-                    },
+                ProfileErrorComponent(
+                    error = userRequest.error,
+                    onRetry = { viewModel.onIntent(ProfileContract.Intent.LoadProfile) },
+                    isEnabled = isEnabled,
                 )
             }
 
@@ -125,48 +134,106 @@ fun ProfileScreen(
                     onAddressDetailsClick = { address ->
                         viewModel.onIntent(ProfileContract.Intent.ViewAddressDetails(address))
                     },
-                    onPhotoClick = { viewModel.onIntent(ProfileContract.Intent.ShowImagePickerBottomSheet(true)) },
-                )
-            }
-        }
-
-        if (state.showImagePicker) {
-            ImagePickerBottomSheet(
-                onDismiss = { viewModel.onIntent(ProfileContract.Intent.ShowImagePickerBottomSheet(false)) },
-                onClick = { viewModel.onIntent(ProfileContract.Intent.CheckImagePermissions(it)) },
-            )
-        }
-
-        if (showPermissionsDialog) {
-            state.permissionDialog?.let {
-                AlertDialog(
-                    onDismissRequest = { viewModel.onIntent(ProfileContract.Intent.ClosePermissionsDialog) },
-                    title = {
-                        Text(
-                            stringResource(it.titleId),
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.onSurface,
+                    onPhotoClick = {
+                        viewModel.onIntent(
+                            ProfileContract.Intent.OnImageClick(
+                                userRequest.user.id,
+                                state.imageBytes != null,
+                            ),
                         )
                     },
-                    text = {
-                        Text(
-                            stringResource(it.descriptionId),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    },
-                    confirmButton = {
-                        Button(
-                            onClick = { viewModel.onIntent(ProfileContract.Intent.ConfirmPermissionAction(it.type)) },
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            Text(stringResource(it.confirmButtonLabelId))
-                        }
-                    },
                 )
+
+                if (state.showImagePicker) {
+                    ImagePickerBottomSheet(
+                        onDismiss = { viewModel.onIntent(ProfileContract.Intent.HideImagePickerBottomSheet) },
+                        onClick = {
+                            viewModel.onIntent(
+                                ProfileContract.Intent.CheckImagePermissions(
+                                    it,
+                                    userRequest.user.id,
+                                ),
+                            )
+                        },
+                    )
+                }
+
+                if (showPermissionsDialog) {
+                    state.permissionDialog?.let {
+                        PermissionDialog(
+                            onDismiss = { viewModel.onIntent(ProfileContract.Intent.ClosePermissionsDialog) },
+                            dialog = it,
+                            onConfirmClick = {
+                                viewModel.onIntent(
+                                    ProfileContract.Intent.ConfirmPermissionAction(
+                                        it.type,
+                                        userRequest.user.id,
+                                    ),
+                                )
+                            },
+                        )
+                    }
+                }
             }
         }
     }
+}
+
+@Composable
+fun PermissionDialog(
+    onDismiss: () -> Unit,
+    dialog: PermissionDialog,
+    onConfirmClick: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                stringResource(dialog.titleId),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        },
+        text = {
+            Text(
+                stringResource(dialog.descriptionId),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirmClick,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(dialog.confirmButtonLabelId))
+            }
+        },
+    )
+}
+
+@Composable
+fun ProfileErrorComponent(
+    error: UiError,
+    isEnabled: Boolean,
+    onRetry: () -> Unit,
+) {
+    ErrorComponent(
+        modifier = Modifier.fillMaxSize().padding(Dimens.PaddingMedium),
+        title = stringResource(error.titleId),
+        description = error.description ?: stringResource(error.descriptionId),
+        trailingContent = {
+            if (error.hasRetry) {
+                Button(
+                    onClick = onRetry,
+                    enabled = isEnabled,
+                    modifier = Modifier.padding(top = Dimens.PaddingExtraLarge).fillMaxWidth(0.5f),
+                ) {
+                    Text(stringResource(Res.string.retry))
+                }
+            }
+        },
+    )
 }
 
 @Composable
