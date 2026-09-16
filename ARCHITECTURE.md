@@ -8,9 +8,10 @@ RetailHub uses a **Feature-Oriented Modular Architecture**.
 ### Module Types
 - **`:composeApp`**: The orchestrator. Handles Navigation 3, global DI initialization, and platform entry points.
 - **`:features:*`**: Contains business logic for a specific capability (e.g., `:features:auth`). Must contain `data`, `domain`, and `presentation` layers.
-- **`:core:ui`**: Centralized Design System, Theme, and the shared Form Engine.
+- **`:core:ui`**: Centralized Design System, Theme, hardware Controller-Delegates, and the shared Form Engine.
 - **`:core:network`**: Shared Ktor configuration.
 - **`:core:datastore`**: Persistent storage using the Platform Module pattern.
+- **`:core:common`**: Pure Kotlin utilities, Dispatcher providers, and platform-agnostic manager logic.
 - **`:core:model`**: Pure Kotlin library for shared data entities. Must only contain models used by 2+ features.
 
 ---
@@ -40,30 +41,38 @@ Every screen must follow the MVI pattern using a `Contract`:
 
 ---
 
-## 5. Networking & Security
+## 5. Platform Capabilities (Controller-Delegate Pattern)
+To keep ViewModels platform-agnostic while accessing system APIs (Camera, Gallery, Permissions), we use the **Controller-Delegate Pattern**:
+- **Controller**: A common interface (e.g., `PermissionController`) injected into ViewModels.
+- **Delegate**: A platform-specific implementation. 
+- **Binding**: On Android, delegates use a "Binder" Composable to link Singleton controllers to the `ActivityResultLauncher` during the UI lifecycle.
+- **Scope**: Controllers and Delegates should be **ViewModel-scoped** (`factory` in Koin) rather than global singletons where possible.
+
+---
+
+## 6. Networking & Security
 - **Dual-Client Strategy**: 
   - **Public Client**: For `/login`, `/register`, and `/refresh`.
   - **Authenticated Client**: Uses Ktor `Auth` plugin with Bearer tokens.
-- **Token Refresh**: Must be implemented using a separate public client to avoid recursion loops.
 - **Safe Requests**: All network calls must use the `safeRequest` wrapper to map exceptions to `NetworkResult`.
-- **Mappers**: Implementation detail (DTOs) must be converted to Domain Models in the `data` layer before reaching the `domain` or `presentation`.
+- **Mappers**: DTOs must be converted to Domain Models in the `data` layer before reaching the `domain` or `presentation`.
 
 ---
 
-## 6. Performance Optimization
+## 7. Performance Optimization
 - **Stability**: Use `@Stable` for interfaces and abstract classes in the Form Engine.
 - **Recomposition Guard**: Use `derivedStateOf` for UI properties derived from complex state objects.
-- **List Optimization**: Use `key()` when rendering dynamic items (like form fields) to preserve component state.
+- **List Optimization**: Use `key()` when rendering dynamic items to preserve component state.
 
 ---
 
-## 7. Testing Requirements
+## 8. Testing Requirements
 - **Mokkery**: Use for mocking interfaces in `commonTest`.
-- **Real Persistence**: Use real DataStore instances with temporary files for `TokenManager` tests.
+- **Real Persistence**: Use real DataStore instances with temporary files for persistence tests.
 - **Dispatcher Injection**: Always inject `DispatcherProvider` for coroutine testing.
 
 ---
 
-## 8. Resource Handling
+## 9. Resource Handling
 - **Localization**: Use Compose Multiplatform Resources (`Res`).
 - **ViewModels**: ViewModels should return `StringResource` identifiers from `Res` rather than raw strings to support localization.

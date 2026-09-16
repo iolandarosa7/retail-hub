@@ -12,6 +12,9 @@ plugins {
 
 retailhubJacoco {
     testTask.set("connectedAndroidDeviceTest")
+
+    exclusions.add("**/generated/resources/**")
+    exclusions.add("**/composeApp/di/**")
 }
 
 kotlin {
@@ -71,7 +74,9 @@ kotlin {
             implementation(project(":core:datastore"))
             implementation(project(":core:ui"))
             implementation(project(":features:auth"))
+            implementation(project(":features:profile"))
             implementation(project(":core:model"))
+            implementation(project(":core:storage"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

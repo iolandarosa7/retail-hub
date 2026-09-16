@@ -1,4 +1,5 @@
 <resources>
     <string name="address_details">Address details</string>
     <string name="back">Back</string>
+    <string name="error_unknown">Unknown error</string>
 </resources>

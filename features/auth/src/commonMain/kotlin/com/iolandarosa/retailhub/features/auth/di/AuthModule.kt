@@ -10,16 +10,10 @@ import com.iolandarosa.retailhub.core.model.NetworkClientType
 import com.iolandarosa.retailhub.features.auth.data.remote.AuthRemoteDataSource
 import com.iolandarosa.retailhub.features.auth.data.remote.AuthRemoteDataSourceImpl
 import com.iolandarosa.retailhub.features.auth.data.repository.AuthenticationRepositoryImpl
-import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCase
-import com.iolandarosa.retailhub.features.auth.domain.interactors.GetAuthUserUseCaseImpl
 import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCase
 import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCaseImpl
-import com.iolandarosa.retailhub.features.auth.domain.interactors.LogoutUseCase
-import com.iolandarosa.retailhub.features.auth.domain.interactors.LogoutUseCaseImpl
 import com.iolandarosa.retailhub.features.auth.domain.repository.AuthenticationRepository
-import com.iolandarosa.retailhub.features.auth.presentation.address.AddressViewModel
 import com.iolandarosa.retailhub.features.auth.presentation.login.LoginViewModel
-import com.iolandarosa.retailhub.features.auth.presentation.profile.ProfileViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -29,7 +23,6 @@ val authModule =
         single<AuthRemoteDataSource> {
             AuthRemoteDataSourceImpl(
                 publicClient = get(named(NetworkClientType.PUBLIC)),
-                authenticatedClient = get(named(NetworkClientType.AUTHENTICATED)),
             )
         }
         single<AuthenticationRepository> {
@@ -39,16 +32,5 @@ val authModule =
             )
         }
         factory<LoginUseCase> { LoginUseCaseImpl(get()) }
-        factory<GetAuthUserUseCase> { GetAuthUserUseCaseImpl(get()) }
-        factory<LogoutUseCase> { LogoutUseCaseImpl(get()) }
         viewModel { LoginViewModel(loginUseCase = get(), dispatcherProvider = get()) }
-        viewModel { ProfileViewModel(getAuthUserUseCase = get(), logoutUseCase = get(), dispatcherProvider = get()) }
-        viewModel { params ->
-            AddressViewModel(
-                address = params.get(),
-                dispatcherProvider = get(),
-                clipboardManager = get(),
-                mapManager = get(),
-            )
-        }
     }

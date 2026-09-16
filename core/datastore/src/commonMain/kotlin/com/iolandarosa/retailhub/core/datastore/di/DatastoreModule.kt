@@ -6,7 +6,9 @@
 
 package com.iolandarosa.retailhub.core.datastore.di
 
+import com.iolandarosa.retailhub.core.datastore.data.PreferencesManagerImpl
 import com.iolandarosa.retailhub.core.datastore.data.TokenManagerImpl
+import com.iolandarosa.retailhub.core.datastore.domain.PreferencesManager
 import com.iolandarosa.retailhub.core.datastore.domain.TokenManager
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -18,4 +20,5 @@ val datastoreModule =
         includes(platformDataStoreModule)
 
         single<TokenManager> { TokenManagerImpl(get()) }
+        single<PreferencesManager> { PreferencesManagerImpl(get()) }
     }

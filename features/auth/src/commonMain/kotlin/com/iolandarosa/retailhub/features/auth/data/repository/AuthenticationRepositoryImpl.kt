@@ -8,10 +8,8 @@ package com.iolandarosa.retailhub.features.auth.data.repository
 
 import com.iolandarosa.retailhub.core.datastore.domain.TokenManager
 import com.iolandarosa.retailhub.core.model.NetworkResult
-import com.iolandarosa.retailhub.features.auth.data.mapper.toDomain
 import com.iolandarosa.retailhub.features.auth.data.remote.AuthRemoteDataSource
 import com.iolandarosa.retailhub.features.auth.data.request.LoginRequest
-import com.iolandarosa.retailhub.features.auth.domain.model.User
 import com.iolandarosa.retailhub.features.auth.domain.repository.AuthenticationRepository
 
 internal class AuthenticationRepositoryImpl(
@@ -39,12 +37,5 @@ internal class AuthenticationRepositoryImpl(
         }
 
         return result.mapUnit()
-    }
-
-    override suspend fun getAuthUser(): NetworkResult<User> = service.getAuthUser().map { it.toDomain() }
-
-    override suspend fun logout() {
-        tokenManager.clearTokens()
-        service.invalidateAuthTokens()
     }
 }

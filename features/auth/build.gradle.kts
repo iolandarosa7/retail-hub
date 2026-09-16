@@ -70,9 +70,6 @@ kotlin {
             implementation(libs.compose.components.resources)
             // serialization
             implementation(libs.kotlinx.serialization.json)
-            // coil
-            implementation(libs.coil.compose)
-            implementation(libs.coil.netwrok.ktor)
         }
 
         commonTest.dependencies {
@@ -82,7 +79,6 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.compose.ui.test)
             implementation(libs.ktor.client.serialization)
-            implementation(libs.coroutines.test)
             // turbine
             implementation(libs.turbine)
         }
