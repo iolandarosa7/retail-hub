@@ -4,7 +4,7 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.profile.presentation.profile
+package com.iolandarosa.retailhub.features.profile.presentation.profile.components
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
@@ -14,18 +14,17 @@ import com.iolandarosa.retailhub.features.profile.utils.TestUser
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-class PersonalInfoCardTest {
+class ContactCardTest {
     @Test
-    fun personalInfoCardDisplaysDetails() =
+    fun contactCardDisplaysEmailAndPhone() =
         runComposeUiTest {
             val user = TestUser.user
 
             setContent {
-                PersonalInfoCard(user = user)
+                ContactCard(user = user)
             }
 
-            onNodeWithText(user.birthDate).assertIsDisplayed()
-            onNodeWithText("${user.age}").assertIsDisplayed()
-            onNodeWithText(user.gender).assertIsDisplayed()
+            onNodeWithText(user.email).assertIsDisplayed()
+            onNodeWithText(user.phone).assertIsDisplayed()
         }
 }

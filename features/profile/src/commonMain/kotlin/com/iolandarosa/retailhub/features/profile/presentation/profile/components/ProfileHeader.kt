@@ -4,7 +4,7 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.profile.presentation.profile
+package com.iolandarosa.retailhub.features.profile.presentation.profile.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,7 +32,9 @@ import com.iolandarosa.retailhub.features.profile.domain.model.User
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import retailhub.features.profile.generated.resources.Res
+import retailhub.features.profile.generated.resources.delete_profile_picture
 import retailhub.features.profile.generated.resources.ic_camera
+import retailhub.features.profile.generated.resources.ic_delete
 import retailhub.features.profile.generated.resources.update_profile_picture
 
 @Composable
@@ -81,10 +83,17 @@ internal fun ProfileHeaderContent(
                 modifier = Modifier.align(Alignment.BottomEnd),
                 enabled = isEnabled,
             ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_camera),
-                    contentDescription = stringResource(Res.string.update_profile_picture),
-                )
+                if (imageBytes == null) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_camera),
+                        contentDescription = stringResource(Res.string.update_profile_picture),
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_delete),
+                        contentDescription = stringResource(Res.string.delete_profile_picture),
+                    )
+                }
             }
         }
     }

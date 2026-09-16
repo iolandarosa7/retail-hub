@@ -4,7 +4,7 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.profile.presentation.profile
+package com.iolandarosa.retailhub.features.profile.presentation.profile.components
 
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.ExperimentalTestApi

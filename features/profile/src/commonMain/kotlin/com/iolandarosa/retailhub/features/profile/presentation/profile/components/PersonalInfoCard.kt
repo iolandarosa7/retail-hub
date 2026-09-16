@@ -4,7 +4,7 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.profile.presentation.profile
+package com.iolandarosa.retailhub.features.profile.presentation.profile.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
