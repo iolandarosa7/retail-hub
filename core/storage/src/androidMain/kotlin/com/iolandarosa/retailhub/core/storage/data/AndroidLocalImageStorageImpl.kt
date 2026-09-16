@@ -8,15 +8,15 @@ package com.iolandarosa.retailhub.core.storage.data
 
 import android.content.Context
 import com.iolandarosa.retailhub.core.common.dispatcher.DispatcherProvider
-import com.iolandarosa.retailhub.core.storage.domain.ImageStorageDelegate
+import com.iolandarosa.retailhub.core.storage.domain.LocalImageStorageDelegate
 import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
 import kotlinx.coroutines.withContext
 import java.io.File
 
-internal class AndroidImageStorageImpl(
+internal class AndroidLocalImageStorageImpl(
     private val context: Context,
     private val dispatcherProvider: DispatcherProvider,
-) : ImageStorageDelegate {
+) : LocalImageStorageDelegate {
     private val imagesDir: File by lazy {
         File(context.filesDir, "images").apply { mkdirs() }
     }
@@ -46,14 +46,11 @@ internal class AndroidImageStorageImpl(
         withContext(dispatcherProvider.io) {
             runCatching {
                 val file = File(imagesDir, fileName)
-                if (file.exists()) {
-                    if (file.delete()) {
-                        ImageStorageResult.Success
-                    } else {
-                        ImageStorageResult.Failure.General
-                    }
-                } else {
+
+                if (!file.exists() || file.delete()) {
                     ImageStorageResult.Success
+                } else {
+                    ImageStorageResult.Failure.General()
                 }
             }.getOrElse { ImageStorageResult.Failure.Exception(it) }
         }

@@ -6,13 +6,13 @@
 
 package com.iolandarosa.retailhub.core.storage.data
 
-import com.iolandarosa.retailhub.core.storage.domain.ImageStorage
-import com.iolandarosa.retailhub.core.storage.domain.ImageStorageDelegate
+import com.iolandarosa.retailhub.core.storage.domain.LocalImageStorage
+import com.iolandarosa.retailhub.core.storage.domain.LocalImageStorageDelegate
 import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
 
-internal class ImageStorageImpl(
-    private val delegate: ImageStorageDelegate,
-) : ImageStorage {
+internal class LocalImageStorageImpl(
+    private val delegate: LocalImageStorageDelegate,
+) : LocalImageStorage {
     override suspend fun load(fileName: String): ByteArray? = delegate.load(fileName)
 
     override suspend fun save(

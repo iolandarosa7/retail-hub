@@ -6,7 +6,7 @@
 
 package com.iolandarosa.retailhub.core.storage.data
 
-import com.iolandarosa.retailhub.core.storage.domain.ImageStorageDelegate
+import com.iolandarosa.retailhub.core.storage.domain.LocalImageStorageDelegate
 import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
@@ -19,13 +19,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-class ImageStorageImplTest {
-    private val delegate = mock<ImageStorageDelegate>()
-    private lateinit var picker: ImageStorageImpl
+class LocalImageStorageImplTest {
+    private val delegate = mock<LocalImageStorageDelegate>()
+    private lateinit var picker: LocalImageStorageImpl
 
     @BeforeTest
     fun setup() {
-        picker = ImageStorageImpl(delegate)
+        picker = LocalImageStorageImpl(delegate)
     }
 
     @Test

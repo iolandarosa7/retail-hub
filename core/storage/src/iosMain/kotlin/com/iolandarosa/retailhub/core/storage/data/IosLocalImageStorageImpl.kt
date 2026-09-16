@@ -7,7 +7,7 @@
 package com.iolandarosa.retailhub.core.storage.data
 
 import com.iolandarosa.retailhub.core.common.dispatcher.DispatcherProvider
-import com.iolandarosa.retailhub.core.storage.domain.ImageStorageDelegate
+import com.iolandarosa.retailhub.core.storage.domain.LocalImageStorageDelegate
 import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -33,9 +33,9 @@ import platform.Foundation.getBytes
 import platform.Foundation.writeToURL
 
 @OptIn(ExperimentalForeignApi::class)
-internal class IosImageStorageImpl(
+internal class IosLocalImageStorageImpl(
     private val dispatcherProvider: DispatcherProvider,
-) : ImageStorageDelegate {
+) : LocalImageStorageDelegate {
     private val fileManager = NSFileManager.defaultManager
 
     private val imagesDirectory: NSURL? by lazy {
@@ -73,13 +73,12 @@ internal class IosImageStorageImpl(
                 memScoped {
                     val errorPtr = alloc<ObjCObjectVar<NSError?>>()
                     val success = data.writeToURL(url, NSDataWritingAtomic, errorPtr.ptr)
-                    if (!success) {
-                        return@withContext ImageStorageResult.Failure.Save(
-                            errorPtr.value?.localizedDescription ?: "Unknown iOS storage error",
-                        )
+                    if (success) {
+                        ImageStorageResult.Success
+                    } else {
+                        ImageStorageResult.Failure.General(errorPtr.value?.localizedDescription)
                     }
                 }
-                ImageStorageResult.Success
             }.getOrElse { ImageStorageResult.Failure.Exception(it) }
         }
 
@@ -92,9 +91,7 @@ internal class IosImageStorageImpl(
                     memScoped {
                         val errorPtr = alloc<ObjCObjectVar<NSError?>>()
                         if (!fileManager.removeItemAtURL(url, errorPtr.ptr)) {
-                            return@withContext ImageStorageResult.Failure.Delete(
-                                errorPtr.value?.localizedDescription ?: "Unknown iOS deletion error",
-                            )
+                            return@withContext ImageStorageResult.Failure.General(errorPtr.value?.localizedDescription)
                         }
                     }
                 }

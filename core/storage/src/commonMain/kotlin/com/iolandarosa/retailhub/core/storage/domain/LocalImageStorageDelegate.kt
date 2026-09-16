@@ -8,7 +8,7 @@ package com.iolandarosa.retailhub.core.storage.domain
 
 import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
 
-interface ImageStorage {
+internal interface LocalImageStorageDelegate {
     suspend fun load(fileName: String): ByteArray?
 
     suspend fun save(
