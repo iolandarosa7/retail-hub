@@ -14,7 +14,7 @@ interface GetAuthUserUseCase {
     suspend operator fun invoke(): NetworkResult<User>
 }
 
-class GetAuthUserUseCaseImpl(
+internal class GetAuthUserUseCaseImpl(
     private val repository: ProfileRepository,
 ) : GetAuthUserUseCase {
     override suspend operator fun invoke() = repository.getAuthUser()

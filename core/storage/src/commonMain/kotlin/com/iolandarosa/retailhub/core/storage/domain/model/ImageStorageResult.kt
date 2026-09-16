@@ -12,15 +12,9 @@ sealed interface ImageStorageResult {
     sealed interface Failure : ImageStorageResult {
         data object DirectoryNotFound : Failure
 
-        data class Save(
-            val message: String,
+        data class General(
+            val message: String? = null,
         ) : Failure
-
-        data class Delete(
-            val message: String,
-        ) : Failure
-
-        data object General : Failure
 
         data class Exception(
             val throwable: Throwable,

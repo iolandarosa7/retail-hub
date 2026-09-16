@@ -13,6 +13,7 @@ import com.iolandarosa.retailhub.features.profile.domain.model.User
 object TestUser {
     val user =
         User(
+            id = 1,
             name = "John Doe",
             image = "image_url",
             role = "admin",

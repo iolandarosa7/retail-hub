@@ -7,6 +7,7 @@
 package com.iolandarosa.retailhub.features.profile.domain.model
 
 data class User(
+    val id: Int,
     val name: String,
     val image: String,
     val role: String,

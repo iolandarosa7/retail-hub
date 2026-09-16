@@ -13,6 +13,7 @@ import com.iolandarosa.retailhub.features.profile.domain.model.User
 
 internal fun UserDto.toDomain(): User =
     User(
+        id = this.id,
         name = "${this.firstName} ${this.lastName}",
         image = this.image,
         role = this.role,

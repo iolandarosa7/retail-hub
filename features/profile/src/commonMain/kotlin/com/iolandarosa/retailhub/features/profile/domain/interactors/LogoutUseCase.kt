@@ -12,7 +12,7 @@ interface LogoutUseCase {
     suspend operator fun invoke()
 }
 
-class LogoutUseCaseImpl(
+internal class LogoutUseCaseImpl(
     private val repository: ProfileRepository,
 ) : LogoutUseCase {
     override suspend operator fun invoke() = repository.logout()

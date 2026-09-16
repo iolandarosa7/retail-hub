@@ -25,6 +25,7 @@ class UserTest {
 
         val user =
             User(
+                id = 1,
                 name = "John Doe",
                 image = "image_url",
                 role = "admin",
@@ -42,6 +43,7 @@ class UserTest {
                 address = expectedAddress,
             )
 
+        assertEquals(1, user.id)
         assertEquals("John Doe", user.name)
         assertEquals("image_url", user.image)
         assertEquals("admin", user.role)
