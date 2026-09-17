@@ -12,6 +12,7 @@ import com.iolandarosa.retailhub.core.network.extensions.invalidateAuthTokens
 import com.iolandarosa.retailhub.core.network.extensions.safeRequest
 import com.iolandarosa.retailhub.features.profile.data.model.UserDto
 import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 
 internal class ProfileRemoteDataSourceImpl(
@@ -23,4 +24,9 @@ internal class ProfileRemoteDataSourceImpl(
     override suspend fun invalidateAuthTokens() {
         authenticatedClient.invalidateAuthTokens()
     }
+
+    override suspend fun deleteUser(userId: Int): NetworkResult<UserDto> =
+        authenticatedClient.safeRequest {
+            delete("${Endpoints.USERS_URL}/$userId")
+        }
 }

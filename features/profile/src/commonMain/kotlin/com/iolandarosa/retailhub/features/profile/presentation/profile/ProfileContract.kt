@@ -6,11 +6,11 @@
 
 package com.iolandarosa.retailhub.features.profile.presentation.profile
 
-import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
 import com.iolandarosa.retailhub.core.ui.error.UiError
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialogActionType
+import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
 import com.iolandarosa.retailhub.features.profile.domain.model.Address
 import com.iolandarosa.retailhub.features.profile.domain.model.User
 
@@ -18,8 +18,10 @@ interface ProfileContract {
     data class State(
         val userRequest: UserRequestState = UserRequestState.Initial,
         val logoutRequest: LogoutRequestState = LogoutRequestState.Initial,
+        val deleteUserRequest: DeleteUserRequestState = DeleteUserRequestState.Initial,
         val isRefreshing: Boolean = false,
         val showImagePicker: Boolean = false,
+        val showDeleteAccountConfirmation: Boolean = false,
         val permissionDialog: PermissionDialog? = null,
         val imageBytes: ByteArray? = null,
     ) {
@@ -27,7 +29,14 @@ interface ProfileContract {
             get() =
                 userRequest !is UserRequestState.Loading &&
                     !isRefreshing &&
-                    logoutRequest !is LogoutRequestState.Loading
+                    logoutRequest !is LogoutRequestState.Loading &&
+                    deleteUserRequest !is DeleteUserRequestState.Loading
+
+        val showLogoutLoading: Boolean
+            get() = logoutRequest is LogoutRequestState.Loading
+
+        val showDeleteLoading: Boolean
+            get() = deleteUserRequest is DeleteUserRequestState.Loading
 
         val showPermissionsDialog: Boolean
             get() = permissionDialog != null
@@ -43,6 +52,8 @@ interface ProfileContract {
             if (userRequest != other.userRequest) return false
             if (logoutRequest != other.logoutRequest) return false
             if (permissionDialog != other.permissionDialog) return false
+            if (showDeleteAccountConfirmation != other.showDeleteAccountConfirmation) return false
+            if (deleteUserRequest != other.deleteUserRequest) return false
             if (imageBytes != null) {
                 if (other.imageBytes == null) return false
                 if (!imageBytes.contentEquals(other.imageBytes)) return false
@@ -58,6 +69,8 @@ interface ProfileContract {
             result = 31 * result + showImagePicker.hashCode()
             result = 31 * result + userRequest.hashCode()
             result = 31 * result + logoutRequest.hashCode()
+            result = 31 * result + deleteUserRequest.hashCode()
+            result = 31 * result + showDeleteAccountConfirmation.hashCode()
             result = 31 * result + (permissionDialog?.hashCode() ?: 0)
             result = 31 * result + (imageBytes?.contentHashCode() ?: 0)
             return result
@@ -93,6 +106,14 @@ interface ProfileContract {
             val type: PermissionDialogActionType,
             val userId: Int,
         ) : Intent
+
+        data class ConfirmDeleteAccount(
+            val show: Boolean,
+        ) : Intent
+
+        data class DeleteUser(
+            val userId: Int,
+        ) : Intent
     }
 
     sealed interface Effect {
@@ -102,9 +123,8 @@ interface ProfileContract {
             val address: Address,
         ) : Effect
 
-        data class ShowImageStorageFailure(
-            val error: ImageStorageResult.Failure,
-            val isDelete: Boolean,
+        data class ShowSnackBarError(
+            val snackBarData: SnackBarData,
         ) : Effect
     }
 
@@ -126,5 +146,11 @@ interface ProfileContract {
         data object Initial : LogoutRequestState
 
         data object Loading : LogoutRequestState
+    }
+
+    sealed interface DeleteUserRequestState {
+        data object Initial : DeleteUserRequestState
+
+        data object Loading : DeleteUserRequestState
     }
 }

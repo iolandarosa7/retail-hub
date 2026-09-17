@@ -27,6 +27,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -36,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iolandarosa.retailhub.core.ui.error.ErrorComponent
 import com.iolandarosa.retailhub.core.ui.error.UiError
@@ -44,7 +46,6 @@ import com.iolandarosa.retailhub.core.ui.images.InitializePermissionsAndPicker
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
 import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
-import com.iolandarosa.retailhub.features.profile.domain.extensions.toSnackBarData
 import com.iolandarosa.retailhub.features.profile.domain.model.Address
 import com.iolandarosa.retailhub.features.profile.domain.model.User
 import com.iolandarosa.retailhub.features.profile.presentation.profile.components.AddressCard
@@ -53,9 +54,16 @@ import com.iolandarosa.retailhub.features.profile.presentation.profile.component
 import com.iolandarosa.retailhub.features.profile.presentation.profile.components.PhysicalInfoCard
 import com.iolandarosa.retailhub.features.profile.presentation.profile.components.ProfileHeader
 import com.iolandarosa.retailhub.features.profile.presentation.profile.components.ProfileScreenSkeleton
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import retailhub.features.profile.generated.resources.Res
+import retailhub.features.profile.generated.resources.cancel
+import retailhub.features.profile.generated.resources.delete_account
+import retailhub.features.profile.generated.resources.delete_account_description
+import retailhub.features.profile.generated.resources.delete_account_title
+import retailhub.features.profile.generated.resources.ic_delete
 import retailhub.features.profile.generated.resources.ic_logout
 import retailhub.features.profile.generated.resources.logout
 import retailhub.features.profile.generated.resources.retry
@@ -72,6 +80,8 @@ fun ProfileScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isEnabled by remember { derivedStateOf { state.isInteractionEnabled } }
     val isRefreshing by remember { derivedStateOf { state.isRefreshing } }
+    val showLogoutLoading by remember { derivedStateOf { state.showLogoutLoading } }
+    val showDeleteLoading by remember { derivedStateOf { state.showDeleteLoading } }
     val showPermissionsDialog by remember { derivedStateOf { state.showPermissionsDialog } }
 
     InitializePermissionsAndPicker(
@@ -94,8 +104,8 @@ fun ProfileScreen(
                     navigateToAddressDetails(effect.address)
                 }
 
-                is ProfileContract.Effect.ShowImageStorageFailure -> {
-                    showSnackBar(effect.error.toSnackBarData(effect.isDelete))
+                is ProfileContract.Effect.ShowSnackBarError -> {
+                    showSnackBar(effect.snackBarData)
                 }
             }
         }
@@ -129,6 +139,8 @@ fun ProfileScreen(
                     imageBytes = state.imageBytes,
                     isEnabled = isEnabled,
                     isRefreshing = isRefreshing,
+                    showLogoutLoading = showLogoutLoading,
+                    showDeleteLoading = showDeleteLoading,
                     onRefresh = { viewModel.onIntent(ProfileContract.Intent.RefreshProfile) },
                     onLogout = { viewModel.onIntent(ProfileContract.Intent.Logout) },
                     onAddressDetailsClick = { address ->
@@ -142,7 +154,21 @@ fun ProfileScreen(
                             ),
                         )
                     },
+                    onDeleteAccount = {
+                        viewModel.onIntent(ProfileContract.Intent.ConfirmDeleteAccount(show = true))
+                    },
                 )
+
+                if (state.showDeleteAccountConfirmation) {
+                    DeleteAccountConfirmationDialog(
+                        onDismiss = {
+                            viewModel.onIntent(ProfileContract.Intent.ConfirmDeleteAccount(false))
+                        },
+                        onConfirmClick = {
+                            viewModel.onIntent(ProfileContract.Intent.DeleteUser(userRequest.user.id))
+                        },
+                    )
+                }
 
                 if (state.showImagePicker) {
                     ImagePickerBottomSheet(
@@ -237,15 +263,61 @@ fun ProfileErrorComponent(
 }
 
 @Composable
+fun DeleteAccountConfirmationDialog(
+    onDismiss: () -> Unit,
+    onConfirmClick: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                stringResource(Res.string.delete_account_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        },
+        text = {
+            Text(
+                stringResource(Res.string.delete_account_description),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        },
+        confirmButton = {
+            ProfileButton(
+                onClick = onConfirmClick,
+                enabled = true,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                showLoading = false,
+                iconRes = Res.drawable.ic_delete,
+                labelRes = Res.string.delete_account,
+            )
+        },
+        dismissButton = {
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(Res.string.cancel))
+            }
+        },
+    )
+}
+
+@Composable
 internal fun ProfileScreenContent(
     user: User,
     imageBytes: ByteArray?,
     isEnabled: Boolean,
     isRefreshing: Boolean,
+    showLogoutLoading: Boolean,
+    showDeleteLoading: Boolean,
     onRefresh: () -> Unit,
     onLogout: () -> Unit,
     onAddressDetailsClick: (Address) -> Unit,
     onPhotoClick: () -> Unit,
+    onDeleteAccount: () -> Unit,
 ) {
     PullToRefreshBox(isRefreshing = isRefreshing, onRefresh = onRefresh) {
         Column(
@@ -272,33 +344,61 @@ internal fun ProfileScreenContent(
 
             AddressCard(address = user.address, onClick = { onAddressDetailsClick(user.address) })
 
-            Button(
+            ProfileButton(
                 onClick = onLogout,
-                modifier = Modifier.fillMaxWidth(),
                 enabled = isEnabled,
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                    ),
-            ) {
-                if (isEnabled) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_logout),
-                        contentDescription = null,
-                        modifier = Modifier.size(Dimens.SizeIconButton),
-                    )
-                } else {
-                    CircularProgressIndicator(
-                        Modifier.size(Dimens.SizeMedium),
-                        color = MaterialTheme.colorScheme.onTertiaryContainer,
-                    )
-                }
-                Spacer(Modifier.width(Dimens.SpacingSmall))
-                Text(stringResource(Res.string.logout))
-            }
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                showLoading = showLogoutLoading,
+                iconRes = Res.drawable.ic_logout,
+                labelRes = Res.string.logout,
+            )
+
+            ProfileButton(
+                onClick = onDeleteAccount,
+                enabled = isEnabled,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                showLoading = showDeleteLoading,
+                iconRes = Res.drawable.ic_delete,
+                labelRes = Res.string.delete_account,
+            )
 
             Spacer(Modifier.height(Dimens.SpacingLarge))
         }
+    }
+}
+
+@Composable
+fun ProfileButton(
+    onClick: () -> Unit,
+    enabled: Boolean,
+    containerColor: Color,
+    contentColor: Color,
+    showLoading: Boolean,
+    iconRes: DrawableResource,
+    labelRes: StringResource,
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        enabled = enabled,
+        colors =
+            ButtonDefaults.buttonColors(containerColor, contentColor),
+    ) {
+        if (showLoading) {
+            CircularProgressIndicator(
+                Modifier.size(Dimens.SizeMedium),
+                color = contentColor,
+            )
+        } else {
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription = null,
+                modifier = Modifier.size(Dimens.SizeIconButton),
+            )
+        }
+        Spacer(Modifier.width(Dimens.SpacingSmall))
+        Text(stringResource(labelRes))
     }
 }

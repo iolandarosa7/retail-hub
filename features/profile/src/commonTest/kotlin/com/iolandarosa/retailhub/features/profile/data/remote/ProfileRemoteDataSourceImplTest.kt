@@ -178,4 +178,102 @@ class ProfileRemoteDataSourceImplTest {
 
             assertIs<NetworkResult.Failure.Unknown>(result)
         }
+
+    @Test
+    fun success_deleteUser_hasExpectedResult() =
+        runTest {
+            everySuspend { tokenManager.getAuthTokens() } returns flowOf(AuthTokens("access", "refresh"))
+
+            val responseJson =
+                """
+                {
+                    "id": 1,
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "maidenName": "",
+                    "age": 30,
+                    "gender": "male",
+                    "email": "john@example.com",
+                    "phone": "123456",
+                    "username": "johndoe",
+                    "password": "password",
+                    "birthDate": "2000-01-01",
+                    "image": "image",
+                    "bloodGroup": "A+",
+                    "height": 180.0,
+                    "weight": 80.0,
+                    "eyeColor": "brown",
+                    "hair": { "color": "", "type": "" },
+                    "ip": "",
+                    "address": { "address": "", "city": "", "state": "", "stateCode": "", "postalCode": "", "coordinates": { "lat": 0.0, "lng": 0.0 }, "country": "" },
+                    "macAddress": "",
+                    "university": "",
+                    "bank": { "cardExpire": "", "cardNumber": "", "cardType": "", "currency": "", "iban": "" },
+                    "company": { "department": "", "name": "", "title": "", "address": { "address": "", "city": "", "state": "", "stateCode": "", "postalCode": "", "coordinates": { "lat": 0.0, "lng": 0.0 }, "country": "" } },
+                    "ein": "",
+                    "ssn": "",
+                    "userAgent": "",
+                    "crypto": { "coin": "", "wallet": "", "network": "" },
+                    "role": "admin",
+                    "isDeleted": true
+                }
+                """.trimIndent()
+
+            val engine =
+                MockEngine { request ->
+                    assertEquals(HttpMethod.Delete, request.method)
+                    assertEquals("/${Endpoints.USERS_URL}/1", request.url.encodedPath)
+
+                    respond(
+                        content = responseJson,
+                        status = HttpStatusCode.OK,
+                        headers =
+                            headersOf(
+                                HttpHeaders.ContentType,
+                                ContentType.Application.Json.toString(),
+                            ),
+                    )
+                }
+
+            val publicClient = createPublicClient(engine)
+            val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
+            val dataSource = ProfileRemoteDataSourceImpl(authenticatedClient)
+
+            val result = dataSource.deleteUser(1)
+
+            val expectedUserDto =
+                UserDto(
+                    id = 1,
+                    firstName = "John",
+                    lastName = "Doe",
+                    maidenName = "",
+                    age = 30,
+                    gender = "male",
+                    email = "john@example.com",
+                    phone = "123456",
+                    username = "johndoe",
+                    password = "password",
+                    birthDate = "2000-01-01",
+                    image = "image",
+                    bloodGroup = "A+",
+                    height = 180.0,
+                    weight = 80.0,
+                    eyeColor = "brown",
+                    hair = HairDto("", ""),
+                    ip = "",
+                    address = AddressDto("", "", "", "", "", CoordinatesDto(0.0, 0.0), ""),
+                    macAddress = "",
+                    university = "",
+                    bank = BankDto("", "", "", "", ""),
+                    company = CompanyDto("", "", "", AddressDto("", "", "", "", "", CoordinatesDto(0.0, 0.0), "")),
+                    ein = "",
+                    ssn = "",
+                    userAgent = "",
+                    crypto = CryptoDto("", "", ""),
+                    role = "admin",
+                    isDeleted = true,
+                )
+
+            assertEquals(NetworkResult.Success(expectedUserDto), result)
+        }
 }

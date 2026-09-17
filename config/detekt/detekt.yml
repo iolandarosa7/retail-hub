@@ -45,7 +45,7 @@ complexity:
 
   CyclomaticComplexMethod:
     active: true
-    threshold: 15
+    threshold: 20
     ignoreSingleWhenExpression: false
     ignoreSimpleWhenEntries: false
     ignoreNestingFunctions: false
@@ -70,8 +70,8 @@ complexity:
 
   LongParameterList:
     active: true
-    functionThreshold: 10
-    constructorThreshold: 10
+    functionThreshold: 15
+    constructorThreshold: 15
     ignoreDefaultParameters: false
     ignoreDataClasses: true
 

@@ -72,6 +72,8 @@ kotlin {
             // coil
             implementation(libs.coil.compose)
             implementation(libs.coil.netwrok.ktor)
+            // datetime
+            implementation(libs.kotlinx.datetime)
         }
 
         commonTest.dependencies {

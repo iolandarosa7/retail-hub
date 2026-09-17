@@ -22,7 +22,11 @@ import com.iolandarosa.retailhub.core.ui.permissions.AppPermissionStatus
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionController
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialogActionType
+import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
+import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarType
+import com.iolandarosa.retailhub.features.profile.domain.extensions.toSnackBarData
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserImageUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.LogoutUseCase
@@ -38,6 +42,7 @@ import retailhub.features.profile.generated.resources.Res
 import retailhub.features.profile.generated.resources.camera_permission_rational_confirm_btn
 import retailhub.features.profile.generated.resources.camera_permission_rational_description
 import retailhub.features.profile.generated.resources.camera_permission_rational_title
+import retailhub.features.profile.generated.resources.error_user_delete
 
 class ProfileViewModel(
     private val getAuthUserUseCase: GetAuthUserUseCase,
@@ -49,6 +54,7 @@ class ProfileViewModel(
     private val getLocalUserImageUseCase: GetLocalUserImageUseCase,
     private val saveUserImageUseCase: SaveUserImageUseCase,
     private val deleteUserImageUseCase: DeleteUserImageUseCase,
+    private val deleteUserUseCase: DeleteUserUseCase,
 ) : ViewModel() {
     private val _state: MutableStateFlow<ProfileContract.State> =
         MutableStateFlow(ProfileContract.State())
@@ -97,6 +103,14 @@ class ProfileViewModel(
 
             is ProfileContract.Intent.ConfirmPermissionAction -> {
                 handleDialogAction(intent.type, intent.userId)
+            }
+
+            is ProfileContract.Intent.ConfirmDeleteAccount -> {
+                _state.update { it.copy(showDeleteAccountConfirmation = intent.show) }
+            }
+
+            is ProfileContract.Intent.DeleteUser -> {
+                deleteUser(intent.userId)
             }
         }
     }
@@ -248,7 +262,11 @@ class ProfileViewModel(
         if (imageBytes != null) {
             when (val result = saveUserImageUseCase(userId, imageBytes)) {
                 is ImageStorageResult.Failure -> {
-                    _effects.send(ProfileContract.Effect.ShowImageStorageFailure(result, false))
+                    _effects.send(
+                        ProfileContract.Effect.ShowSnackBarError(
+                            result.toSnackBarData(false),
+                        ),
+                    )
                 }
 
                 ImageStorageResult.Success -> {
@@ -259,16 +277,50 @@ class ProfileViewModel(
     }
 
     private fun deleteUserImage(userId: Int) {
-        viewModelScope.launch(dispatcherProvider.io) {
+        viewModelScope.launch(dispatcherProvider.main) {
             when (val result = deleteUserImageUseCase(userId)) {
                 is ImageStorageResult.Failure -> {
-                    _effects.send(ProfileContract.Effect.ShowImageStorageFailure(result, true))
+                    _effects.send(
+                        ProfileContract.Effect.ShowSnackBarError(
+                            result.toSnackBarData(true),
+                        ),
+                    )
                 }
 
                 ImageStorageResult.Success -> {
                     _state.update { it.copy(imageBytes = null) }
                 }
             }
+        }
+    }
+
+    private fun deleteUser(userId: Int) {
+        if (state.value.deleteUserRequest is ProfileContract.DeleteUserRequestState.Loading) return
+
+        _state.update {
+            it.copy(
+                deleteUserRequest = ProfileContract.DeleteUserRequestState.Loading,
+                showDeleteAccountConfirmation = false,
+            )
+        }
+
+        viewModelScope.launch(dispatcherProvider.main) {
+            val isDeleted = deleteUserUseCase(userId)
+
+            _state.update { it.copy(deleteUserRequest = ProfileContract.DeleteUserRequestState.Initial) }
+
+            _effects.send(
+                if (isDeleted) {
+                    ProfileContract.Effect.NavigateToLogin
+                } else {
+                    ProfileContract.Effect.ShowSnackBarError(
+                        SnackBarData(
+                            messageId = Res.string.error_user_delete,
+                            type = SnackBarType.ERROR,
+                        ),
+                    )
+                },
+            )
         }
     }
 }

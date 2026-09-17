@@ -13,4 +13,6 @@ interface ProfileRemoteDataSource {
     suspend fun getAuthUser(): NetworkResult<UserDto>
 
     suspend fun invalidateAuthTokens()
+
+    suspend fun deleteUser(userId: Int): NetworkResult<UserDto>
 }

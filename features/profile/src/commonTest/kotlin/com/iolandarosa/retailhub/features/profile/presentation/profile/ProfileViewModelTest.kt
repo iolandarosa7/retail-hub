@@ -16,11 +16,14 @@ import com.iolandarosa.retailhub.core.ui.permissions.AppPermissionStatus
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionController
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialogActionType
 import com.iolandarosa.retailhub.features.profile.TestDispatcherProvider
+import com.iolandarosa.retailhub.features.profile.domain.extensions.toSnackBarData
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserImageUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.LogoutUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.SaveUserImageUseCase
+import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileContract.DeleteUserRequestState
 import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileContract.Effect
 import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileContract.Intent
 import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileContract.LogoutRequestState
@@ -57,6 +60,7 @@ class ProfileViewModelTest {
     private val getLocalUserImageUseCase = mock<GetLocalUserImageUseCase>()
     private val saveUserImageUseCase = mock<SaveUserImageUseCase>()
     private val deleteUserImageUseCase = mock<DeleteUserImageUseCase>()
+    private val deleteUserUseCase = mock<DeleteUserUseCase>()
     private val scheduler = TestCoroutineScheduler()
     private val dispatcher = StandardTestDispatcher(scheduler)
     private lateinit var viewModel: ProfileViewModel
@@ -74,6 +78,7 @@ class ProfileViewModelTest {
                 getLocalUserImageUseCase,
                 saveUserImageUseCase,
                 deleteUserImageUseCase,
+                deleteUserUseCase,
             )
     }
 
@@ -81,11 +86,22 @@ class ProfileViewModelTest {
     fun initialInstance_hasExpectedState() {
         assertEquals(UserRequestState.Initial, viewModel.state.value.userRequest)
         assertEquals(LogoutRequestState.Initial, viewModel.state.value.logoutRequest)
+        assertEquals(DeleteUserRequestState.Initial, viewModel.state.value.deleteUserRequest)
         assertFalse(viewModel.state.value.isRefreshing)
         assertFalse(viewModel.state.value.showImagePicker)
+        assertFalse(viewModel.state.value.showDeleteAccountConfirmation)
         assertNull(viewModel.state.value.permissionDialog)
         assertNull(viewModel.state.value.imageBytes)
         assertFalse(viewModel.state.value.showPermissionsDialog)
+    }
+
+    @Test
+    fun confirmDeleteAccount_updatesState() {
+        viewModel.onIntent(Intent.ConfirmDeleteAccount(show = true))
+        assertTrue(viewModel.state.value.showDeleteAccountConfirmation)
+
+        viewModel.onIntent(Intent.ConfirmDeleteAccount(show = false))
+        assertFalse(viewModel.state.value.showDeleteAccountConfirmation)
     }
 
     @Test
@@ -310,7 +326,7 @@ class ProfileViewModelTest {
 
             viewModel.effects.test {
                 advanceUntilIdle()
-                assertEquals(Effect.ShowImageStorageFailure(failure, isDelete = false), awaitItem())
+                assertEquals(Effect.ShowSnackBarError(failure.toSnackBarData(false)), awaitItem())
             }
         }
 
@@ -327,7 +343,7 @@ class ProfileViewModelTest {
 
             viewModel.effects.test {
                 advanceUntilIdle()
-                assertEquals(Effect.ShowImageStorageFailure(failure, isDelete = true), awaitItem())
+                assertEquals(Effect.ShowSnackBarError(failure.toSnackBarData(true)), awaitItem())
             }
         }
 
@@ -424,5 +440,50 @@ class ProfileViewModelTest {
 
             verify { permissionController.launchSettings() }
             assertNull(viewModel.state.value.permissionDialog)
+        }
+
+    @Test
+    fun success_deleteUser_navigatesToLogin() =
+        runTest(scheduler) {
+            val userId = 1
+            everySuspend { deleteUserUseCase(userId) } returns true
+            viewModel.onIntent(Intent.ConfirmDeleteAccount(show = true))
+
+            viewModel.onIntent(Intent.DeleteUser(userId))
+
+            assertEquals(DeleteUserRequestState.Loading, viewModel.state.value.deleteUserRequest)
+            assertFalse(viewModel.state.value.showDeleteAccountConfirmation)
+
+            advanceUntilIdle()
+
+            assertEquals(DeleteUserRequestState.Initial, viewModel.state.value.deleteUserRequest)
+
+            viewModel.effects.test {
+                assertEquals(Effect.NavigateToLogin, awaitItem())
+            }
+
+            verifySuspend { deleteUserUseCase(userId) }
+        }
+
+    @Test
+    fun error_deleteUser_showsSnackBarError() =
+        runTest(scheduler) {
+            val userId = 1
+            everySuspend { deleteUserUseCase(userId) } returns false
+
+            viewModel.onIntent(Intent.DeleteUser(userId))
+
+            assertEquals(DeleteUserRequestState.Loading, viewModel.state.value.deleteUserRequest)
+
+            advanceUntilIdle()
+
+            assertEquals(DeleteUserRequestState.Initial, viewModel.state.value.deleteUserRequest)
+
+            viewModel.effects.test {
+                val effect = awaitItem()
+                assertIs<Effect.ShowSnackBarError>(effect)
+            }
+
+            verifySuspend { deleteUserUseCase(userId) }
         }
 }

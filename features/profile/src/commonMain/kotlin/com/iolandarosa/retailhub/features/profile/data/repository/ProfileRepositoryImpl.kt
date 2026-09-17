@@ -35,4 +35,23 @@ internal class ProfileRepositoryImpl(
         tokenManager.clearTokens()
         service.invalidateAuthTokens()
     }
+
+    override suspend fun deleteUser(userId: Int): Boolean =
+        when (val response = service.deleteUser(userId)) {
+            is NetworkResult.Failure -> {
+                false
+            }
+
+            is NetworkResult.Success -> {
+                val isDeleted = response.data.isDeleted
+
+                if (isDeleted) {
+                    localImageStorage.delete("$userId")
+                    tokenManager.clearTokens()
+                    service.invalidateAuthTokens()
+                }
+
+                isDeleted
+            }
+        }
 }
