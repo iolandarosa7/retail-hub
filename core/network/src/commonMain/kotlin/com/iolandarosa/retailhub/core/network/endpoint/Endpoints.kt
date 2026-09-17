@@ -11,4 +11,6 @@ object Endpoints {
     const val LOGIN_URL = "/auth/login"
     const val REFRESH_URL = "/auth/refresh"
     const val AUTH_USER_URL = "/auth/me"
+
+    const val USERS_URL = "users"
 }

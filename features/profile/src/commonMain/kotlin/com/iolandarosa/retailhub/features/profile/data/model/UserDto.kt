@@ -7,6 +7,7 @@
 package com.iolandarosa.retailhub.features.profile.data.model
 
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class UserDto(
@@ -38,4 +39,6 @@ data class UserDto(
     val userAgent: String,
     val crypto: CryptoDto,
     val role: String,
+    val isDeleted: Boolean = false,
+    val deletedOn: Instant? = null,
 )

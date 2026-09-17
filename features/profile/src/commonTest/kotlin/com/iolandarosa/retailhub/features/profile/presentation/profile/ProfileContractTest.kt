@@ -28,10 +28,13 @@ class ProfileContractTest {
         assertTrue(state.isInteractionEnabled)
         assertIs<ProfileContract.UserRequestState.Initial>(state.userRequest)
         assertIs<ProfileContract.LogoutRequestState.Initial>(state.logoutRequest)
+        assertIs<ProfileContract.DeleteUserRequestState.Initial>(state.deleteUserRequest)
         assertFalse(state.isRefreshing)
         assertFalse(state.showImagePicker)
         assertNull(state.permissionDialog)
         assertFalse(state.showPermissionsDialog)
+        assertFalse(state.showLogoutLoading)
+        assertFalse(state.showDeleteLoading)
     }
 
     @Test
@@ -120,5 +123,36 @@ class ProfileContractTest {
         assertFalse(state.isInteractionEnabled)
         assertIs<ProfileContract.LogoutRequestState.Initial>(state.logoutRequest)
         assertIs<ProfileContract.UserRequestState.Initial>(state.userRequest)
+    }
+
+    @Test
+    fun deleteUserRequestLoading_isInteractionEnabled_expectsFalse() {
+        val state =
+            ProfileContract.State(
+                deleteUserRequest = ProfileContract.DeleteUserRequestState.Loading,
+            )
+
+        assertFalse(state.isInteractionEnabled)
+        assertTrue(state.showDeleteLoading)
+    }
+
+    @Test
+    fun deleteUserRequestInitial_showDeleteLoading_expectsFalse() {
+        val state =
+            ProfileContract.State(
+                deleteUserRequest = ProfileContract.DeleteUserRequestState.Initial,
+            )
+
+        assertFalse(state.showDeleteLoading)
+    }
+
+    @Test
+    fun logoutRequestLoading_showLogoutLoading_expectsTrue() {
+        val state =
+            ProfileContract.State(
+                logoutRequest = ProfileContract.LogoutRequestState.Loading,
+            )
+
+        assertTrue(state.showLogoutLoading)
     }
 }

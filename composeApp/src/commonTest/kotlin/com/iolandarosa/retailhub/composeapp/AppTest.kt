@@ -124,6 +124,7 @@ class AppTest {
                 getLocalUserImageUseCase = getLocalUserImageUseCase,
                 deleteUserImageUseCase = mock(),
                 saveUserImageUseCase = mock(),
+                deleteUserUseCase = mock(),
             )
 
         addressViewModel =

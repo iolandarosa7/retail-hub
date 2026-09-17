@@ -12,6 +12,8 @@ import com.iolandarosa.retailhub.features.profile.data.remote.ProfileRemoteDataS
 import com.iolandarosa.retailhub.features.profile.data.repository.ProfileRepositoryImpl
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserImageUseCaseImpl
+import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserUseCaseImpl
 import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCaseImpl
 import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCase
@@ -42,6 +44,7 @@ val profileModule =
         factory<GetLocalUserImageUseCase> { GetLocalUserImageUseCaseImpl(get()) }
         factory<SaveUserImageUseCase> { SaveUserImageUseCaseImpl(get()) }
         factory<DeleteUserImageUseCase> { DeleteUserImageUseCaseImpl(get()) }
+        factory<DeleteUserUseCase> { DeleteUserUseCaseImpl(get()) }
         viewModel {
             ProfileViewModel(
                 getAuthUserUseCase = get(),
@@ -53,6 +56,7 @@ val profileModule =
                 getLocalUserImageUseCase = get(),
                 deleteUserImageUseCase = get(),
                 saveUserImageUseCase = get(),
+                deleteUserUseCase = get(),
             )
         }
         viewModel { params ->

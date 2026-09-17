@@ -23,4 +23,6 @@ interface ProfileRepository {
     suspend fun deleteUserImage(userId: Int): ImageStorageResult
 
     suspend fun logout()
+
+    suspend fun deleteUser(userId: Int): Boolean
 }

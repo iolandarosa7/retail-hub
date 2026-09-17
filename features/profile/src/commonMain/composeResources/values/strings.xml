@@ -13,10 +13,12 @@
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="copy_to_clipboard">Copy to clipboard</string>
     <string name="country">Country</string>
+    <string name="delete_account">Delete account</string>
     <string name="delete_profile_picture">Delete profile picture</string>
     <string name="error_image_delete">An error occurred while deleting the image</string>
     <string name="error_image_directory_not_found">Images directory not found</string>
     <string name="error_image_save">An error occurred while saving the image</string>
+    <string name="error_user_delete">An error occurred while deleting your account</string>
     <string name="eyes">Eyes</string>
     <string name="gender">Gender</string>
     <string name="hair_color">Hair color</string>

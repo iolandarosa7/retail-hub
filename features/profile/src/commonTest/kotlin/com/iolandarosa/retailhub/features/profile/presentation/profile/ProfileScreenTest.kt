@@ -28,6 +28,7 @@ import com.iolandarosa.retailhub.core.ui.permissions.PermissionController
 import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
 import com.iolandarosa.retailhub.features.profile.TestDispatcherProvider
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserImageUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.LogoutUseCase
@@ -56,6 +57,8 @@ class ProfileScreenTest {
     private val saveUserImageUseCase = mock<SaveUserImageUseCase>()
     private val deleteUserImageUseCase = mock<DeleteUserImageUseCase>()
 
+    private val deleteUserUseCase = mock<DeleteUserUseCase>()
+
     private lateinit var scheduler: TestCoroutineScheduler
     private lateinit var dispatcher: CoroutineDispatcher
     private lateinit var viewModel: ProfileViewModel
@@ -76,6 +79,7 @@ class ProfileScreenTest {
                 getLocalUserImageUseCase = getLocalUserImageUseCase,
                 saveUserImageUseCase = saveUserImageUseCase,
                 deleteUserImageUseCase = deleteUserImageUseCase,
+                deleteUserUseCase = deleteUserUseCase,
             )
     }
 
@@ -314,6 +318,62 @@ class ProfileScreenTest {
             viewModel.effects.test {
                 awaitIdle()
                 assertEquals(expectedError, snackBarData?.message)
+            }
+        }
+
+    @Test
+    fun success_deleteAccountClick_expectCallbackCalled() =
+        runComposeUiTest(runTestContext = dispatcher) {
+            val user = TestUser.user
+            var callbackCalled = false
+
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { getLocalUserImageUseCase(user.id) } returns null
+            everySuspend { deleteUserUseCase(any()) } returns true
+
+            setContent {
+                TestProfileScreen(navigateToLogin = { callbackCalled = true })
+            }
+
+            scheduler.advanceUntilIdle()
+
+            onNodeWithText("Delete account")
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertIsEnabled()
+                .performClick()
+
+            viewModel.effects.test {
+                awaitIdle()
+                assertTrue(callbackCalled)
+            }
+        }
+
+    @Test
+    fun failure_deleteAccountClick_expectCallbackCalled() =
+        runComposeUiTest(runTestContext = dispatcher) {
+            val user = TestUser.user
+            var callbackCalled = false
+
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { getLocalUserImageUseCase(user.id) } returns null
+            everySuspend { deleteUserUseCase(any()) } returns false
+
+            setContent {
+                TestProfileScreen(showSnackBar = { callbackCalled = true })
+            }
+
+            scheduler.advanceUntilIdle()
+
+            onNodeWithText("Delete account")
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertIsEnabled()
+                .performClick()
+
+            viewModel.effects.test {
+                awaitIdle()
+                assertTrue(callbackCalled)
             }
         }
 }
