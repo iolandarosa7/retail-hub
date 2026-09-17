@@ -12,6 +12,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -322,7 +324,7 @@ class ProfileScreenTest {
         }
 
     @Test
-    fun success_deleteAccountClick_expectCallbackCalled() =
+    fun success_deleteAccountConfirmClick_expectCallbackCalled() =
         runComposeUiTest(runTestContext = dispatcher) {
             val user = TestUser.user
             var callbackCalled = false
@@ -343,6 +345,11 @@ class ProfileScreenTest {
                 .assertIsEnabled()
                 .performClick()
 
+            onNodeWithText("Delete your account?").assertIsDisplayed()
+
+            // Click confirm in dialog
+            onAllNodesWithText("Delete account").onLast().performClick()
+
             viewModel.effects.test {
                 awaitIdle()
                 assertTrue(callbackCalled)
@@ -350,7 +357,7 @@ class ProfileScreenTest {
         }
 
     @Test
-    fun failure_deleteAccountClick_expectCallbackCalled() =
+    fun failure_deleteAccountConfirmClick_expectSnackBarCalled() =
         runComposeUiTest(runTestContext = dispatcher) {
             val user = TestUser.user
             var callbackCalled = false
@@ -371,9 +378,37 @@ class ProfileScreenTest {
                 .assertIsEnabled()
                 .performClick()
 
+            onNodeWithText("Delete your account?").assertIsDisplayed()
+
+            // Click confirm in dialog
+            onAllNodesWithText("Delete account").onLast().performClick()
+
             viewModel.effects.test {
                 awaitIdle()
                 assertTrue(callbackCalled)
             }
+        }
+
+    @Test
+    fun cancel_deleteAccountConfirmation_expectDialogDismissed() =
+        runComposeUiTest(runTestContext = dispatcher) {
+            val user = TestUser.user
+
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
+            everySuspend { getLocalUserImageUseCase(user.id) } returns null
+
+            setContent { TestProfileScreen() }
+
+            scheduler.advanceUntilIdle()
+
+            onNodeWithText("Delete account")
+                .performScrollTo()
+                .performClick()
+
+            onNodeWithText("Delete your account?").assertIsDisplayed()
+
+            onNodeWithText("Cancel").performClick()
+
+            onNodeWithText("Delete your account?").assertDoesNotExist()
         }
 }

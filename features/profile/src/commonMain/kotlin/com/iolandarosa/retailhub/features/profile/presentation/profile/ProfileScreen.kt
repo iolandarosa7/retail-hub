@@ -27,6 +27,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -58,7 +59,10 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import retailhub.features.profile.generated.resources.Res
+import retailhub.features.profile.generated.resources.cancel
 import retailhub.features.profile.generated.resources.delete_account
+import retailhub.features.profile.generated.resources.delete_account_description
+import retailhub.features.profile.generated.resources.delete_account_title
 import retailhub.features.profile.generated.resources.ic_delete
 import retailhub.features.profile.generated.resources.ic_logout
 import retailhub.features.profile.generated.resources.logout
@@ -151,9 +155,20 @@ fun ProfileScreen(
                         )
                     },
                     onDeleteAccount = {
-                        viewModel.onIntent(ProfileContract.Intent.DeleteUser(userRequest.user.id))
+                        viewModel.onIntent(ProfileContract.Intent.ConfirmDeleteAccount(show = true))
                     },
                 )
+
+                if (state.showDeleteAccountConfirmation) {
+                    DeleteAccountConfirmationDialog(
+                        onDismiss = {
+                            viewModel.onIntent(ProfileContract.Intent.ConfirmDeleteAccount(false))
+                        },
+                        onConfirmClick = {
+                            viewModel.onIntent(ProfileContract.Intent.DeleteUser(userRequest.user.id))
+                        },
+                    )
+                }
 
                 if (state.showImagePicker) {
                     ImagePickerBottomSheet(
@@ -242,6 +257,49 @@ fun ProfileErrorComponent(
                 ) {
                     Text(stringResource(Res.string.retry))
                 }
+            }
+        },
+    )
+}
+
+@Composable
+fun DeleteAccountConfirmationDialog(
+    onDismiss: () -> Unit,
+    onConfirmClick: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                stringResource(Res.string.delete_account_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        },
+        text = {
+            Text(
+                stringResource(Res.string.delete_account_description),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        },
+        confirmButton = {
+            ProfileButton(
+                onClick = onConfirmClick,
+                enabled = true,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                showLoading = false,
+                iconRes = Res.drawable.ic_delete,
+                labelRes = Res.string.delete_account,
+            )
+        },
+        dismissButton = {
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(Res.string.cancel))
             }
         },
     )

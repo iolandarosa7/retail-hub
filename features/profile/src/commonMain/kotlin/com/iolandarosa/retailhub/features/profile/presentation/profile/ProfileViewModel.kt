@@ -105,6 +105,10 @@ class ProfileViewModel(
                 handleDialogAction(intent.type, intent.userId)
             }
 
+            is ProfileContract.Intent.ConfirmDeleteAccount -> {
+                _state.update { it.copy(showDeleteAccountConfirmation = intent.show) }
+            }
+
             is ProfileContract.Intent.DeleteUser -> {
                 deleteUser(intent.userId)
             }
@@ -293,7 +297,12 @@ class ProfileViewModel(
     private fun deleteUser(userId: Int) {
         if (state.value.deleteUserRequest is ProfileContract.DeleteUserRequestState.Loading) return
 
-        _state.update { it.copy(deleteUserRequest = ProfileContract.DeleteUserRequestState.Loading) }
+        _state.update {
+            it.copy(
+                deleteUserRequest = ProfileContract.DeleteUserRequestState.Loading,
+                showDeleteAccountConfirmation = false,
+            )
+        }
 
         viewModelScope.launch(dispatcherProvider.main) {
             val isDeleted = deleteUserUseCase(userId)

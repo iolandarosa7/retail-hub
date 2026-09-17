@@ -8,12 +8,15 @@
     <string name="camera_permission_rational_confirm_btn">Allow camera</string>
     <string name="camera_permission_rational_description">Camera access is needed to take photos in the app. Please allow camera access to continue</string>
     <string name="camera_permission_rational_title">Allow camera access</string>
+    <string name="cancel">Cancel</string>
     <string name="contact">Contact</string>
     <string name="coordinates">Coordinates</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="copy_to_clipboard">Copy to clipboard</string>
     <string name="country">Country</string>
     <string name="delete_account">Delete account</string>
+    <string name="delete_account_description">This action is permanent and cannot be undone. Your account and associated data will be permanently deleted</string>
+    <string name="delete_account_title">Delete your account?</string>
     <string name="delete_profile_picture">Delete profile picture</string>
     <string name="error_image_delete">An error occurred while deleting the image</string>
     <string name="error_image_directory_not_found">Images directory not found</string>

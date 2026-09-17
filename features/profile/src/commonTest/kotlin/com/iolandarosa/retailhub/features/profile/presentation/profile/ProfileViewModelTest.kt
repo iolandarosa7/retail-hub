@@ -89,9 +89,19 @@ class ProfileViewModelTest {
         assertEquals(DeleteUserRequestState.Initial, viewModel.state.value.deleteUserRequest)
         assertFalse(viewModel.state.value.isRefreshing)
         assertFalse(viewModel.state.value.showImagePicker)
+        assertFalse(viewModel.state.value.showDeleteAccountConfirmation)
         assertNull(viewModel.state.value.permissionDialog)
         assertNull(viewModel.state.value.imageBytes)
         assertFalse(viewModel.state.value.showPermissionsDialog)
+    }
+
+    @Test
+    fun confirmDeleteAccount_updatesState() {
+        viewModel.onIntent(Intent.ConfirmDeleteAccount(show = true))
+        assertTrue(viewModel.state.value.showDeleteAccountConfirmation)
+
+        viewModel.onIntent(Intent.ConfirmDeleteAccount(show = false))
+        assertFalse(viewModel.state.value.showDeleteAccountConfirmation)
     }
 
     @Test
@@ -437,10 +447,12 @@ class ProfileViewModelTest {
         runTest(scheduler) {
             val userId = 1
             everySuspend { deleteUserUseCase(userId) } returns true
+            viewModel.onIntent(Intent.ConfirmDeleteAccount(show = true))
 
             viewModel.onIntent(Intent.DeleteUser(userId))
 
             assertEquals(DeleteUserRequestState.Loading, viewModel.state.value.deleteUserRequest)
+            assertFalse(viewModel.state.value.showDeleteAccountConfirmation)
 
             advanceUntilIdle()
 

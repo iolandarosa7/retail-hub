@@ -31,6 +31,7 @@ class ProfileContractTest {
         assertIs<ProfileContract.DeleteUserRequestState.Initial>(state.deleteUserRequest)
         assertFalse(state.isRefreshing)
         assertFalse(state.showImagePicker)
+        assertFalse(state.showDeleteAccountConfirmation)
         assertNull(state.permissionDialog)
         assertFalse(state.showPermissionsDialog)
         assertFalse(state.showLogoutLoading)
