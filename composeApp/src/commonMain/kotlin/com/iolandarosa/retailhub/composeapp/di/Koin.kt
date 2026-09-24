@@ -13,6 +13,7 @@ import com.iolandarosa.retailhub.core.storage.di.coreStorageModule
 import com.iolandarosa.retailhub.core.ui.di.coreUiModule
 import com.iolandarosa.retailhub.core.user.di.coreUserModule
 import com.iolandarosa.retailhub.features.auth.di.authModule
+import com.iolandarosa.retailhub.features.home.di.homeModule
 import com.iolandarosa.retailhub.features.profile.di.profileModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
@@ -27,6 +28,7 @@ val appModules =
         coreUserModule,
         authModule,
         profileModule,
+        homeModule,
     )
 
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) {

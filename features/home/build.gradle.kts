@@ -3,6 +3,15 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.mokkery)
+    alias(libs.plugins.retailHubJacoco)
+}
+
+retailhubJacoco {
+    testTask.set("connectedAndroidDeviceTest")
+
+    exclusions.add("**/generated/resources/**")
+    exclusions.add("**/features/home/di/**")
 }
 
 kotlin {
@@ -23,6 +32,13 @@ kotlin {
 
         withHostTestBuilder {
         }
+
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            enableCoverage = true
+        }
     }
 
     listOf(
@@ -38,6 +54,13 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(project(":core:ui"))
+                implementation(project(":core:user"))
+                implementation(project(":core:model"))
+                implementation(project(":core:common"))
+
+                // koin
+                implementation(libs.koin.core)
+                implementation(libs.koin.compose.viewModel)
 
                 // compose
                 implementation(libs.compose.runtime)
@@ -45,12 +68,27 @@ kotlin {
                 implementation(libs.compose.foundation)
                 implementation(libs.compose.material3)
                 implementation(libs.compose.components.resources)
+
+                // coil
+                implementation(libs.coil.compose)
+                implementation(libs.coil.netwrok.ktor)
             }
         }
 
         commonTest {
             dependencies {
                 implementation(libs.kotlin.test)
+                implementation(libs.coroutines.test)
+                implementation(libs.turbine)
+            }
+        }
+
+        getByName("androidDeviceTest") {
+            dependencies {
+                implementation(libs.androidx.core)
+                implementation(libs.androidx.runner)
+                implementation(libs.androidx.testExt.junit)
+                implementation(libs.compose.ui.test.manifest)
             }
         }
     }

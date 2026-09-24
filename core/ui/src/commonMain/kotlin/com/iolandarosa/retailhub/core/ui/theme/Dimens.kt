@@ -24,6 +24,7 @@ object Dimens {
 
     val SizeSmall = 8.dp
     val SizeMedium = 16.dp
+    val SizeLarge = 24.dp
     val SizeExtraLarge = 48.dp
     val SizeCircleImage = 120.dp
     val SizeErrorImage = 200.dp
