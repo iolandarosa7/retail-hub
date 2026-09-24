@@ -13,7 +13,6 @@ import com.iolandarosa.retailhub.core.network.extensions.safeRequest
 import com.iolandarosa.retailhub.core.user.data.model.UserDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
-import io.ktor.client.request.get
 
 internal class ProfileRemoteDataSourceImpl(
     private val authenticatedClient: HttpClient,

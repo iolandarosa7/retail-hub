@@ -1,8 +1,14 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
 package com.iolandarosa.retailhub.features.home.domain.model
 
 data class AuthUserImage(
     val url: String? = null,
-    val bytes: ByteArray? = null
+    val bytes: ByteArray? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

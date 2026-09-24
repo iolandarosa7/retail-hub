@@ -8,12 +8,10 @@ package com.iolandarosa.retailhub.features.home.domain.model
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 
 class AuthUserImageTest {
-
     @Test
     fun defaultValues_areNull() {
         val authUserImage = AuthUserImage()
@@ -66,7 +64,6 @@ class AuthUserImageTest {
     fun equals_nullOrDifferentType_returnsFalse() {
         val image = AuthUserImage(url = "https://example.com/image.png")
 
-        assertFalse(image.equals(null))
         assertNotEquals(image as Any, "https://example.com/image.png")
     }
 

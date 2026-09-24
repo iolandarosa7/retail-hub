@@ -10,11 +10,9 @@ import app.cash.turbine.test
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.user.domain.interactors.GetAuthUserUseCase
 import com.iolandarosa.retailhub.core.user.domain.interactors.GetLocalUserImageUseCase
-import com.iolandarosa.retailhub.core.user.domain.model.Address
-import com.iolandarosa.retailhub.core.user.domain.model.Coordinates
-import com.iolandarosa.retailhub.core.user.domain.model.User
 import com.iolandarosa.retailhub.features.home.TestDispatcherProvider
 import com.iolandarosa.retailhub.features.home.domain.model.AuthUserImage
+import com.iolandarosa.retailhub.features.home.utils.TestUser
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
 import dev.mokkery.mock
@@ -36,34 +34,7 @@ class HomeViewModelTest {
     private val dispatcher = StandardTestDispatcher(scheduler)
     private lateinit var viewModel: HomeViewModel
 
-    private val testUser =
-        User(
-            id = 1,
-            name = "John Doe",
-            image = "https://example.com/user.png",
-            role = "admin",
-            email = "john@example.com",
-            phone = "123456",
-            age = 30,
-            gender = "male",
-            birthDate = "2000-01-01",
-            bloodGroup = "A+",
-            height = 180.0,
-            weight = 80.0,
-            eyeColor = "brown",
-            hairColor = "black",
-            hairType = "straight",
-            address =
-                Address(
-                    street = "street",
-                    city = "city",
-                    state = "state",
-                    stateCode = "stateCode",
-                    postalCode = "postalCode",
-                    coordinates = Coordinates(lat = 1.0, lng = 1.0),
-                    country = "country",
-                ),
-        )
+    private val testUser = TestUser.user
 
     @BeforeTest
     fun setup() {

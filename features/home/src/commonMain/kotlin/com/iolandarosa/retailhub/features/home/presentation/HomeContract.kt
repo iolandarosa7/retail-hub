@@ -10,15 +10,16 @@ import com.iolandarosa.retailhub.features.home.domain.model.AuthUserImage
 
 interface HomeContract {
     data class State(
-        val authUserImage: AuthUserImage = AuthUserImage()
+        val authUserImage: AuthUserImage = AuthUserImage(),
     )
 
     sealed interface Intent {
-        data object LoadAuthUserImage: Intent
-        data object OnProfileClick: Intent
+        data object LoadAuthUserImage : Intent
+
+        data object OnProfileClick : Intent
     }
 
     sealed interface Effect {
-        data object NavigateUserProfile: Effect
+        data object NavigateUserProfile : Effect
     }
 }

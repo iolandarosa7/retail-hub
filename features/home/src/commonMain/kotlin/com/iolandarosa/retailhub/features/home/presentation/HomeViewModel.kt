@@ -54,10 +54,11 @@ class HomeViewModel(
 
                     _state.update {
                         it.copy(
-                            authUserImage = AuthUserImage(
-                                url = response.data.image,
-                                bytes = imageBytes,
-                            ),
+                            authUserImage =
+                                AuthUserImage(
+                                    url = response.data.image,
+                                    bytes = imageBytes,
+                                ),
                         )
                     }
                 }

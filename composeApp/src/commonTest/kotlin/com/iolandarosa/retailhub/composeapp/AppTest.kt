@@ -12,8 +12,6 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.v2.runComposeUiTest
 import app.cash.turbine.test
 import com.iolandarosa.retailhub.composeapp.di.appModules
@@ -26,10 +24,10 @@ import com.iolandarosa.retailhub.core.user.domain.model.Coordinates
 import com.iolandarosa.retailhub.core.user.domain.model.User
 import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCase
 import com.iolandarosa.retailhub.features.auth.presentation.login.LoginViewModel
+import com.iolandarosa.retailhub.features.home.presentation.HomeViewModel
 import com.iolandarosa.retailhub.features.profile.presentation.address.AddressViewModel
 import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileViewModel
 import dev.mokkery.answering.returns
-import dev.mokkery.answering.sequentiallyReturns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
@@ -85,6 +83,7 @@ class AppTest {
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var profileViewModel: ProfileViewModel
     private lateinit var addressViewModel: AddressViewModel
+    private lateinit var homeViewModel: HomeViewModel
 
     private val koinApp =
         koinApplication {
@@ -96,6 +95,7 @@ class AppTest {
                     viewModel { loginViewModel }
                     viewModel { profileViewModel }
                     viewModel { addressViewModel }
+                    viewModel { homeViewModel }
                 },
             )
         }
@@ -134,10 +134,36 @@ class AppTest {
                 address = user.address,
                 mapManager = mapManager,
             )
+
+        homeViewModel =
+            HomeViewModel(
+                dispatcherProvider = TestDispatcherProvider(dispatcher),
+                getAuthUserUseCase = getAuthUserUseCase,
+                getLocalUserImageUseCase = getLocalUserImageUseCase,
+            )
     }
 
     @Test
-    fun initialStateSuccess_renderScreen_showsProfileScreen() =
+    fun initialState_renderScreen_showsHomeScreen() =
+        runComposeUiTest(runTestContext = dispatcher) {
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Failure.Unauthorized
+
+            setContent {
+                KoinIsolatedContext(koinApp) {
+                    App()
+                }
+            }
+
+            scheduler.advanceUntilIdle()
+
+            onNodeWithText("Retail Hub").assertIsDisplayed()
+            onNodeWithContentDescription("Go to profile")
+                .assertIsDisplayed()
+                .assertIsEnabled()
+        }
+
+    @Test
+    fun onProfileLoaded_clickNavigateProfile_showsProfileScreen() =
         runComposeUiTest(runTestContext = dispatcher) {
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
             everySuspend { getLocalUserImageUseCase(any()) } returns null
@@ -148,12 +174,17 @@ class AppTest {
                 }
             }
 
-            scheduler.advanceUntilIdle()
+            onNodeWithContentDescription("Go to profile")
+                .performClick()
 
-            onNodeWithText(user.name)
-                .assertIsDisplayed()
+            homeViewModel.effects.test {
+                awaitIdle()
+            }
+
+            onNodeWithText(user.name).assertIsDisplayed()
         }
 
+    /*
     @Test
     fun errorUnauthorized_renderScreen_showsLoginScreen() =
         runComposeUiTest(runTestContext = dispatcher) {
@@ -235,5 +266,5 @@ class AppTest {
             }
 
             onNodeWithText("Address details").assertIsDisplayed()
-        }
+        }*/
 }

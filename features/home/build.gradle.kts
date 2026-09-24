@@ -80,6 +80,7 @@ kotlin {
                 implementation(libs.kotlin.test)
                 implementation(libs.coroutines.test)
                 implementation(libs.turbine)
+                implementation(libs.compose.ui.test)
             }
         }
 

@@ -6,10 +6,6 @@
 
 package com.iolandarosa.retailhub.composeapp
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.iolandarosa.retailhub.composeapp.navigation.AddressRoute
+import com.iolandarosa.retailhub.composeapp.navigation.HomeRoute
 import com.iolandarosa.retailhub.composeapp.navigation.LoginRoute
 import com.iolandarosa.retailhub.composeapp.navigation.ProfileRoute
 import com.iolandarosa.retailhub.composeapp.navigation.RetailHubTopAppBar
@@ -35,6 +32,7 @@ import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarType
 import com.iolandarosa.retailhub.core.ui.snackbar.showSnackBar
 import com.iolandarosa.retailhub.core.ui.theme.RetailHubTheme
 import com.iolandarosa.retailhub.features.auth.presentation.login.LoginScreen
+import com.iolandarosa.retailhub.features.home.presentation.HomeScreen
 import com.iolandarosa.retailhub.features.profile.presentation.address.AddressScreen
 import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileScreen
 import kotlinx.coroutines.launch
@@ -46,7 +44,7 @@ import retailhub.composeapp.generated.resources.error_unknown
 
 @Composable
 fun App() {
-    val navigator = rememberNavigator(initialRoute = ProfileRoute)
+    val navigator = rememberNavigator(initialRoute = HomeRoute)
     val appBarConfig = navigator.backStack.last().appBarConfig()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -61,16 +59,8 @@ fun App() {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                AnimatedContent(
-                    targetState = appBarConfig,
-                    transitionSpec = {
-                        fadeIn() togetherWith fadeOut()
-                    },
-                    label = "TopAppBarAnimation",
-                ) { config ->
-                    config?.let {
-                        RetailHubTopAppBar(it, onBack = navigator::pop)
-                    }
+                appBarConfig?.let {
+                    RetailHubTopAppBar(appBarConfig, onBack = navigator::pop)
                 }
             },
             snackbarHost = {
@@ -101,6 +91,14 @@ fun App() {
                 onBack = navigator::pop,
                 entryProvider =
                     entryProvider {
+                        entry<HomeRoute> {
+                            HomeScreen(
+                                paddingValues = innerPadding,
+                                navigateToProfile = { navigator.navigate(ProfileRoute) },
+                                viewModel = koinViewModel(),
+                            )
+                        }
+
                         entry<LoginRoute> {
                             LoginScreen(
                                 paddingValues = innerPadding,
