@@ -6,15 +6,9 @@
 
 package com.iolandarosa.retailhub.features.profile.domain.repository
 
-import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
-import com.iolandarosa.retailhub.features.profile.domain.model.User
 
 interface ProfileRepository {
-    suspend fun getAuthUser(): NetworkResult<User>
-
-    suspend fun getLocalUserImage(userId: Int): ByteArray?
-
     suspend fun saveUserImage(
         userId: Int,
         byteArray: ByteArray,

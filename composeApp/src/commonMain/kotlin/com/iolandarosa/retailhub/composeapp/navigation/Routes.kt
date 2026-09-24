@@ -7,7 +7,7 @@
 package com.iolandarosa.retailhub.composeapp.navigation
 
 import androidx.navigation3.runtime.NavKey
-import com.iolandarosa.retailhub.features.profile.domain.model.Address
+import com.iolandarosa.retailhub.core.user.domain.model.Address
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -23,3 +23,6 @@ data object ProfileRoute : AppRoute
 data class AddressRoute(
     val address: Address,
 ) : AppRoute
+
+@Serializable
+data object HomeRoute : AppRoute

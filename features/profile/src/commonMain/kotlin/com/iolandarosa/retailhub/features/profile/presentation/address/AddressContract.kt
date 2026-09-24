@@ -6,7 +6,7 @@
 
 package com.iolandarosa.retailhub.features.profile.presentation.address
 
-import com.iolandarosa.retailhub.features.profile.domain.model.Address
+import com.iolandarosa.retailhub.core.user.domain.model.Address
 
 interface AddressContract {
     data class State(

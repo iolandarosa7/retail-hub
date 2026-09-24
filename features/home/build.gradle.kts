@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
 }
 
 kotlin {
@@ -14,6 +16,10 @@ kotlin {
             libs.versions.android.minSdk
                 .get()
                 .toInt()
+
+        androidResources {
+            enable = true
+        }
 
         withHostTestBuilder {
         }
@@ -31,7 +37,14 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                // Add KMP dependencies here
+                implementation(project(":core:ui"))
+
+                // compose
+                implementation(libs.compose.runtime)
+                implementation(libs.compose.ui)
+                implementation(libs.compose.foundation)
+                implementation(libs.compose.material3)
+                implementation(libs.compose.components.resources)
             }
         }
 

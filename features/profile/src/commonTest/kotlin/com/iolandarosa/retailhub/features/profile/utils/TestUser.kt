@@ -6,9 +6,9 @@
 
 package com.iolandarosa.retailhub.features.profile.utils
 
-import com.iolandarosa.retailhub.features.profile.domain.model.Address
-import com.iolandarosa.retailhub.features.profile.domain.model.Coordinates
-import com.iolandarosa.retailhub.features.profile.domain.model.User
+import com.iolandarosa.retailhub.core.user.domain.model.Address
+import com.iolandarosa.retailhub.core.user.domain.model.Coordinates
+import com.iolandarosa.retailhub.core.user.domain.model.User
 
 object TestUser {
     val user =

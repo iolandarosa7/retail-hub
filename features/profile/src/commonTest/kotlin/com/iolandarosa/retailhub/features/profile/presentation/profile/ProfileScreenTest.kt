@@ -28,14 +28,14 @@ import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermissionStatus
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionController
 import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
+import com.iolandarosa.retailhub.core.user.domain.interactors.GetAuthUserUseCase
+import com.iolandarosa.retailhub.core.user.domain.interactors.GetLocalUserImageUseCase
+import com.iolandarosa.retailhub.core.user.domain.model.Address
 import com.iolandarosa.retailhub.features.profile.TestDispatcherProvider
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserUseCase
-import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCase
-import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.LogoutUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.SaveUserImageUseCase
-import com.iolandarosa.retailhub.features.profile.domain.model.Address
 import com.iolandarosa.retailhub.features.profile.utils.TestUser
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend

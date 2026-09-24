@@ -46,8 +46,8 @@ import com.iolandarosa.retailhub.core.ui.images.InitializePermissionsAndPicker
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
 import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
-import com.iolandarosa.retailhub.features.profile.domain.model.Address
-import com.iolandarosa.retailhub.features.profile.domain.model.User
+import com.iolandarosa.retailhub.core.user.domain.model.Address
+import com.iolandarosa.retailhub.core.user.domain.model.User
 import com.iolandarosa.retailhub.features.profile.presentation.profile.components.AddressCard
 import com.iolandarosa.retailhub.features.profile.presentation.profile.components.ContactCard
 import com.iolandarosa.retailhub.features.profile.presentation.profile.components.PersonalInfoCard

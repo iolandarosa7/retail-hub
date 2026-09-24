@@ -18,11 +18,7 @@ fun AppRoute.appBarConfig(): AppBarConfig? =
             )
         }
 
-        LoginRoute -> {
-            null
-        }
-
-        ProfileRoute -> {
+        LoginRoute, ProfileRoute, HomeRoute -> {
             null
         }
     }

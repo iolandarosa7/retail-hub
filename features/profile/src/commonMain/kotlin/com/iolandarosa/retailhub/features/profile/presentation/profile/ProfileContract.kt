@@ -11,8 +11,8 @@ import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialogActionType
 import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
-import com.iolandarosa.retailhub.features.profile.domain.model.Address
-import com.iolandarosa.retailhub.features.profile.domain.model.User
+import com.iolandarosa.retailhub.core.user.domain.model.Address
+import com.iolandarosa.retailhub.core.user.domain.model.User
 
 interface ProfileContract {
     data class State(

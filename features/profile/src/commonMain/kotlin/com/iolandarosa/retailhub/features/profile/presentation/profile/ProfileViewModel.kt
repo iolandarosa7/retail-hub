@@ -24,14 +24,14 @@ import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialogActionType
 import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
 import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarType
+import com.iolandarosa.retailhub.core.user.domain.interactors.GetAuthUserUseCase
+import com.iolandarosa.retailhub.core.user.domain.interactors.GetLocalUserImageUseCase
+import com.iolandarosa.retailhub.core.user.domain.model.Address
 import com.iolandarosa.retailhub.features.profile.domain.extensions.toSnackBarData
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserUseCase
-import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCase
-import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.LogoutUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.SaveUserImageUseCase
-import com.iolandarosa.retailhub.features.profile.domain.model.Address
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

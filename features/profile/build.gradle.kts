@@ -58,6 +58,7 @@ kotlin {
             implementation(project(":core:common"))
             implementation(project(":core:datastore"))
             implementation(project(":core:storage"))
+            implementation(project(":core:user"))
             // ktor
             implementation(libs.ktor.client.core)
             // koin

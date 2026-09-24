@@ -11,7 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.iolandarosa.retailhub.core.common.clipboard.AppClipboardManager
 import com.iolandarosa.retailhub.core.common.dispatcher.DispatcherProvider
 import com.iolandarosa.retailhub.core.common.maps.MapManager
-import com.iolandarosa.retailhub.features.profile.domain.model.Address
+import com.iolandarosa.retailhub.core.user.domain.model.Address
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
