@@ -14,10 +14,8 @@ import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserI
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserImageUseCaseImpl
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserUseCaseImpl
-import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCase
-import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCaseImpl
-import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCase
-import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCaseImpl
+import com.iolandarosa.retailhub.features.profile.domain.interactors.LoginUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.LoginUseCaseImpl
 import com.iolandarosa.retailhub.features.profile.domain.interactors.LogoutUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.LogoutUseCaseImpl
 import com.iolandarosa.retailhub.features.profile.domain.interactors.SaveUserImageUseCase
@@ -34,17 +32,17 @@ val profileModule =
         single<ProfileRemoteDataSource> {
             ProfileRemoteDataSourceImpl(
                 authenticatedClient = get(named(NetworkClientType.AUTHENTICATED)),
+                publicClient = get(named(NetworkClientType.PUBLIC)),
             )
         }
         single<ProfileRepository> {
             ProfileRepositoryImpl(service = get(), tokenManager = get(), localImageStorage = get())
         }
-        factory<GetAuthUserUseCase> { GetAuthUserUseCaseImpl(get()) }
         factory<LogoutUseCase> { LogoutUseCaseImpl(get()) }
-        factory<GetLocalUserImageUseCase> { GetLocalUserImageUseCaseImpl(get()) }
         factory<SaveUserImageUseCase> { SaveUserImageUseCaseImpl(get()) }
         factory<DeleteUserImageUseCase> { DeleteUserImageUseCaseImpl(get()) }
         factory<DeleteUserUseCase> { DeleteUserUseCaseImpl(get()) }
+        factory<LoginUseCase> { LoginUseCaseImpl(get()) }
         viewModel {
             ProfileViewModel(
                 getAuthUserUseCase = get(),
@@ -57,6 +55,7 @@ val profileModule =
                 deleteUserImageUseCase = get(),
                 saveUserImageUseCase = get(),
                 deleteUserUseCase = get(),
+                loginUseCase = get(),
             )
         }
         viewModel { params ->

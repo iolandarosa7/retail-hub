@@ -20,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.iolandarosa.retailhub.core.ui.progress.Skeleton
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
-import com.iolandarosa.retailhub.features.profile.domain.model.User
+import com.iolandarosa.retailhub.core.user.domain.model.User
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource

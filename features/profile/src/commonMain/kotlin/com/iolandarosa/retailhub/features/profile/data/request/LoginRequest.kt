@@ -1,0 +1,16 @@
+/*
+ *
+ * @Copyright 2026 Iolanda Rosa
+ *
+ */
+
+package com.iolandarosa.retailhub.features.profile.data.request
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class LoginRequest(
+    val username: String,
+    val password: String,
+    val expiresInMins: Int, // default 60 mins
+)

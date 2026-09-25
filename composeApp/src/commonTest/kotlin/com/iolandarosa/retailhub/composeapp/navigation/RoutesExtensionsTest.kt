@@ -6,10 +6,11 @@
 
 package com.iolandarosa.retailhub.composeapp.navigation
 
-import com.iolandarosa.retailhub.features.profile.domain.model.Address
-import com.iolandarosa.retailhub.features.profile.domain.model.Coordinates
+import com.iolandarosa.retailhub.core.user.domain.model.Address
+import com.iolandarosa.retailhub.core.user.domain.model.Coordinates
 import retailhub.composeapp.generated.resources.Res
 import retailhub.composeapp.generated.resources.address_details
+import retailhub.composeapp.generated.resources.my_profile
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -36,12 +37,14 @@ class RoutesExtensionsTest {
     }
 
     @Test
-    fun loginRoute_appBarConfig_hasNullValue() {
-        assertNull(LoginRoute.appBarConfig())
+    fun homeRoute_appBarConfig_hasNullValue() {
+        assertNull(HomeRoute.appBarConfig())
     }
 
     @Test
     fun profileRoute_appBarConfig_hasNullValue() {
-        assertNull(ProfileRoute.appBarConfig())
+        val config = ProfileRoute.appBarConfig()
+        assertEquals(Res.string.my_profile, config?.titleRes)
+        assertEquals(true, config?.showBack)
     }
 }

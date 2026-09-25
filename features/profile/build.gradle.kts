@@ -58,6 +58,7 @@ kotlin {
             implementation(project(":core:common"))
             implementation(project(":core:datastore"))
             implementation(project(":core:storage"))
+            implementation(project(":core:user"))
             // ktor
             implementation(libs.ktor.client.core)
             // koin
@@ -71,7 +72,7 @@ kotlin {
             implementation(libs.compose.components.resources)
             // coil
             implementation(libs.coil.compose)
-            implementation(libs.coil.netwrok.ktor)
+            implementation(libs.coil.network.ktor)
             // datetime
             implementation(libs.kotlinx.datetime)
         }

@@ -10,17 +10,19 @@ import app.cash.turbine.test
 import com.iolandarosa.retailhub.core.datastore.domain.PreferencesManager
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.ui.extension.toOpenSettingsDialog
+import com.iolandarosa.retailhub.core.ui.form.fields.TextFormField
 import com.iolandarosa.retailhub.core.ui.images.ImagePickerController
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermissionStatus
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionController
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialogActionType
+import com.iolandarosa.retailhub.core.user.domain.interactors.GetAuthUserUseCase
+import com.iolandarosa.retailhub.core.user.domain.interactors.GetLocalUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.TestDispatcherProvider
 import com.iolandarosa.retailhub.features.profile.domain.extensions.toSnackBarData
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserUseCase
-import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCase
-import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.LoginUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.LogoutUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.SaveUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileContract.DeleteUserRequestState
@@ -35,6 +37,7 @@ import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.mokkery.verify
+import dev.mokkery.verify.VerifyMode
 import dev.mokkery.verifySuspend
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -61,6 +64,7 @@ class ProfileViewModelTest {
     private val saveUserImageUseCase = mock<SaveUserImageUseCase>()
     private val deleteUserImageUseCase = mock<DeleteUserImageUseCase>()
     private val deleteUserUseCase = mock<DeleteUserUseCase>()
+    private val loginUseCase = mock<LoginUseCase>()
     private val scheduler = TestCoroutineScheduler()
     private val dispatcher = StandardTestDispatcher(scheduler)
     private lateinit var viewModel: ProfileViewModel
@@ -79,6 +83,7 @@ class ProfileViewModelTest {
                 saveUserImageUseCase,
                 deleteUserImageUseCase,
                 deleteUserUseCase,
+                loginUseCase,
             )
     }
 
@@ -93,6 +98,15 @@ class ProfileViewModelTest {
         assertNull(viewModel.state.value.permissionDialog)
         assertNull(viewModel.state.value.imageBytes)
         assertFalse(viewModel.state.value.showPermissionsDialog)
+        assertEquals(ProfileContract.LoginRequestState.Initial, viewModel.state.value.loginRequest)
+        assertNotNull(viewModel.state.value.formState)
+
+        val fields = viewModel.state.value.formState.fields
+
+        assertEquals(2, fields.size)
+
+        assertEquals(LoginForm.USERNAME, fields[0].name)
+        assertEquals(LoginForm.PASSWORD, fields[1].name)
     }
 
     @Test
@@ -158,11 +172,7 @@ class ProfileViewModelTest {
 
             advanceUntilIdle()
 
-            viewModel.effects.test {
-                assertEquals(Effect.NavigateToLogin, awaitItem())
-            }
-
-            assertIs<UserRequestState.Initial>(viewModel.state.value.userRequest)
+            assertIs<UserRequestState.Unauthenticated>(viewModel.state.value.userRequest)
 
             verifySuspend { getAuthUserUseCase() }
         }
@@ -179,11 +189,7 @@ class ProfileViewModelTest {
 
             advanceUntilIdle()
 
-            viewModel.effects.test {
-                assertEquals(Effect.NavigateToLogin, awaitItem())
-            }
-
-            assertIs<UserRequestState.Initial>(viewModel.state.value.userRequest)
+            assertIs<UserRequestState.Unauthenticated>(viewModel.state.value.userRequest)
             assertFalse(viewModel.state.value.isRefreshing)
 
             verifySuspend { getAuthUserUseCase() }
@@ -239,10 +245,7 @@ class ProfileViewModelTest {
             advanceUntilIdle()
 
             assertEquals(LogoutRequestState.Initial, viewModel.state.value.logoutRequest)
-
-            viewModel.effects.test {
-                assertEquals(Effect.NavigateToLogin, awaitItem())
-            }
+            assertEquals(UserRequestState.Unauthenticated, viewModel.state.value.userRequest)
 
             verifySuspend { logoutUseCase() }
         }
@@ -265,7 +268,7 @@ class ProfileViewModelTest {
             everySuspend { deleteUserImageUseCase(userId) } returns
                 com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult.Success
 
-            viewModel.onIntent(Intent.OnImageClick(userId, isDelete = true))
+            viewModel.onIntent(Intent.ClickImage(userId, isDelete = true))
             advanceUntilIdle()
 
             verifySuspend { deleteUserImageUseCase(userId) }
@@ -274,13 +277,13 @@ class ProfileViewModelTest {
 
     @Test
     fun onImageClick_isDeleteFalse_showsImagePicker() {
-        viewModel.onIntent(Intent.OnImageClick(userId = 1, isDelete = false))
+        viewModel.onIntent(Intent.ClickImage(userId = 1, isDelete = false))
         assertTrue(viewModel.state.value.showImagePicker)
     }
 
     @Test
     fun hideImagePickerBottomSheet_setsShowImagePickerToFalse() {
-        viewModel.onIntent(Intent.OnImageClick(userId = 1, isDelete = false))
+        viewModel.onIntent(Intent.ClickImage(userId = 1, isDelete = false))
         assertTrue(viewModel.state.value.showImagePicker)
 
         viewModel.onIntent(Intent.HideImagePickerBottomSheet)
@@ -339,7 +342,7 @@ class ProfileViewModelTest {
                     .General("Error")
             everySuspend { deleteUserImageUseCase(userId) } returns failure
 
-            viewModel.onIntent(Intent.OnImageClick(userId, isDelete = true))
+            viewModel.onIntent(Intent.ClickImage(userId, isDelete = true))
 
             viewModel.effects.test {
                 advanceUntilIdle()
@@ -458,9 +461,7 @@ class ProfileViewModelTest {
 
             assertEquals(DeleteUserRequestState.Initial, viewModel.state.value.deleteUserRequest)
 
-            viewModel.effects.test {
-                assertEquals(Effect.NavigateToLogin, awaitItem())
-            }
+            assertEquals(UserRequestState.Unauthenticated, viewModel.state.value.userRequest)
 
             verifySuspend { deleteUserUseCase(userId) }
         }
@@ -486,4 +487,107 @@ class ProfileViewModelTest {
 
             verifySuspend { deleteUserUseCase(userId) }
         }
+
+    @Test
+    fun invalidForm_onLoginClicked_doesNothing() =
+        runTest(scheduler) {
+            viewModel.onIntent(Intent.Login)
+
+            advanceUntilIdle()
+
+            assertEquals(
+                ProfileContract.LoginRequestState.Initial,
+                viewModel.state.value.loginRequest,
+            )
+
+            verifySuspend(VerifyMode.not) {
+                loginUseCase(any(), any())
+            }
+        }
+
+    @Test
+    fun validFormAndSuccess_onLoginClicked_hasExpectedState() =
+        runTest(scheduler) {
+            val username = "username"
+            val password = "password"
+
+            everySuspend {
+                loginUseCase(any(), any())
+            } returns NetworkResult.Success(Unit)
+
+            everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(TestUser.user)
+            everySuspend { getLocalUserImageUseCase(any()) } returns null
+
+            setFieldValue(0, username)
+            setFieldValue(1, password)
+
+            viewModel.onIntent(Intent.Login)
+
+            assertEquals(ProfileContract.LoginRequestState.Loading, viewModel.state.value.loginRequest)
+
+            assertFalse(viewModel.state.value.isInteractionEnabled)
+
+            advanceUntilIdle()
+
+            assertEquals(ProfileContract.LoginRequestState.Initial, viewModel.state.value.loginRequest)
+
+            assertTrue(viewModel.state.value.isInteractionEnabled)
+
+            verifySuspend { loginUseCase(username, password) }
+            verifySuspend { getAuthUserUseCase() }
+        }
+
+    @Test
+    fun validFormAndError_onLoginClicked_hasExpectedState() =
+        runTest(scheduler) {
+            val username = "username"
+            val password = "password"
+
+            val failure = NetworkResult.Failure.Unknown()
+
+            everySuspend { loginUseCase(any(), any()) } returns failure
+
+            setFieldValue(0, username)
+            setFieldValue(1, password)
+
+            viewModel.onIntent(Intent.Login)
+
+            assertFalse(viewModel.state.value.isInteractionEnabled)
+
+            advanceUntilIdle()
+
+            assertIs<ProfileContract.LoginRequestState.Error>(viewModel.state.value.loginRequest)
+
+            assertTrue(viewModel.state.value.isInteractionEnabled)
+
+            verifySuspend { loginUseCase(username, password) }
+        }
+
+    @Test
+    fun valuesInForm_onFormFieldChanged_resetsError() =
+        runTest(scheduler) {
+            everySuspend {
+                loginUseCase(any(), any())
+            } returns NetworkResult.Failure.Unauthorized
+
+            setFieldValue(0, "username")
+            setFieldValue(1, "password")
+
+            viewModel.onIntent(Intent.Login)
+
+            advanceUntilIdle()
+
+            assertIs<ProfileContract.LoginRequestState.Error>(viewModel.state.value.loginRequest)
+
+            viewModel.onIntent(Intent.FormFieldChanged)
+
+            assertEquals(ProfileContract.LoginRequestState.Initial, viewModel.state.value.loginRequest)
+        }
+
+    private fun setFieldValue(
+        index: Int,
+        value: String,
+    ) {
+        (viewModel.state.value.formState.fields[index] as TextFormField).value = value
+    }
 }

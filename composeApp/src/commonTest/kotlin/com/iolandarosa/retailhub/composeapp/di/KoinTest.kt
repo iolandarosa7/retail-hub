@@ -8,10 +8,12 @@ package com.iolandarosa.retailhub.composeapp.di
 
 import com.iolandarosa.retailhub.composeapp.fakeTestModule
 import com.iolandarosa.retailhub.core.common.dispatcher.DispatcherProvider
-import com.iolandarosa.retailhub.features.auth.data.remote.AuthRemoteDataSource
-import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCase
-import com.iolandarosa.retailhub.features.auth.domain.repository.AuthenticationRepository
-import com.iolandarosa.retailhub.features.auth.presentation.login.LoginViewModel
+import com.iolandarosa.retailhub.core.datastore.domain.TokenManager
+import com.iolandarosa.retailhub.core.storage.domain.LocalImageStorage
+import com.iolandarosa.retailhub.features.profile.data.remote.ProfileRemoteDataSource
+import com.iolandarosa.retailhub.features.profile.domain.interactors.LoginUseCase
+import com.iolandarosa.retailhub.features.profile.domain.repository.ProfileRepository
+import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileViewModel
 import org.koin.dsl.koinApplication
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -27,10 +29,12 @@ class KoinTest {
             }
 
         assertNotNull(koinApp.koin.get<DispatcherProvider>())
-        assertNotNull(koinApp.koin.get<AuthRemoteDataSource>())
-        assertNotNull(koinApp.koin.get<AuthenticationRepository>())
+        assertNotNull(koinApp.koin.get<LocalImageStorage>())
+        assertNotNull(koinApp.koin.get<TokenManager>())
+        assertNotNull(koinApp.koin.get<ProfileRemoteDataSource>())
+        assertNotNull(koinApp.koin.get<ProfileRepository>())
         assertNotNull(koinApp.koin.get<LoginUseCase>())
-        assertNotNull(koinApp.koin.get<LoginViewModel>())
+        assertNotNull(koinApp.koin.get<ProfileViewModel>())
 
         koinApp.close()
     }

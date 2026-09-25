@@ -16,6 +16,7 @@ import com.iolandarosa.retailhub.core.ui.extension.toImageSource
 import com.iolandarosa.retailhub.core.ui.extension.toOpenSettingsDialog
 import com.iolandarosa.retailhub.core.ui.extension.toPreferencesKey
 import com.iolandarosa.retailhub.core.ui.extension.toUiError
+import com.iolandarosa.retailhub.core.ui.form.FormState
 import com.iolandarosa.retailhub.core.ui.images.ImagePickerController
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermissionStatus
@@ -24,14 +25,15 @@ import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialogActionType
 import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
 import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarType
+import com.iolandarosa.retailhub.core.user.domain.interactors.GetAuthUserUseCase
+import com.iolandarosa.retailhub.core.user.domain.interactors.GetLocalUserImageUseCase
+import com.iolandarosa.retailhub.core.user.domain.model.Address
 import com.iolandarosa.retailhub.features.profile.domain.extensions.toSnackBarData
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserImageUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.DeleteUserUseCase
-import com.iolandarosa.retailhub.features.profile.domain.interactors.GetAuthUserUseCase
-import com.iolandarosa.retailhub.features.profile.domain.interactors.GetLocalUserImageUseCase
+import com.iolandarosa.retailhub.features.profile.domain.interactors.LoginUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.LogoutUseCase
 import com.iolandarosa.retailhub.features.profile.domain.interactors.SaveUserImageUseCase
-import com.iolandarosa.retailhub.features.profile.domain.model.Address
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,9 +57,21 @@ class ProfileViewModel(
     private val saveUserImageUseCase: SaveUserImageUseCase,
     private val deleteUserImageUseCase: DeleteUserImageUseCase,
     private val deleteUserUseCase: DeleteUserUseCase,
+    private val loginUseCase: LoginUseCase,
 ) : ViewModel() {
     private val _state: MutableStateFlow<ProfileContract.State> =
-        MutableStateFlow(ProfileContract.State())
+        MutableStateFlow(
+            ProfileContract.State(
+                formState =
+                    FormState(
+                        fields =
+                            LoginForm.get(
+                                onValueChanged = { onIntent(ProfileContract.Intent.FormFieldChanged) },
+                                onActionDone = { onIntent(ProfileContract.Intent.Login) },
+                            ),
+                    ),
+            ),
+        )
     val state = _state.asStateFlow()
 
     private val _effects = Channel<ProfileContract.Effect>(Channel.BUFFERED)
@@ -81,7 +95,7 @@ class ProfileViewModel(
                 viewAddressDetails(intent.address)
             }
 
-            is ProfileContract.Intent.OnImageClick -> {
+            is ProfileContract.Intent.ClickImage -> {
                 if (intent.isDelete) {
                     deleteUserImage(intent.userId)
                 } else {
@@ -112,6 +126,14 @@ class ProfileViewModel(
             is ProfileContract.Intent.DeleteUser -> {
                 deleteUser(intent.userId)
             }
+
+            ProfileContract.Intent.FormFieldChanged -> {
+                resetError()
+            }
+
+            ProfileContract.Intent.Login -> {
+                login()
+            }
         }
     }
 
@@ -132,12 +154,10 @@ class ProfileViewModel(
                 is NetworkResult.Failure.Unauthorized -> {
                     _state.update {
                         it.copy(
-                            userRequest = ProfileContract.UserRequestState.Initial,
+                            userRequest = ProfileContract.UserRequestState.Unauthenticated,
                             isRefreshing = false,
                         )
                     }
-
-                    _effects.send(ProfileContract.Effect.NavigateToLogin)
                 }
 
                 is NetworkResult.Failure -> {
@@ -171,8 +191,12 @@ class ProfileViewModel(
 
         viewModelScope.launch(dispatcherProvider.main) {
             logoutUseCase()
-            _state.update { it.copy(logoutRequest = ProfileContract.LogoutRequestState.Initial) }
-            _effects.send(ProfileContract.Effect.NavigateToLogin)
+            _state.update {
+                it.copy(
+                    logoutRequest = ProfileContract.LogoutRequestState.Initial,
+                    userRequest = ProfileContract.UserRequestState.Unauthenticated,
+                )
+            }
         }
     }
 
@@ -309,18 +333,52 @@ class ProfileViewModel(
 
             _state.update { it.copy(deleteUserRequest = ProfileContract.DeleteUserRequestState.Initial) }
 
+            if (isDeleted) {
+                _state.update { it.copy(userRequest = ProfileContract.UserRequestState.Unauthenticated) }
+            }
+
             _effects.send(
-                if (isDeleted) {
-                    ProfileContract.Effect.NavigateToLogin
-                } else {
-                    ProfileContract.Effect.ShowSnackBarError(
-                        SnackBarData(
-                            messageId = Res.string.error_user_delete,
-                            type = SnackBarType.ERROR,
-                        ),
-                    )
-                },
+                ProfileContract.Effect.ShowSnackBarError(
+                    SnackBarData(
+                        messageId = Res.string.error_user_delete,
+                        type = SnackBarType.ERROR,
+                    ),
+                ),
             )
+        }
+    }
+
+    private fun resetError() {
+        if (_state.value.loginRequest !is ProfileContract.LoginRequestState.Initial) {
+            _state.update { it.copy(loginRequest = ProfileContract.LoginRequestState.Initial) }
+        }
+    }
+
+    private fun login() {
+        val formState = _state.value.formState
+        if (!formState.isFormValid()) return
+
+        _state.update { it.copy(loginRequest = ProfileContract.LoginRequestState.Loading) }
+
+        viewModelScope.launch(dispatcherProvider.main) {
+            val username = formState.getFieldDataByName<String>(LoginForm.USERNAME) ?: ""
+            val password = formState.getFieldDataByName<String>(LoginForm.PASSWORD) ?: ""
+
+            when (val result = loginUseCase(username = username, password = password)) {
+                is NetworkResult.Failure -> {
+                    _state.update {
+                        it.copy(
+                            loginRequest = ProfileContract.LoginRequestState.Error(error = result.toUiError()),
+                        )
+                    }
+                }
+
+                is NetworkResult.Success -> {
+                    _state.update { it.copy(loginRequest = ProfileContract.LoginRequestState.Initial) }
+                    formState.reset()
+                    getAuthUser(false)
+                }
+            }
         }
     }
 }

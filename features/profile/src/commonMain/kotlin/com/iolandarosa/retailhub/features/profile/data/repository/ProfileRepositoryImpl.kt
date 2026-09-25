@@ -10,9 +10,8 @@ import com.iolandarosa.retailhub.core.datastore.domain.TokenManager
 import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.storage.domain.LocalImageStorage
 import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
-import com.iolandarosa.retailhub.features.profile.data.mapper.toDomain
 import com.iolandarosa.retailhub.features.profile.data.remote.ProfileRemoteDataSource
-import com.iolandarosa.retailhub.features.profile.domain.model.User
+import com.iolandarosa.retailhub.features.profile.data.request.LoginRequest
 import com.iolandarosa.retailhub.features.profile.domain.repository.ProfileRepository
 
 internal class ProfileRepositoryImpl(
@@ -20,10 +19,6 @@ internal class ProfileRepositoryImpl(
     private val tokenManager: TokenManager,
     private val localImageStorage: LocalImageStorage,
 ) : ProfileRepository {
-    override suspend fun getAuthUser(): NetworkResult<User> = service.getAuthUser().map { it.toDomain() }
-
-    override suspend fun getLocalUserImage(userId: Int): ByteArray? = localImageStorage.load("$userId")
-
     override suspend fun saveUserImage(
         userId: Int,
         byteArray: ByteArray,
@@ -54,4 +49,27 @@ internal class ProfileRepositoryImpl(
                 isDeleted
             }
         }
+
+    override suspend fun login(
+        username: String,
+        password: String,
+    ): NetworkResult<Unit> {
+        val result =
+            service.login(
+                LoginRequest(
+                    username,
+                    password,
+                    expiresInMins = 5,
+                ),
+            )
+
+        if (result is NetworkResult.Success) {
+            tokenManager.saveAuthTokens(
+                accessToken = result.data.accessToken,
+                refreshToken = result.data.refreshToken,
+            )
+        }
+
+        return result.mapUnit()
+    }
 }

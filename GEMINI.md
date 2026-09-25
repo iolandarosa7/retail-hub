@@ -44,7 +44,10 @@ Do not introduce a different architectural pattern unless explicitly requested.
 The current module structure is:
 
 :composeApp
-:features:auth
+:features:home
+:features:profile
+:core:user
+:core:storage
 :core:ui
 :core:network
 :core:datastore

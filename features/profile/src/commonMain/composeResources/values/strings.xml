@@ -32,10 +32,15 @@
     <string name="logout">Logout</string>
     <string name="map_image_of_user_location">Map image of user location</string>
     <string name="open_in_maps">Open in Maps</string>
+    <string name="password">Password</string>
     <string name="personal">Personal</string>
     <string name="physical">Physical</string>
     <string name="retry">Retry</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_in_access_profile">Please sign in again before access your profile</string>
     <string name="update_profile_picture">Update profile picture</string>
+    <string name="username">Username</string>
     <string name="weight">Weight</string>
     <string name="weight_value">%1$s kg</string>
+    <string name="you_are_unauthenticated">You are unauthenticated</string>
 </resources>

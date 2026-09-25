@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import coil3.compose.AsyncImage
 import com.iolandarosa.retailhub.core.ui.progress.Skeleton
 import com.iolandarosa.retailhub.core.ui.theme.Dimens
-import com.iolandarosa.retailhub.features.profile.domain.model.User
+import com.iolandarosa.retailhub.core.user.domain.model.User
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import retailhub.features.profile.generated.resources.Res

@@ -73,10 +73,11 @@ kotlin {
             implementation(project(":core:network"))
             implementation(project(":core:datastore"))
             implementation(project(":core:ui"))
-            implementation(project(":features:auth"))
             implementation(project(":features:profile"))
+            implementation(project(":features:home"))
             implementation(project(":core:model"))
             implementation(project(":core:storage"))
+            implementation(project(":core:user"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
