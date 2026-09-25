@@ -6,6 +6,7 @@
 
 package com.iolandarosa.retailhub.features.profile.domain.repository
 
+import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
 
 interface ProfileRepository {
@@ -19,4 +20,9 @@ interface ProfileRepository {
     suspend fun logout()
 
     suspend fun deleteUser(userId: Int): Boolean
+
+    suspend fun login(
+        username: String,
+        password: String,
+    ): NetworkResult<Unit>
 }

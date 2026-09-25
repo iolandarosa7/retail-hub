@@ -17,10 +17,13 @@ import com.iolandarosa.retailhub.core.user.data.model.CoordinatesDto
 import com.iolandarosa.retailhub.core.user.data.model.CryptoDto
 import com.iolandarosa.retailhub.core.user.data.model.HairDto
 import com.iolandarosa.retailhub.core.user.data.model.UserDto
+import com.iolandarosa.retailhub.features.profile.data.model.AuthenticationDto
 import com.iolandarosa.retailhub.features.profile.data.remote.ProfileRemoteDataSource
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
+import dev.mokkery.matcher.any
 import dev.mokkery.mock
+import dev.mokkery.verify.VerifyMode
 import dev.mokkery.verifySuspend
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -176,5 +179,45 @@ class ProfileRepositoryImplTest {
 
             assertEquals(false, result)
             verifySuspend { service.deleteUser(userId) }
+        }
+
+    @Test
+    fun success_login_callsSaveTokensAndHasUnitResponse() =
+        runTest {
+            val authenticationDto =
+                AuthenticationDto(
+                    id = 1,
+                    username = "username",
+                    email = "email",
+                    firstName = "firstName",
+                    lastName = "lastName",
+                    gender = "gender",
+                    image = "image",
+                    accessToken = "accessToken",
+                    refreshToken = "refreshToken",
+                )
+
+            everySuspend { service.login(any()) } returns NetworkResult.Success(data = authenticationDto)
+            everySuspend { tokenManager.saveAuthTokens(any(), any()) } returns Unit
+
+            val result = repository.login(username = "john", password = "password")
+
+            assertEquals(NetworkResult.Success(Unit), result)
+
+            verifySuspend { service.login(any()) }
+            verifySuspend { tokenManager.saveAuthTokens(authenticationDto.accessToken, authenticationDto.refreshToken) }
+        }
+
+    @Test
+    fun error_login_notCallSaveTokensAndHasErrorResponse() =
+        runTest {
+            everySuspend { service.login(any()) } returns NetworkResult.Failure.Timeout
+
+            val result = repository.login(username = "john", password = "password")
+
+            assertEquals(NetworkResult.Failure.Timeout, result)
+
+            verifySuspend { service.login(any()) }
+            verifySuspend(VerifyMode.not) { tokenManager.saveAuthTokens(any(), any()) }
         }
 }

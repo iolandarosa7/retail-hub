@@ -4,10 +4,10 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.auth.domain.interactors
+package com.iolandarosa.retailhub.features.profile.domain.interactors
 
 import com.iolandarosa.retailhub.core.model.NetworkResult
-import com.iolandarosa.retailhub.features.auth.domain.repository.AuthenticationRepository
+import com.iolandarosa.retailhub.features.profile.domain.repository.ProfileRepository
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
@@ -18,7 +18,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class LoginUseCaseTest {
-    private val repository = mock<AuthenticationRepository>()
+    private val repository = mock<ProfileRepository>()
     private val useCase = LoginUseCaseImpl(repository)
 
     @Test

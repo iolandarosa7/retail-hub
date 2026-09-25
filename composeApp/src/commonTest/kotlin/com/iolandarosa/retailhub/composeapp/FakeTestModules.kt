@@ -8,6 +8,7 @@ package com.iolandarosa.retailhub.composeapp
 
 import com.iolandarosa.retailhub.core.datastore.domain.PreferencesManager
 import com.iolandarosa.retailhub.core.datastore.domain.TokenManager
+import com.iolandarosa.retailhub.core.storage.domain.LocalImageStorage
 import com.iolandarosa.retailhub.core.ui.images.ImagePickerController
 import com.iolandarosa.retailhub.core.ui.images.ImageSource
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
@@ -21,6 +22,7 @@ val fakeTestModule =
         // overrides TokenManager and PreferencesManager to avoid creating with the real datastore instance
         single<TokenManager> { mock() }
         single<PreferencesManager> { mock() }
+        single<LocalImageStorage> { mock() }
 
         // this modules use context so we mock them
         single<PermissionController> {

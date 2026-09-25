@@ -4,10 +4,10 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.auth.domain.interactors
+package com.iolandarosa.retailhub.features.profile.domain.interactors
 
 import com.iolandarosa.retailhub.core.model.NetworkResult
-import com.iolandarosa.retailhub.features.auth.domain.repository.AuthenticationRepository
+import com.iolandarosa.retailhub.features.profile.domain.repository.ProfileRepository
 
 interface LoginUseCase {
     suspend operator fun invoke(
@@ -17,7 +17,7 @@ interface LoginUseCase {
 }
 
 internal class LoginUseCaseImpl(
-    private val repository: AuthenticationRepository,
+    private val repository: ProfileRepository,
 ) : LoginUseCase {
     override suspend operator fun invoke(
         username: String,

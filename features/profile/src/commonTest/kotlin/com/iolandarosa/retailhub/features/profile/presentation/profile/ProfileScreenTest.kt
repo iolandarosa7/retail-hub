@@ -82,17 +82,16 @@ class ProfileScreenTest {
                 saveUserImageUseCase = saveUserImageUseCase,
                 deleteUserImageUseCase = deleteUserImageUseCase,
                 deleteUserUseCase = deleteUserUseCase,
+                loginUseCase = mock(),
             )
     }
 
     @Composable
     private fun TestProfileScreen(
-        navigateToLogin: () -> Unit = {},
         navigateToAddressDetails: (Address) -> Unit = {},
         showSnackBar: (SnackBarData) -> Unit = {},
     ) = ProfileScreen(
         paddingValues = PaddingValues(),
-        navigateToLogin = navigateToLogin,
         viewModel = viewModel,
         navigateToAddressDetails = navigateToAddressDetails,
         showSnackBar = showSnackBar,
@@ -126,16 +125,13 @@ class ProfileScreenTest {
         runComposeUiTest(runTestContext = dispatcher) {
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Failure.Unauthorized
 
-            var callbackCalled = false
-
             setContent {
-                TestProfileScreen(navigateToLogin = { callbackCalled = true })
+                TestProfileScreen()
             }
 
-            viewModel.effects.test {
-                awaitIdle()
-                assertTrue(callbackCalled)
-            }
+            scheduler.advanceUntilIdle()
+
+            onNodeWithText("You are unauthenticated").assertIsDisplayed()
         }
 
     @Test
@@ -155,14 +151,13 @@ class ProfileScreenTest {
     fun logoutClick_screenLoaded_expectCallbackCalled() =
         runComposeUiTest(runTestContext = dispatcher) {
             val user = TestUser.user
-            var callbackCalled = false
 
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
             everySuspend { getLocalUserImageUseCase(user.id) } returns null
             everySuspend { logoutUseCase() } returns Unit
 
             setContent {
-                TestProfileScreen(navigateToLogin = { callbackCalled = true })
+                TestProfileScreen()
             }
 
             scheduler.advanceUntilIdle()
@@ -173,10 +168,9 @@ class ProfileScreenTest {
                 .assertIsEnabled()
                 .performClick()
 
-            viewModel.effects.test {
-                awaitIdle()
-                assertTrue(callbackCalled)
-            }
+            scheduler.advanceUntilIdle()
+
+            onNodeWithText("You are unauthenticated").assertIsDisplayed()
         }
 
     @Test
@@ -327,14 +321,13 @@ class ProfileScreenTest {
     fun success_deleteAccountConfirmClick_expectCallbackCalled() =
         runComposeUiTest(runTestContext = dispatcher) {
             val user = TestUser.user
-            var callbackCalled = false
 
             everySuspend { getAuthUserUseCase() } returns NetworkResult.Success(user)
             everySuspend { getLocalUserImageUseCase(user.id) } returns null
             everySuspend { deleteUserUseCase(any()) } returns true
 
             setContent {
-                TestProfileScreen(navigateToLogin = { callbackCalled = true })
+                TestProfileScreen()
             }
 
             scheduler.advanceUntilIdle()
@@ -350,10 +343,9 @@ class ProfileScreenTest {
             // Click confirm in dialog
             onAllNodesWithText("Delete account").onLast().performClick()
 
-            viewModel.effects.test {
-                awaitIdle()
-                assertTrue(callbackCalled)
-            }
+            scheduler.advanceUntilIdle()
+
+            onNodeWithText("You are unauthenticated").assertIsDisplayed()
         }
 
     @Test

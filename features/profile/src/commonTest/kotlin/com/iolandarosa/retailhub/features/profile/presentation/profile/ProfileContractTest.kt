@@ -7,6 +7,7 @@
 package com.iolandarosa.retailhub.features.profile.presentation.profile
 
 import com.iolandarosa.retailhub.core.ui.error.UiError
+import com.iolandarosa.retailhub.core.ui.form.FormState
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialogActionType
 import com.iolandarosa.retailhub.features.profile.utils.TestUser
@@ -21,9 +22,11 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ProfileContractTest {
+    private val formState = FormState(fields = emptyList())
+
     @Test
     fun initialState_isInteractionEnabled_expectsTrue() {
-        val state = ProfileContract.State()
+        val state = ProfileContract.State(formState = formState)
 
         assertTrue(state.isInteractionEnabled)
         assertIs<ProfileContract.UserRequestState.Initial>(state.userRequest)
@@ -49,6 +52,7 @@ class ProfileContractTest {
                         confirmButtonLabelId = Res.string.camera_permission_rational_confirm_btn,
                         type = PermissionDialogActionType.CameraRational,
                     ),
+                formState = formState,
             )
 
         assertTrue(state.showPermissionsDialog)
@@ -56,7 +60,7 @@ class ProfileContractTest {
 
     @Test
     fun userRequestLoading_isInteractionEnabled_expectsFalse() {
-        val state = ProfileContract.State(userRequest = ProfileContract.UserRequestState.Loading)
+        val state = ProfileContract.State(userRequest = ProfileContract.UserRequestState.Loading, formState = formState)
 
         assertFalse(state.isInteractionEnabled)
         assertIs<ProfileContract.LogoutRequestState.Initial>(state.logoutRequest)
@@ -65,7 +69,11 @@ class ProfileContractTest {
 
     @Test
     fun userRequestError_isInteractionEnabled_expectsTrue() {
-        val state = ProfileContract.State(userRequest = ProfileContract.UserRequestState.Error(UiError()))
+        val state =
+            ProfileContract.State(
+                userRequest = ProfileContract.UserRequestState.Error(UiError()),
+                formState = formState,
+            )
 
         assertTrue(state.isInteractionEnabled)
         assertIs<ProfileContract.LogoutRequestState.Initial>(state.logoutRequest)
@@ -74,7 +82,11 @@ class ProfileContractTest {
 
     @Test
     fun userRequestSuccess_isInteractionEnabled_expectsTrue() {
-        val state = ProfileContract.State(userRequest = ProfileContract.UserRequestState.Success(TestUser.user))
+        val state =
+            ProfileContract.State(
+                userRequest = ProfileContract.UserRequestState.Success(TestUser.user),
+                formState = formState,
+            )
 
         assertTrue(state.isInteractionEnabled)
         assertIs<ProfileContract.LogoutRequestState.Initial>(state.logoutRequest)
@@ -87,6 +99,7 @@ class ProfileContractTest {
             ProfileContract.State(
                 userRequest = ProfileContract.UserRequestState.Loading,
                 logoutRequest = ProfileContract.LogoutRequestState.Loading,
+                formState = formState,
             )
 
         assertFalse(state.isInteractionEnabled)
@@ -99,6 +112,7 @@ class ProfileContractTest {
             ProfileContract.State(
                 userRequest = ProfileContract.UserRequestState.Error(UiError()),
                 logoutRequest = ProfileContract.LogoutRequestState.Loading,
+                formState = formState,
             )
 
         assertFalse(state.isInteractionEnabled)
@@ -111,6 +125,7 @@ class ProfileContractTest {
             ProfileContract.State(
                 userRequest = ProfileContract.UserRequestState.Success(TestUser.user),
                 logoutRequest = ProfileContract.LogoutRequestState.Loading,
+                formState = formState,
             )
 
         assertFalse(state.isInteractionEnabled)
@@ -119,7 +134,7 @@ class ProfileContractTest {
 
     @Test
     fun isRefreshing_isInteractionEnabled_expectsFalse() {
-        val state = ProfileContract.State(isRefreshing = true)
+        val state = ProfileContract.State(isRefreshing = true, formState = formState)
 
         assertFalse(state.isInteractionEnabled)
         assertIs<ProfileContract.LogoutRequestState.Initial>(state.logoutRequest)
@@ -131,6 +146,7 @@ class ProfileContractTest {
         val state =
             ProfileContract.State(
                 deleteUserRequest = ProfileContract.DeleteUserRequestState.Loading,
+                formState = formState,
             )
 
         assertFalse(state.isInteractionEnabled)
@@ -142,6 +158,7 @@ class ProfileContractTest {
         val state =
             ProfileContract.State(
                 deleteUserRequest = ProfileContract.DeleteUserRequestState.Initial,
+                formState = formState,
             )
 
         assertFalse(state.showDeleteLoading)
@@ -152,6 +169,7 @@ class ProfileContractTest {
         val state =
             ProfileContract.State(
                 logoutRequest = ProfileContract.LogoutRequestState.Loading,
+                formState = formState,
             )
 
         assertTrue(state.showLogoutLoading)

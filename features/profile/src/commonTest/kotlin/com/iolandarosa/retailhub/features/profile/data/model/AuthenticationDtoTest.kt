@@ -4,7 +4,7 @@
  *
  */
 
-package com.iolandarosa.retailhub.features.auth.data.model
+package com.iolandarosa.retailhub.features.profile.data.model
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

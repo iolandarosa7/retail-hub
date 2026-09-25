@@ -21,7 +21,6 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.iolandarosa.retailhub.composeapp.navigation.AddressRoute
 import com.iolandarosa.retailhub.composeapp.navigation.HomeRoute
-import com.iolandarosa.retailhub.composeapp.navigation.LoginRoute
 import com.iolandarosa.retailhub.composeapp.navigation.ProfileRoute
 import com.iolandarosa.retailhub.composeapp.navigation.RetailHubTopAppBar
 import com.iolandarosa.retailhub.composeapp.navigation.appBarConfig
@@ -31,7 +30,6 @@ import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarData
 import com.iolandarosa.retailhub.core.ui.snackbar.SnackBarType
 import com.iolandarosa.retailhub.core.ui.snackbar.showSnackBar
 import com.iolandarosa.retailhub.core.ui.theme.RetailHubTheme
-import com.iolandarosa.retailhub.features.auth.presentation.login.LoginScreen
 import com.iolandarosa.retailhub.features.home.presentation.HomeScreen
 import com.iolandarosa.retailhub.features.profile.presentation.address.AddressScreen
 import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileScreen
@@ -99,18 +97,9 @@ fun App() {
                             )
                         }
 
-                        entry<LoginRoute> {
-                            LoginScreen(
-                                paddingValues = innerPadding,
-                                navigateToProfile = { navigator.navigateInitialRoute(ProfileRoute) },
-                                viewModel = koinViewModel(),
-                            )
-                        }
-
                         entry<ProfileRoute> {
                             ProfileScreen(
                                 paddingValues = innerPadding,
-                                navigateToLogin = { navigator.navigateInitialRoute(LoginRoute) },
                                 navigateToAddressDetails = { navigator.navigate(AddressRoute(it)) },
                                 showSnackBar = showSnackBar,
                                 viewModel = koinViewModel(),

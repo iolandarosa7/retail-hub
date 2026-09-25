@@ -29,4 +29,11 @@ class FormState(
         val field = fields.filterIsInstance<FormField<T>>().firstOrNull { it.name == fieldName }
         return field?.value
     }
+
+    fun reset() {
+        fields.forEach {
+            it.value = null
+            it.error = null
+        }
+    }
 }

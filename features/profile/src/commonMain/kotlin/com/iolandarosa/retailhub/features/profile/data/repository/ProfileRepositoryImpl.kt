@@ -11,6 +11,7 @@ import com.iolandarosa.retailhub.core.model.NetworkResult
 import com.iolandarosa.retailhub.core.storage.domain.LocalImageStorage
 import com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult
 import com.iolandarosa.retailhub.features.profile.data.remote.ProfileRemoteDataSource
+import com.iolandarosa.retailhub.features.profile.data.request.LoginRequest
 import com.iolandarosa.retailhub.features.profile.domain.repository.ProfileRepository
 
 internal class ProfileRepositoryImpl(
@@ -48,4 +49,27 @@ internal class ProfileRepositoryImpl(
                 isDeleted
             }
         }
+
+    override suspend fun login(
+        username: String,
+        password: String,
+    ): NetworkResult<Unit> {
+        val result =
+            service.login(
+                LoginRequest(
+                    username,
+                    password,
+                    expiresInMins = 5,
+                ),
+            )
+
+        if (result is NetworkResult.Success) {
+            tokenManager.saveAuthTokens(
+                accessToken = result.data.accessToken,
+                refreshToken = result.data.refreshToken,
+            )
+        }
+
+        return result.mapUnit()
+    }
 }

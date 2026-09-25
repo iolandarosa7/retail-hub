@@ -19,6 +19,8 @@ import com.iolandarosa.retailhub.core.user.data.model.CoordinatesDto
 import com.iolandarosa.retailhub.core.user.data.model.CryptoDto
 import com.iolandarosa.retailhub.core.user.data.model.HairDto
 import com.iolandarosa.retailhub.core.user.data.model.UserDto
+import com.iolandarosa.retailhub.features.profile.data.model.AuthenticationDto
+import com.iolandarosa.retailhub.features.profile.data.request.LoginRequest
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
 import dev.mokkery.mock
@@ -33,6 +35,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class ProfileRemoteDataSourceImplTest {
     private val tokenManager: TokenManager = mock()
@@ -95,7 +98,7 @@ class ProfileRemoteDataSourceImplTest {
 
             val publicClient = createPublicClient(engine)
             val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
-            val dataSource = ProfileRemoteDataSourceImpl(authenticatedClient)
+            val dataSource = ProfileRemoteDataSourceImpl(authenticatedClient, publicClient)
 
             val result = dataSource.deleteUser(1)
 
@@ -133,5 +136,150 @@ class ProfileRemoteDataSourceImplTest {
                 )
 
             assertEquals(NetworkResult.Success(expectedUserDto), result)
+        }
+
+    @Test
+    fun success_login_hasExpectedResult() =
+        runTest {
+            val responseJson =
+                """
+                {
+                    "id": 1,
+                    "username": "john",
+                    "email": "john@example.com",
+                    "firstName": "firstName",
+                    "lastName": "lastName",
+                    "gender": "gender",
+                    "image": "image",
+                    "accessToken": "accessToken",
+                    "refreshToken": "refreshToken"
+                }
+                """.trimIndent()
+
+            val engine =
+                MockEngine { request ->
+
+                    assertEquals(
+                        HttpMethod.Post,
+                        request.method,
+                    )
+
+                    assertEquals(
+                        Endpoints.LOGIN_URL,
+                        request.url.encodedPath,
+                    )
+
+                    respond(
+                        content = responseJson,
+                        status = HttpStatusCode.OK,
+                        headers =
+                            headersOf(
+                                HttpHeaders.ContentType,
+                                ContentType.Application.Json.toString(),
+                            ),
+                    )
+                }
+
+            val publicClient = createPublicClient(engine)
+            val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
+
+            val dataSource = ProfileRemoteDataSourceImpl(authenticatedClient, publicClient)
+
+            val result =
+                dataSource.login(
+                    LoginRequest(
+                        username = "john",
+                        password = "secret",
+                        expiresInMins = 5,
+                    ),
+                )
+
+            assertEquals(
+                NetworkResult.Success(
+                    AuthenticationDto(
+                        id = 1,
+                        username = "john",
+                        email = "john@example.com",
+                        firstName = "firstName",
+                        lastName = "lastName",
+                        gender = "gender",
+                        image = "image",
+                        accessToken = "accessToken",
+                        refreshToken = "refreshToken",
+                    ),
+                ),
+                result,
+            )
+        }
+
+    @Test
+    fun error_login_hasExpectedResult() =
+        runTest {
+            val engine =
+                MockEngine {
+                    respond(
+                        content =
+                            """
+                            {
+                                "message": "Invalid credentials"
+                            }
+                            """.trimIndent(),
+                        status = HttpStatusCode.Unauthorized,
+                        headers =
+                            headersOf(
+                                HttpHeaders.ContentType,
+                                ContentType.Application.Json.toString(),
+                            ),
+                    )
+                }
+
+            val publicClient = createPublicClient(engine)
+            val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
+
+            val dataSource = ProfileRemoteDataSourceImpl(authenticatedClient, publicClient)
+
+            val result =
+                dataSource.login(
+                    LoginRequest(
+                        username = "john",
+                        password = "wrong",
+                        expiresInMins = 5,
+                    ),
+                )
+
+            assertIs<NetworkResult.Failure.Unauthorized>(result)
+        }
+
+    @Test
+    fun decodeError_login_hasExpectedResponse() =
+        runTest {
+            val engine =
+                MockEngine {
+                    respond(
+                        content = "this is not valid json",
+                        status = HttpStatusCode.OK,
+                        headers =
+                            headersOf(
+                                HttpHeaders.ContentType,
+                                ContentType.Application.Json.toString(),
+                            ),
+                    )
+                }
+
+            val publicClient = createPublicClient(engine)
+            val authenticatedClient = createAuthenticatedClient(tokenManager, publicClient, engine)
+
+            val dataSource = ProfileRemoteDataSourceImpl(authenticatedClient, publicClient)
+
+            val result =
+                dataSource.login(
+                    LoginRequest(
+                        username = "john",
+                        password = "secret",
+                        expiresInMins = 5,
+                    ),
+                )
+
+            assertIs<NetworkResult.Failure.Unknown>(result)
         }
 }

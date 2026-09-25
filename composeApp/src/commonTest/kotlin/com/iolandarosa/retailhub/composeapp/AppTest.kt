@@ -12,6 +12,8 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.v2.runComposeUiTest
 import app.cash.turbine.test
 import com.iolandarosa.retailhub.composeapp.di.appModules
@@ -22,12 +24,12 @@ import com.iolandarosa.retailhub.core.user.domain.interactors.GetLocalUserImageU
 import com.iolandarosa.retailhub.core.user.domain.model.Address
 import com.iolandarosa.retailhub.core.user.domain.model.Coordinates
 import com.iolandarosa.retailhub.core.user.domain.model.User
-import com.iolandarosa.retailhub.features.auth.domain.interactors.LoginUseCase
-import com.iolandarosa.retailhub.features.auth.presentation.login.LoginViewModel
 import com.iolandarosa.retailhub.features.home.presentation.HomeViewModel
+import com.iolandarosa.retailhub.features.profile.domain.interactors.LoginUseCase
 import com.iolandarosa.retailhub.features.profile.presentation.address.AddressViewModel
 import com.iolandarosa.retailhub.features.profile.presentation.profile.ProfileViewModel
 import dev.mokkery.answering.returns
+import dev.mokkery.answering.sequentiallyReturns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
@@ -80,7 +82,6 @@ class AppTest {
 
     private lateinit var scheduler: TestCoroutineScheduler
     private lateinit var dispatcher: CoroutineDispatcher
-    private lateinit var loginViewModel: LoginViewModel
     private lateinit var profileViewModel: ProfileViewModel
     private lateinit var addressViewModel: AddressViewModel
     private lateinit var homeViewModel: HomeViewModel
@@ -92,7 +93,6 @@ class AppTest {
             modules(fakeTestModule)
             modules(
                 module {
-                    viewModel { loginViewModel }
                     viewModel { profileViewModel }
                     viewModel { addressViewModel }
                     viewModel { homeViewModel }
@@ -107,12 +107,6 @@ class AppTest {
         scheduler = TestCoroutineScheduler()
         dispatcher = StandardTestDispatcher(scheduler)
 
-        loginViewModel =
-            LoginViewModel(
-                loginUseCase = loginUseCase,
-                dispatcherProvider = TestDispatcherProvider(dispatcher),
-            )
-
         profileViewModel =
             ProfileViewModel(
                 getAuthUserUseCase = getAuthUserUseCase,
@@ -125,6 +119,7 @@ class AppTest {
                 deleteUserImageUseCase = mock(),
                 saveUserImageUseCase = mock(),
                 deleteUserUseCase = mock(),
+                loginUseCase = loginUseCase,
             )
 
         addressViewModel =
@@ -184,7 +179,6 @@ class AppTest {
             onNodeWithText(user.name).assertIsDisplayed()
         }
 
-    /*
     @Test
     fun errorUnauthorized_renderScreen_showsLoginScreen() =
         runComposeUiTest(runTestContext = dispatcher) {
@@ -194,6 +188,13 @@ class AppTest {
                 KoinIsolatedContext(koinApp) {
                     App()
                 }
+            }
+
+            onNodeWithContentDescription("Go to profile")
+                .performClick()
+
+            homeViewModel.effects.test {
+                awaitIdle()
             }
 
             scheduler.advanceUntilIdle()
@@ -209,6 +210,7 @@ class AppTest {
             everySuspend { getAuthUserUseCase() } sequentiallyReturns
                 listOf(
                     NetworkResult.Failure.Unauthorized,
+                    NetworkResult.Failure.Unauthorized,
                     NetworkResult.Success(user),
                 )
             everySuspend { loginUseCase(any(), any()) } returns
@@ -221,7 +223,10 @@ class AppTest {
                 }
             }
 
-            profileViewModel.effects.test {
+            onNodeWithContentDescription("Go to profile")
+                .performClick()
+
+            homeViewModel.effects.test {
                 awaitIdle()
             }
 
@@ -236,9 +241,7 @@ class AppTest {
                 .assertIsDisplayed()
                 .performClick()
 
-            loginViewModel.effects.test {
-                awaitIdle()
-            }
+            scheduler.advanceUntilIdle()
 
             onNodeWithText(user.name).assertIsDisplayed()
         }
@@ -255,6 +258,13 @@ class AppTest {
                 }
             }
 
+            onNodeWithContentDescription("Go to profile")
+                .performClick()
+
+            homeViewModel.effects.test {
+                awaitIdle()
+            }
+
             scheduler.advanceUntilIdle()
 
             onNodeWithContentDescription("Address details")
@@ -266,5 +276,5 @@ class AppTest {
             }
 
             onNodeWithText("Address details").assertIsDisplayed()
-        }*/
+        }
 }

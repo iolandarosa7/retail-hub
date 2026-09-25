@@ -8,6 +8,7 @@ package com.iolandarosa.retailhub.composeapp.navigation
 
 import retailhub.composeapp.generated.resources.Res
 import retailhub.composeapp.generated.resources.address_details
+import retailhub.composeapp.generated.resources.my_profile
 
 fun AppRoute.appBarConfig(): AppBarConfig? =
     when (this) {
@@ -18,7 +19,14 @@ fun AppRoute.appBarConfig(): AppBarConfig? =
             )
         }
 
-        LoginRoute, ProfileRoute, HomeRoute -> {
+        ProfileRoute -> {
+            AppBarConfig(
+                titleRes = Res.string.my_profile,
+                showBack = true,
+            )
+        }
+
+        HomeRoute -> {
             null
         }
     }

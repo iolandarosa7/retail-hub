@@ -54,6 +54,7 @@ import com.iolandarosa.retailhub.features.profile.presentation.profile.component
 import com.iolandarosa.retailhub.features.profile.presentation.profile.components.PhysicalInfoCard
 import com.iolandarosa.retailhub.features.profile.presentation.profile.components.ProfileHeader
 import com.iolandarosa.retailhub.features.profile.presentation.profile.components.ProfileScreenSkeleton
+import com.iolandarosa.retailhub.features.profile.presentation.profile.components.UnauthenticatedContent
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
@@ -72,7 +73,6 @@ import retailhub.features.profile.generated.resources.retry
 @Composable
 fun ProfileScreen(
     paddingValues: PaddingValues,
-    navigateToLogin: () -> Unit,
     navigateToAddressDetails: (Address) -> Unit,
     showSnackBar: (SnackBarData) -> Unit,
     viewModel: ProfileViewModel,
@@ -96,10 +96,6 @@ fun ProfileScreen(
     LaunchedEffect(viewModel.effects) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                ProfileContract.Effect.NavigateToLogin -> {
-                    navigateToLogin()
-                }
-
                 is ProfileContract.Effect.NavigateToAddressDetails -> {
                     navigateToAddressDetails(effect.address)
                 }
@@ -131,6 +127,15 @@ fun ProfileScreen(
             ProfileContract.UserRequestState.Loading,
             -> {
                 ProfileScreenSkeleton()
+            }
+
+            is ProfileContract.UserRequestState.Unauthenticated -> {
+                UnauthenticatedContent(
+                    formState = state.formState,
+                    error = (state.loginRequest as? ProfileContract.LoginRequestState.Error)?.error,
+                    isEnabled = isEnabled,
+                    onSignInClick = { viewModel.onIntent(ProfileContract.Intent.Login) },
+                )
             }
 
             is ProfileContract.UserRequestState.Success -> {

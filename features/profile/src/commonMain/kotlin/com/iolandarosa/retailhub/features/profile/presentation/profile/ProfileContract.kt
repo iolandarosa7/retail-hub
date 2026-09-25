@@ -7,6 +7,7 @@
 package com.iolandarosa.retailhub.features.profile.presentation.profile
 
 import com.iolandarosa.retailhub.core.ui.error.UiError
+import com.iolandarosa.retailhub.core.ui.form.FormState
 import com.iolandarosa.retailhub.core.ui.permissions.AppPermission
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialog
 import com.iolandarosa.retailhub.core.ui.permissions.PermissionDialogActionType
@@ -24,13 +25,16 @@ interface ProfileContract {
         val showDeleteAccountConfirmation: Boolean = false,
         val permissionDialog: PermissionDialog? = null,
         val imageBytes: ByteArray? = null,
+        val formState: FormState,
+        val loginRequest: LoginRequestState = LoginRequestState.Initial,
     ) {
         val isInteractionEnabled: Boolean
             get() =
                 userRequest !is UserRequestState.Loading &&
                     !isRefreshing &&
                     logoutRequest !is LogoutRequestState.Loading &&
-                    deleteUserRequest !is DeleteUserRequestState.Loading
+                    deleteUserRequest !is DeleteUserRequestState.Loading &&
+                    loginRequest !is LoginRequestState.Loading
 
         val showLogoutLoading: Boolean
             get() = logoutRequest is LogoutRequestState.Loading
@@ -54,6 +58,8 @@ interface ProfileContract {
             if (permissionDialog != other.permissionDialog) return false
             if (showDeleteAccountConfirmation != other.showDeleteAccountConfirmation) return false
             if (deleteUserRequest != other.deleteUserRequest) return false
+            if (loginRequest != other.loginRequest) return false
+            if (formState != other.formState) return false
             if (imageBytes != null) {
                 if (other.imageBytes == null) return false
                 if (!imageBytes.contentEquals(other.imageBytes)) return false
@@ -71,6 +77,8 @@ interface ProfileContract {
             result = 31 * result + logoutRequest.hashCode()
             result = 31 * result + deleteUserRequest.hashCode()
             result = 31 * result + showDeleteAccountConfirmation.hashCode()
+            result = 31 * result + loginRequest.hashCode()
+            result = 31 * result + formState.hashCode()
             result = 31 * result + (permissionDialog?.hashCode() ?: 0)
             result = 31 * result + (imageBytes?.contentHashCode() ?: 0)
             return result
@@ -114,11 +122,13 @@ interface ProfileContract {
         data class DeleteUser(
             val userId: Int,
         ) : Intent
+
+        data object OnFormFieldChanged : Intent
+
+        data object Login : Intent
     }
 
     sealed interface Effect {
-        data object NavigateToLogin : Effect
-
         data class NavigateToAddressDetails(
             val address: Address,
         ) : Effect
@@ -140,6 +150,8 @@ interface ProfileContract {
         data class Error(
             val error: UiError,
         ) : UserRequestState
+
+        data object Unauthenticated : UserRequestState
     }
 
     sealed interface LogoutRequestState {
@@ -152,5 +164,15 @@ interface ProfileContract {
         data object Initial : DeleteUserRequestState
 
         data object Loading : DeleteUserRequestState
+    }
+
+    sealed interface LoginRequestState {
+        data object Initial : LoginRequestState
+
+        data object Loading : LoginRequestState
+
+        data class Error(
+            val error: UiError,
+        ) : LoginRequestState
     }
 }
