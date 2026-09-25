@@ -16,7 +16,7 @@ interface HomeContract {
     sealed interface Intent {
         data object LoadAuthUserImage : Intent
 
-        data object OnProfileClick : Intent
+        data object ClickProfile : Intent
     }
 
     sealed interface Effect {

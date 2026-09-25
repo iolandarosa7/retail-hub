@@ -71,7 +71,7 @@ kotlin {
 
                 // coil
                 implementation(libs.coil.compose)
-                implementation(libs.coil.netwrok.ktor)
+                implementation(libs.coil.network.ktor)
             }
         }
 

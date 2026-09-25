@@ -72,7 +72,7 @@ kotlin {
             implementation(libs.compose.components.resources)
             // coil
             implementation(libs.coil.compose)
-            implementation(libs.coil.netwrok.ktor)
+            implementation(libs.coil.network.ktor)
             // datetime
             implementation(libs.kotlinx.datetime)
         }

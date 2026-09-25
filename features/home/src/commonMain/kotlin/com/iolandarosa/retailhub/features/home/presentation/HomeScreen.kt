@@ -57,6 +57,19 @@ fun HomeScreen(
         }
     }
 
+    HomeContent(
+        paddingValues,
+        state,
+        onIntent = viewModel::onIntent
+    )
+}
+
+@Composable
+private fun HomeContent(
+    paddingValues: PaddingValues,
+    state: HomeContract.State,
+    onIntent: (HomeContract.Intent) -> Unit
+) {
     Column(
         Modifier
             .padding(paddingValues)
@@ -74,7 +87,7 @@ fun HomeScreen(
             )
 
             IconButton(
-                onClick = { viewModel.onIntent(HomeContract.Intent.OnProfileClick) },
+                onClick = { onIntent(HomeContract.Intent.ClickProfile) },
             ) {
                 AsyncImage(
                     model = state.authUserImage.bytes ?: state.authUserImage.url,

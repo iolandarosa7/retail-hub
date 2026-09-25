@@ -54,7 +54,7 @@ class HomeViewModelTest {
     @Test
     fun onProfileClick_emitsNavigateUserProfileEffect() =
         runTest(scheduler) {
-            viewModel.onIntent(HomeContract.Intent.OnProfileClick)
+            viewModel.onIntent(HomeContract.Intent.ClickProfile)
 
             advanceUntilIdle()
 

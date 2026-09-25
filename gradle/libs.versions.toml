@@ -34,7 +34,7 @@ androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-p
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-testExt-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-testExt" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil"}
-coil-netwrok-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil"}
+coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil"}
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }

@@ -22,8 +22,8 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val getAuthUserUseCase: GetAuthUserUseCase,
-    private val dispatcherProvider: DispatcherProvider,
     private val getLocalUserImageUseCase: GetLocalUserImageUseCase,
+    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
     private val _state: MutableStateFlow<HomeContract.State> =
         MutableStateFlow(HomeContract.State())
@@ -38,7 +38,7 @@ class HomeViewModel(
                 loadAuthUserImage()
             }
 
-            HomeContract.Intent.OnProfileClick -> {
+            HomeContract.Intent.ClickProfile -> {
                 viewModelScope.launch(dispatcherProvider.main) {
                     _effects.send(HomeContract.Effect.NavigateUserProfile)
                 }
