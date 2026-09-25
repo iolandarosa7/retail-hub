@@ -78,11 +78,6 @@ fun ProfileScreen(
     viewModel: ProfileViewModel,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val isEnabled by remember { derivedStateOf { state.isInteractionEnabled } }
-    val isRefreshing by remember { derivedStateOf { state.isRefreshing } }
-    val showLogoutLoading by remember { derivedStateOf { state.showLogoutLoading } }
-    val showDeleteLoading by remember { derivedStateOf { state.showDeleteLoading } }
-    val showPermissionsDialog by remember { derivedStateOf { state.showPermissionsDialog } }
 
     InitializePermissionsAndPicker(
         permissionController = viewModel.permissionController,
@@ -107,6 +102,25 @@ fun ProfileScreen(
         }
     }
 
+    ProfileContent(
+        paddingValues,
+        state = state,
+        onIntent = viewModel::onIntent
+    )
+}
+
+@Composable
+fun ProfileContent(
+    paddingValues: PaddingValues,
+    state: ProfileContract.State,
+    onIntent: (ProfileContract.Intent) -> Unit,
+) {
+    val isEnabled by remember { derivedStateOf { state.isInteractionEnabled } }
+    val isRefreshing by remember { derivedStateOf { state.isRefreshing } }
+    val showLogoutLoading by remember { derivedStateOf { state.showLogoutLoading } }
+    val showDeleteLoading by remember { derivedStateOf { state.showDeleteLoading } }
+    val showPermissionsDialog by remember { derivedStateOf { state.showPermissionsDialog } }
+
     Box(
         modifier =
             Modifier
@@ -118,14 +132,14 @@ fun ProfileScreen(
             is ProfileContract.UserRequestState.Error -> {
                 ProfileErrorComponent(
                     error = userRequest.error,
-                    onRetry = { viewModel.onIntent(ProfileContract.Intent.LoadProfile) },
+                    onRetry = { onIntent(ProfileContract.Intent.LoadProfile) },
                     isEnabled = isEnabled,
                 )
             }
 
             ProfileContract.UserRequestState.Initial,
             ProfileContract.UserRequestState.Loading,
-            -> {
+                -> {
                 ProfileScreenSkeleton()
             }
 
@@ -134,7 +148,7 @@ fun ProfileScreen(
                     formState = state.formState,
                     error = (state.loginRequest as? ProfileContract.LoginRequestState.Error)?.error,
                     isEnabled = isEnabled,
-                    onSignInClick = { viewModel.onIntent(ProfileContract.Intent.Login) },
+                    onSignInClick = { onIntent(ProfileContract.Intent.Login) },
                 )
             }
 
@@ -146,40 +160,40 @@ fun ProfileScreen(
                     isRefreshing = isRefreshing,
                     showLogoutLoading = showLogoutLoading,
                     showDeleteLoading = showDeleteLoading,
-                    onRefresh = { viewModel.onIntent(ProfileContract.Intent.RefreshProfile) },
-                    onLogout = { viewModel.onIntent(ProfileContract.Intent.Logout) },
+                    onRefresh = { onIntent(ProfileContract.Intent.RefreshProfile) },
+                    onLogout = { onIntent(ProfileContract.Intent.Logout) },
                     onAddressDetailsClick = { address ->
-                        viewModel.onIntent(ProfileContract.Intent.ViewAddressDetails(address))
+                        onIntent(ProfileContract.Intent.ViewAddressDetails(address))
                     },
                     onPhotoClick = {
-                        viewModel.onIntent(
-                            ProfileContract.Intent.OnImageClick(
+                        onIntent(
+                            ProfileContract.Intent.ClickImage(
                                 userRequest.user.id,
                                 state.imageBytes != null,
                             ),
                         )
                     },
                     onDeleteAccount = {
-                        viewModel.onIntent(ProfileContract.Intent.ConfirmDeleteAccount(show = true))
+                        onIntent(ProfileContract.Intent.ConfirmDeleteAccount(show = true))
                     },
                 )
 
                 if (state.showDeleteAccountConfirmation) {
                     DeleteAccountConfirmationDialog(
                         onDismiss = {
-                            viewModel.onIntent(ProfileContract.Intent.ConfirmDeleteAccount(false))
+                            onIntent(ProfileContract.Intent.ConfirmDeleteAccount(false))
                         },
                         onConfirmClick = {
-                            viewModel.onIntent(ProfileContract.Intent.DeleteUser(userRequest.user.id))
+                            onIntent(ProfileContract.Intent.DeleteUser(userRequest.user.id))
                         },
                     )
                 }
 
                 if (state.showImagePicker) {
                     ImagePickerBottomSheet(
-                        onDismiss = { viewModel.onIntent(ProfileContract.Intent.HideImagePickerBottomSheet) },
+                        onDismiss = { onIntent(ProfileContract.Intent.HideImagePickerBottomSheet) },
                         onClick = {
-                            viewModel.onIntent(
+                            onIntent(
                                 ProfileContract.Intent.CheckImagePermissions(
                                     it,
                                     userRequest.user.id,
@@ -192,10 +206,10 @@ fun ProfileScreen(
                 if (showPermissionsDialog) {
                     state.permissionDialog?.let {
                         PermissionDialog(
-                            onDismiss = { viewModel.onIntent(ProfileContract.Intent.ClosePermissionsDialog) },
+                            onDismiss = { onIntent(ProfileContract.Intent.ClosePermissionsDialog) },
                             dialog = it,
                             onConfirmClick = {
-                                viewModel.onIntent(
+                                onIntent(
                                     ProfileContract.Intent.ConfirmPermissionAction(
                                         it.type,
                                         userRequest.user.id,

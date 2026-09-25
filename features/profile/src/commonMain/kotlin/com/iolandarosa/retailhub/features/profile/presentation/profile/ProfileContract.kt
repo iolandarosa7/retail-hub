@@ -98,7 +98,7 @@ interface ProfileContract {
 
         data object HideImagePickerBottomSheet : Intent
 
-        data class OnImageClick(
+        data class ClickImage(
             val userId: Int,
             val isDelete: Boolean,
         ) : Intent
@@ -123,7 +123,7 @@ interface ProfileContract {
             val userId: Int,
         ) : Intent
 
-        data object OnFormFieldChanged : Intent
+        data object FormFieldChanged : Intent
 
         data object Login : Intent
     }

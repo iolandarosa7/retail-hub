@@ -268,7 +268,7 @@ class ProfileViewModelTest {
             everySuspend { deleteUserImageUseCase(userId) } returns
                 com.iolandarosa.retailhub.core.storage.domain.model.ImageStorageResult.Success
 
-            viewModel.onIntent(Intent.OnImageClick(userId, isDelete = true))
+            viewModel.onIntent(Intent.ClickImage(userId, isDelete = true))
             advanceUntilIdle()
 
             verifySuspend { deleteUserImageUseCase(userId) }
@@ -277,13 +277,13 @@ class ProfileViewModelTest {
 
     @Test
     fun onImageClick_isDeleteFalse_showsImagePicker() {
-        viewModel.onIntent(Intent.OnImageClick(userId = 1, isDelete = false))
+        viewModel.onIntent(Intent.ClickImage(userId = 1, isDelete = false))
         assertTrue(viewModel.state.value.showImagePicker)
     }
 
     @Test
     fun hideImagePickerBottomSheet_setsShowImagePickerToFalse() {
-        viewModel.onIntent(Intent.OnImageClick(userId = 1, isDelete = false))
+        viewModel.onIntent(Intent.ClickImage(userId = 1, isDelete = false))
         assertTrue(viewModel.state.value.showImagePicker)
 
         viewModel.onIntent(Intent.HideImagePickerBottomSheet)
@@ -342,7 +342,7 @@ class ProfileViewModelTest {
                     .General("Error")
             everySuspend { deleteUserImageUseCase(userId) } returns failure
 
-            viewModel.onIntent(Intent.OnImageClick(userId, isDelete = true))
+            viewModel.onIntent(Intent.ClickImage(userId, isDelete = true))
 
             viewModel.effects.test {
                 advanceUntilIdle()
@@ -579,7 +579,7 @@ class ProfileViewModelTest {
 
             assertIs<ProfileContract.LoginRequestState.Error>(viewModel.state.value.loginRequest)
 
-            viewModel.onIntent(Intent.OnFormFieldChanged)
+            viewModel.onIntent(Intent.FormFieldChanged)
 
             assertEquals(ProfileContract.LoginRequestState.Initial, viewModel.state.value.loginRequest)
         }

@@ -66,7 +66,7 @@ class ProfileViewModel(
                     FormState(
                         fields =
                             LoginForm.get(
-                                onValueChanged = { onIntent(ProfileContract.Intent.OnFormFieldChanged) },
+                                onValueChanged = { onIntent(ProfileContract.Intent.FormFieldChanged) },
                                 onActionDone = { onIntent(ProfileContract.Intent.Login) },
                             ),
                     ),
@@ -95,7 +95,7 @@ class ProfileViewModel(
                 viewAddressDetails(intent.address)
             }
 
-            is ProfileContract.Intent.OnImageClick -> {
+            is ProfileContract.Intent.ClickImage -> {
                 if (intent.isDelete) {
                     deleteUserImage(intent.userId)
                 } else {
@@ -127,7 +127,7 @@ class ProfileViewModel(
                 deleteUser(intent.userId)
             }
 
-            ProfileContract.Intent.OnFormFieldChanged -> {
+            ProfileContract.Intent.FormFieldChanged -> {
                 resetError()
             }
 
