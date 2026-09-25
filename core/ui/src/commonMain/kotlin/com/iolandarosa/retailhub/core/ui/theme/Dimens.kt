@@ -30,5 +30,4 @@ object Dimens {
     val SizeErrorImage = 200.dp
 
     val SizeIconButton = 18.dp
-    val SizeIconLarge = 32.dp
 }

@@ -105,7 +105,7 @@ fun ProfileScreen(
     ProfileContent(
         paddingValues,
         state = state,
-        onIntent = viewModel::onIntent
+        onIntent = viewModel::onIntent,
     )
 }
 
@@ -139,7 +139,7 @@ fun ProfileContent(
 
             ProfileContract.UserRequestState.Initial,
             ProfileContract.UserRequestState.Loading,
-                -> {
+            -> {
                 ProfileScreenSkeleton()
             }
 

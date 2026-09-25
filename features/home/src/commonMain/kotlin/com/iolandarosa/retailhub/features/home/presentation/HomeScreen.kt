@@ -60,7 +60,7 @@ fun HomeScreen(
     HomeContent(
         paddingValues,
         state,
-        onIntent = viewModel::onIntent
+        onIntent = viewModel::onIntent,
     )
 }
 
@@ -68,7 +68,7 @@ fun HomeScreen(
 private fun HomeContent(
     paddingValues: PaddingValues,
     state: HomeContract.State,
-    onIntent: (HomeContract.Intent) -> Unit
+    onIntent: (HomeContract.Intent) -> Unit,
 ) {
     Column(
         Modifier
